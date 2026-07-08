@@ -13,7 +13,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import AppSetting
+from app.deps import require_role
+from app.models import AppSetting, User
 
 router = APIRouter(tags=["settings"])
 
@@ -32,13 +33,18 @@ def get_settings(db: Session) -> dict[str, Any]:
 
 
 @router.get("/api/settings")
-def read_settings(db: Annotated[Session, Depends(get_db)]) -> dict[str, Any]:
+def read_settings(
+    db: Annotated[Session, Depends(get_db)],
+    _user: Annotated[User, Depends(require_role("host"))],
+) -> dict[str, Any]:
     return get_settings(db)
 
 
 @router.put("/api/settings")
 def update_settings(
-    updates: dict[str, Any], db: Annotated[Session, Depends(get_db)]
+    updates: dict[str, Any],
+    db: Annotated[Session, Depends(get_db)],
+    _user: Annotated[User, Depends(require_role("host"))],
 ) -> dict[str, Any]:
     unknown = set(updates) - set(DEFAULTS)
     if unknown:
