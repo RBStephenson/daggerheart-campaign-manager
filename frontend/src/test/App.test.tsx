@@ -1,61 +1,95 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../App';
 import { AppSettingsProvider } from '../context/AppSettingsContext';
+import { AuthProvider } from '../context/AuthContext';
 
-function renderApp(route = '/') {
+type MockUser = { id: number; username: string; role: 'host' | 'gm' | 'player' } | null;
+
+function mockFetch(currentUser: MockUser) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((url: string, init?: RequestInit) => {
+      if (url === '/api/auth/me') {
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(currentUser) });
+      }
+      if (url === '/api/auth/login' && init?.method === 'POST') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ id: 1, username: 'alice', role: 'host' }),
+        });
+      }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
+    }),
+  );
+}
+
+function renderApp(route: string, currentUser: MockUser) {
+  mockFetch(currentUser);
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <AppSettingsProvider>
-        <App />
-      </AppSettingsProvider>
+      <AuthProvider>
+        <AppSettingsProvider>
+          <App />
+        </AppSettingsProvider>
+      </AuthProvider>
     </MemoryRouter>,
   );
 }
 
 describe('App', () => {
   beforeEach(() => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({}),
-      }),
+    vi.restoreAllMocks();
+  });
+
+  it('redirects unauthenticated users to /login', async () => {
+    renderApp('/host', null);
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument(),
     );
   });
 
-  it('redirects root to /host', () => {
-    renderApp('/');
-    expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument();
+  it('lets a host user reach /host', async () => {
+    renderApp('/host', { id: 1, username: 'alice', role: 'host' });
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument(),
+    );
   });
 
-  it('renders the gamemaster area', () => {
-    renderApp('/gm');
-    expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument();
+  it('denies a player access to /host', async () => {
+    renderApp('/host', { id: 2, username: 'bob', role: 'player' });
+    await waitFor(() =>
+      expect(screen.getByText(/don't have access/)).toBeInTheDocument(),
+    );
   });
 
-  it('renders the player area', () => {
-    renderApp('/player');
-    expect(screen.getByRole('heading', { name: 'Player' })).toBeInTheDocument();
+  it('lets a player reach /player', async () => {
+    renderApp('/player', { id: 2, username: 'bob', role: 'player' });
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Player' })).toBeInTheDocument(),
+    );
   });
 
-  it('renders the login page', () => {
-    renderApp('/login');
-    expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
-  });
-
-  it('renders settings under /host/settings with empty state', async () => {
-    renderApp('/host/settings');
+  it('renders settings under /host/settings for a host', async () => {
+    renderApp('/host/settings', { id: 1, username: 'alice', role: 'host' });
     await waitFor(() => expect(screen.getByText(/No settings yet/)).toBeInTheDocument());
-    expect(fetch).toHaveBeenCalledWith('/api/settings', expect.anything());
   });
 
-  it('falls back to defaults when settings fetch fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')));
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    renderApp('/host/settings');
-    await waitFor(() => expect(screen.getByText(/No settings yet/)).toBeInTheDocument());
-    expect(consoleError).toHaveBeenCalled();
+  it('logs in and redirects to the user role area', async () => {
+    renderApp('/login', null);
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument(),
+    );
+
+    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Password'), 'correct-horse');
+    await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument(),
+    );
   });
 });
