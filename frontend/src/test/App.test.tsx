@@ -25,26 +25,37 @@ describe('App', () => {
     );
   });
 
-  it('renders home page', async () => {
+  it('redirects root to /host', () => {
     renderApp('/');
-    expect(screen.getByText('Daggerheart Campaign Manager')).toBeInTheDocument();
-    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/settings', expect.anything()));
+    expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument();
   });
 
-  it('renders settings page with empty state', async () => {
-    renderApp('/settings');
-    await waitFor(() =>
-      expect(screen.getByText(/No settings yet/)).toBeInTheDocument(),
-    );
+  it('renders the gamemaster area', () => {
+    renderApp('/gm');
+    expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument();
+  });
+
+  it('renders the player area', () => {
+    renderApp('/player');
+    expect(screen.getByRole('heading', { name: 'Player' })).toBeInTheDocument();
+  });
+
+  it('renders the login page', () => {
+    renderApp('/login');
+    expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
+  });
+
+  it('renders settings under /host/settings with empty state', async () => {
+    renderApp('/host/settings');
+    await waitFor(() => expect(screen.getByText(/No settings yet/)).toBeInTheDocument());
+    expect(fetch).toHaveBeenCalledWith('/api/settings', expect.anything());
   });
 
   it('falls back to defaults when settings fetch fails', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')));
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    renderApp('/settings');
-    await waitFor(() =>
-      expect(screen.getByText(/No settings yet/)).toBeInTheDocument(),
-    );
+    renderApp('/host/settings');
+    await waitFor(() => expect(screen.getByText(/No settings yet/)).toBeInTheDocument());
     expect(consoleError).toHaveBeenCalled();
   });
 });
