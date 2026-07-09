@@ -200,6 +200,19 @@ Scope: structured mechanical data + names. Full feature-card prose (subclass /
 ancestry / domain-card rules text) and the dedicated secondary-weapon table are
 deferred to a later ticket.
 
+**Frontend**: `CharacterWizard` (`frontend/src/pages/player/CharacterWizard.tsx`)
+walks the 9 SRD steps (class+subclass, heritage, trait-array assignment, derived
+stats, equipment, experiences, domain cards, background/connections, review) and
+submits the assembled sheet as `extra`. `PlayerPage` shows a "Create Character
+(Guided)" entry point when available, with the flat form as a fallback. Because
+`/api/settings` is host-only (403 for players), availability isn't read from
+`AppSettingsContext` — the page instead probes `GET /api/srd/character-creation`
+directly and treats a 404 as "disabled," the same invisible-rather-than-erroring
+pattern used everywhere else in the player area.
+
+Note: custom GM-authored content (classes, heritages, etc., beyond the fixed SRD
+set) is tracked as a separate future epic — this dataset is currently read-only.
+
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/srd/character-creation` | The SRD character-creation reference dataset (auth required) |
