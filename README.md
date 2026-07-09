@@ -157,3 +157,26 @@ player — upserted on save.
 | `DELETE /api/player/characters/{id}` | Delete a character |
 | `GET /api/player/campaigns/{id}/note` | Get the player's own note for a campaign |
 | `PUT /api/player/campaigns/{id}/note` | Save (upsert) the player's own note |
+
+## Host: data management
+
+Behind the `data_management_enabled` feature flag (default off, toggle on
+`/host/settings`, tab appears at `/host/data` once enabled). Host-only.
+Operates on the SQLite database file directly and never touches uploaded
+model/asset files. Backup and pre-destructive-op snapshots use SQLite's
+online backup API for a consistent copy (folds in WAL contents); restore
+validates an upload (`PRAGMA integrity_check` + an `alembic_version` table)
+before swapping it in, and keeps a pre-restore snapshot. Restore and reset
+run `alembic upgrade head` / `downgrade base` + `upgrade head` afterward so
+the `alembic_version` table stays consistent with the `alembic upgrade head`
+the container runs on every start. Destructive operations (repair/restore/
+reset) are serialized by an in-process lock and require the frontend's
+type-`ACKNOWLEDGED`-to-confirm dialog.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/database/backup` | Download a consistent snapshot of the database |
+| `GET /api/database/health` | Run a SQLite integrity check |
+| `POST /api/database/repair` | Snapshot, then `REINDEX` if unhealthy |
+| `POST /api/database/restore` | Upload and swap in a validated backup file |
+| `POST /api/database/reset` | Snapshot, then wipe and recreate an empty schema |
