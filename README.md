@@ -68,3 +68,19 @@ random per-process key and are invalidated on every restart.
 | `GET /api/auth/me` | Current user, or `null` if unauthenticated |
 | `POST /api/auth/invites` | Create an invite token — host or gm only |
 | `POST /api/auth/register` | `{token, username, password}` → consumes an invite |
+
+## Realtime
+
+Native FastAPI WebSockets (no socket.io) — behind the `realtime_enabled`
+feature flag (default off, toggle on `/host/settings`). A single endpoint,
+`WS /ws/{room}`, requires an authenticated session cookie and closes the
+connection (code `1008`) if the flag is off or the user isn't logged in.
+
+Rooms are opaque string keys with no built-in access control beyond
+authentication — the feature that assigns a room id (e.g. a campaign
+session) is responsible for keeping room ids unguessable/scoped. Messages
+are a JSON envelope `{type, payload}`; the server handles `type: "ping"`
+internally (replies `{type: "pong", payload: {}}`) and broadcasts anything
+else to the rest of the room. Frontend: `useWebSocket(room, { onMessage })`
+in `frontend/src/hooks/useWebSocket.ts`, with automatic exponential-backoff
+reconnect.
