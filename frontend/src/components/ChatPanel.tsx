@@ -64,30 +64,32 @@ export default function ChatPanel({ room }: ChatPanelProps) {
   if (disabled) return null;
 
   return (
-    <div className="mt-3 rounded-md border border-slate-200 bg-white">
+    <div className="mt-3 rounded-md border border-hairline/15 bg-nightshade/50">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-4 py-2 text-sm font-medium text-slate-700"
+        className="flex w-full items-center justify-between px-4 py-2 text-sm font-medium text-parchment/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember"
       >
         <span>Chat</span>
         {unread > 0 && (
-          <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+          <span className="rounded-full bg-danger px-2 py-0.5 text-xs font-semibold text-parchment">
             {unread}
           </span>
         )}
-        <span aria-hidden>{open ? '▲' : '▼'}</span>
+        <span aria-hidden className="text-parchment/40">
+          {open ? '▲' : '▼'}
+        </span>
       </button>
       {open && (
-        <div className="border-t border-slate-200 p-3">
+        <div className="border-t border-hairline/15 p-3">
           <div ref={listRef} className="mb-2 max-h-64 overflow-y-auto">
             {messages.length === 0 ? (
-              <p className="text-sm text-slate-500">No messages yet.</p>
+              <p className="text-sm text-parchment/40">No messages yet.</p>
             ) : (
               <ul className="flex flex-col gap-1">
                 {messages.map((m) => (
-                  <li key={m.id} className="text-sm text-slate-700">
-                    <span className="font-semibold">{m.author_username}:</span>{' '}
+                  <li key={m.id} className="text-sm text-parchment/80">
+                    <span className="font-semibold text-arcane">{m.author_username}:</span>{' '}
                     <span className="break-words">{m.body}</span>
                   </li>
                 ))}
@@ -98,11 +100,11 @@ export default function ChatPanel({ room }: ChatPanelProps) {
             <input
               name="body"
               placeholder="Say something…"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             />
             <button
               type="submit"
-              className="shrink-0 rounded-md bg-slate-900 px-3 py-2 text-sm text-white hover:bg-slate-700"
+              className="shrink-0 rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
             >
               Send
             </button>

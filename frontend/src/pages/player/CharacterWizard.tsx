@@ -78,8 +78,8 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
     [data, selectedClass],
   );
 
-  if (loadError) return <p className="text-red-600">{loadError}</p>;
-  if (!data) return <p className="text-slate-600">Loading character creation data…</p>;
+  if (loadError) return <p className="text-danger-text">{loadError}</p>;
+  if (!data) return <p className="text-parchment/60">Loading character creation data…</p>;
 
   const traitsComplete = data.traits.every((t) => traits[t] !== null && traits[t] !== undefined);
   const canSubmit =
@@ -151,29 +151,33 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
   }
 
   return (
-    <div className="max-w-2xl rounded-md border border-slate-200 bg-white p-4">
-      <div className="mb-4 flex flex-wrap gap-2 text-xs text-slate-500">
+    <div className="max-w-2xl rounded-[12px] border border-hairline/15 bg-nightshade/70 p-4">
+      <div className="mb-4 flex flex-wrap gap-2 text-xs">
         {STEP_LABELS.map((label, i) => (
-          <span
+          <button
             key={label}
-            className={`rounded px-2 py-1 ${i === step ? 'bg-slate-900 text-white' : 'bg-slate-100'}`}
+            type="button"
+            onClick={() => setStep(i)}
+            className={`rounded px-2 py-1 transition-colors ${
+              i === step ? 'bg-ember text-void' : 'bg-white/5 text-parchment/50 hover:bg-white/10'
+            }`}
           >
             {i + 1}. {label}
-          </span>
+          </button>
         ))}
       </div>
 
       {step === 0 && (
         <div className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Character Name
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Class
             <select
               value={className}
@@ -181,7 +185,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
                 setClassName(e.target.value);
                 setSubclass('');
               }}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose a class…</option>
               {data.classes.map((c) => (
@@ -192,12 +196,12 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             </select>
           </label>
           {selectedClass && (
-            <label className="flex flex-col gap-1 text-sm">
+            <label className="flex flex-col gap-1 text-sm text-parchment/70">
               Subclass
               <select
                 value={subclass}
                 onChange={(e) => setSubclass(e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2"
+                className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
                 <option value="">Choose a subclass…</option>
                 {selectedClass.subclasses.map((s) => (
@@ -213,12 +217,12 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
 
       {step === 1 && (
         <div className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Ancestry
             <select
               value={ancestry}
               onChange={(e) => setAncestry(e.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose an ancestry…</option>
               {data.ancestries.map((a) => (
@@ -228,12 +232,12 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Community
             <select
               value={community}
               onChange={(e) => setCommunity(e.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose a community…</option>
               {data.communities.map((c) => (
@@ -248,13 +252,13 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
 
       {step === 2 && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-parchment/50">
             Assign each modifier from {data.trait_array.join(', ')} to a trait.
           </p>
           {data.traits.map((trait) => {
             const options = remainingPool(data.trait_array, traits, trait);
             return (
-              <label key={trait} className="flex items-center justify-between gap-2 text-sm">
+              <label key={trait} className="flex items-center justify-between gap-2 text-sm text-parchment/70">
                 {trait}
                 <select
                   value={traits[trait] ?? ''}
@@ -264,7 +268,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
                       [trait]: e.target.value === '' ? null : Number(e.target.value),
                     }))
                   }
-                  className="w-24 rounded-md border border-slate-300 px-2 py-1"
+                  className="w-24 rounded-md border border-hairline/20 bg-input-dark px-2 py-1 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
                 >
                   <option value="">—</option>
                   {options.map((v, i) => (
@@ -281,12 +285,12 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
 
       {step === 3 && (
         <div className="flex flex-col gap-3">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-parchment/50">
             Evasion {selectedClass?.starting_evasion} · HP {selectedClass?.starting_hp} · Stress{' '}
             {data.starting.stress} · Hope {data.starting.hope} · Proficiency{' '}
             {data.starting.proficiency}
           </p>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Primary Weapon
             <select
               value={primaryWeapon}
@@ -294,7 +298,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
                 setPrimaryWeapon(e.target.value);
                 setSecondaryWeapon('');
               }}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose a weapon…</option>
               {data.weapons_tier1.map((w) => (
@@ -305,12 +309,12 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             </select>
           </label>
           {primary?.burden === 'One-Handed' && (
-            <label className="flex flex-col gap-1 text-sm">
+            <label className="flex flex-col gap-1 text-sm text-parchment/70">
               Secondary Weapon (optional)
               <select
                 value={secondaryWeapon}
                 onChange={(e) => setSecondaryWeapon(e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2"
+                className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
                 <option value="">None</option>
                 {data.weapons_tier1
@@ -323,12 +327,12 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               </select>
             </label>
           )}
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Armor
             <select
               value={armor}
               onChange={(e) => setArmor(e.target.value)}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose armor…</option>
               {data.armor_tier1.map((a) => (
@@ -343,31 +347,31 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
 
       {step === 4 && (
         <div className="flex flex-col gap-3">
-          <p className="text-xs text-slate-500">Two Experiences, each with a +2 modifier.</p>
+          <p className="text-xs text-parchment/50">Two Experiences, each with a +2 modifier.</p>
           <input
             value={experience1}
             onChange={(e) => setExperience1(e.target.value)}
             placeholder="Experience 1 (e.g. Bounty Hunter)"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           />
           <input
             value={experience2}
             onChange={(e) => setExperience2(e.target.value)}
             placeholder="Experience 2 (e.g. Silver Tongue)"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           />
         </div>
       )}
 
       {step === 5 && (
         <div className="flex flex-col gap-3">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-parchment/50">
             Choose two Level 1 domain cards from {selectedClass?.domains.join(' or ')}.
           </p>
           <select
             value={domainCard1}
             onChange={(e) => setDomainCard1(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           >
             <option value="">Choose a card…</option>
             {candidateDomainCards.map((c) => (
@@ -379,7 +383,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
           <select
             value={domainCard2}
             onChange={(e) => setDomainCard2(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           >
             <option value="">Choose a card…</option>
             {candidateDomainCards
@@ -395,30 +399,30 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
 
       {step === 6 && (
         <div className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Background
             <textarea
               value={background}
               onChange={(e) => setBackground(e.target.value)}
               rows={4}
               placeholder="Answer a background question, or leave blank to discover it through play."
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
+          <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Connections (one per line)
             <textarea
               value={connections}
               onChange={(e) => setConnections(e.target.value)}
               rows={4}
-              className="rounded-md border border-slate-300 px-3 py-2"
+              className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             />
           </label>
         </div>
       )}
 
       {step === 7 && (
-        <div className="flex flex-col gap-1 text-sm text-slate-700">
+        <div className="flex flex-col gap-1 text-sm text-parchment/80">
           <p>
             <strong>{name}</strong> — {className} ({subclass})
           </p>
@@ -436,7 +440,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
           <p>
             Domain Cards: {domainCard1.replace('::', ' — ')}, {domainCard2.replace('::', ' — ')}
           </p>
-          {submitError && <p className="text-red-600">{submitError}</p>}
+          {submitError && <p className="text-danger-text">{submitError}</p>}
         </div>
       )}
 
@@ -444,7 +448,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
         <button
           type="button"
           onClick={step === 0 ? onCancel : () => setStep((s) => s - 1)}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700"
+          className="rounded-md border border-hairline/20 px-4 py-2 text-sm text-parchment/70 hover:bg-white/5 hover:text-parchment"
         >
           {step === 0 ? 'Cancel' : 'Back'}
         </button>
@@ -452,7 +456,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
           <button
             type="button"
             onClick={() => setStep((s) => s + 1)}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+            className="rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
           >
             Next
           </button>
@@ -461,7 +465,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             type="button"
             onClick={() => void handleSubmit()}
             disabled={!canSubmit || submitting}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void hover:bg-ember-bright disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? 'Creating…' : 'Create Character'}
           </button>
