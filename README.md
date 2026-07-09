@@ -84,3 +84,23 @@ internally (replies `{type: "pong", payload: {}}`) and broadcasts anything
 else to the rest of the room. Frontend: `useWebSocket(room, { onMessage })`
 in `frontend/src/hooks/useWebSocket.ts`, with automatic exponential-backoff
 reconnect.
+
+## Gamemaster: campaigns & sessions
+
+Behind the `campaigns_enabled` feature flag (default off, toggle on
+`/host/settings`). Endpoints return `404` when the flag is off, so the
+feature is invisible rather than erroring. GM-only, scoped to the owning GM
+(other GMs' campaigns 404, not 403 — avoids revealing they exist). A
+campaign has at most one active session at a time; a session's WebSocket
+room key is `session-{id}` (see [Realtime](#realtime)).
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/campaigns` | List the current GM's campaigns |
+| `POST /api/campaigns` | Create a campaign |
+| `GET /api/campaigns/{id}` | Get a campaign |
+| `PUT /api/campaigns/{id}` | Update name/description |
+| `DELETE /api/campaigns/{id}` | Delete a campaign |
+| `GET /api/campaigns/{id}/sessions` | List a campaign's sessions |
+| `POST /api/campaigns/{id}/sessions` | Start a session (409 if one is already active) |
+| `POST /api/campaigns/{id}/sessions/{session_id}/end` | End a session |

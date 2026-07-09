@@ -20,6 +20,7 @@ export interface AppSettings {
 
 export const DEFAULTS: AppSettings = {
   realtime_enabled: false,
+  campaigns_enabled: false,
 };
 
 interface AppSettingsContextValue {

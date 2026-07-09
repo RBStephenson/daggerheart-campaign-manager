@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import User
-from app.routers import auth, health, settings, ws
+from app.routers import auth, campaigns, health, settings, ws
 from app.security import hash_password
 
 logger = logging.getLogger(__name__)
@@ -63,6 +63,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(settings.router)
     app.include_router(ws.router)
+    app.include_router(campaigns.router)
     return app
 
 

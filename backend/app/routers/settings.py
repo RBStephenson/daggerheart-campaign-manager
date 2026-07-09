@@ -22,6 +22,7 @@ router = APIRouter(tags=["settings"])
 # `<feature>_enabled` and default to False.
 DEFAULTS: dict[str, Any] = {
     "realtime_enabled": False,
+    "campaigns_enabled": False,
 }
 
 
