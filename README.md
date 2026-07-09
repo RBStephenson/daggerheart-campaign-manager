@@ -14,8 +14,9 @@ Campaign management tool for the [Daggerheart](https://www.daggerheart.com/) TTR
 docker-compose up
 ```
 
-- Backend: http://localhost:8000 (OpenAPI docs at `/docs`)
-- Frontend: http://localhost:5173 (proxies `/api` to backend)
+- Backend: http://localhost:8002 (OpenAPI docs at `/docs`) — mapped off the
+  default 8000 to avoid clashing with other local projects
+- Frontend: http://localhost:5173 (proxies `/api` to the backend container)
 
 ### Running checks locally
 
