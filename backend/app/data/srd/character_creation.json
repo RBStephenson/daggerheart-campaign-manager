@@ -1,0 +1,195 @@
+{
+  "version": "daggerheart-srd-2025-09-09",
+  "note": "Structured mechanical data transcribed from the Daggerheart SRD (2025-09-09), used to drive guided Level 1 character creation. Feature-card prose is intentionally omitted at this scope; only names, types, and mechanical stats are included.",
+  "traits": ["Agility", "Strength", "Finesse", "Instinct", "Presence", "Knowledge"],
+  "trait_array": [2, 1, 1, 0, 0, -1],
+  "starting": {
+    "level": 1,
+    "stress": 6,
+    "hope": 2,
+    "proficiency": 1
+  },
+  "classes": [
+    {
+      "name": "Bard",
+      "domains": ["Grace", "Codex"],
+      "starting_evasion": 10,
+      "starting_hp": 5,
+      "class_items": ["A romance novel", "A letter never opened"],
+      "subclasses": [
+        {"name": "Troubadour", "spellcast_trait": "Presence"},
+        {"name": "Wordsmith", "spellcast_trait": "Presence"}
+      ]
+    },
+    {
+      "name": "Druid",
+      "domains": ["Sage", "Arcana"],
+      "starting_evasion": 10,
+      "starting_hp": 6,
+      "class_items": ["A small bag of rocks and bones", "A strange pendant found in the dirt"],
+      "subclasses": [
+        {"name": "Warden of the Elements", "spellcast_trait": "Instinct"},
+        {"name": "Warden of Renewal", "spellcast_trait": "Instinct"}
+      ]
+    },
+    {
+      "name": "Guardian",
+      "domains": ["Valor", "Blade"],
+      "starting_evasion": 9,
+      "starting_hp": 7,
+      "class_items": ["A totem from your mentor", "A secret key"],
+      "subclasses": [
+        {"name": "Stalwart", "spellcast_trait": null},
+        {"name": "Vengeance", "spellcast_trait": null}
+      ]
+    },
+    {
+      "name": "Ranger",
+      "domains": ["Bone", "Sage"],
+      "starting_evasion": 12,
+      "starting_hp": 6,
+      "class_items": ["A trophy from your first kill", "A seemingly broken compass"],
+      "subclasses": [
+        {"name": "Beastbound", "spellcast_trait": "Agility"},
+        {"name": "Wayfinder", "spellcast_trait": "Agility"}
+      ]
+    },
+    {
+      "name": "Rogue",
+      "domains": ["Midnight", "Grace"],
+      "starting_evasion": 12,
+      "starting_hp": 6,
+      "class_items": ["A set of forgery tools", "A grappling hook"],
+      "subclasses": [
+        {"name": "Nightwalker", "spellcast_trait": "Finesse"},
+        {"name": "Syndicate", "spellcast_trait": "Finesse"}
+      ]
+    },
+    {
+      "name": "Seraph",
+      "domains": ["Splendor", "Valor"],
+      "starting_evasion": 9,
+      "starting_hp": 7,
+      "class_items": ["A bundle of offerings", "A sigil of your god"],
+      "subclasses": [
+        {"name": "Divine Wielder", "spellcast_trait": "Strength"},
+        {"name": "Winged Sentinel", "spellcast_trait": "Strength"}
+      ]
+    },
+    {
+      "name": "Sorcerer",
+      "domains": ["Arcana", "Midnight"],
+      "starting_evasion": 10,
+      "starting_hp": 6,
+      "class_items": ["A whispering orb", "A family heirloom"],
+      "subclasses": [
+        {"name": "Elemental Origin", "spellcast_trait": "Instinct"},
+        {"name": "Primal Origin", "spellcast_trait": "Instinct"}
+      ]
+    },
+    {
+      "name": "Warrior",
+      "domains": ["Blade", "Bone"],
+      "starting_evasion": 11,
+      "starting_hp": 6,
+      "class_items": ["The drawing of a lover", "A sharpening stone"],
+      "subclasses": [
+        {"name": "Call of the Brave", "spellcast_trait": null},
+        {"name": "Call of the Slayer", "spellcast_trait": null}
+      ]
+    },
+    {
+      "name": "Wizard",
+      "domains": ["Codex", "Splendor"],
+      "starting_evasion": 11,
+      "starting_hp": 5,
+      "class_items": ["A book you're trying to translate", "A tiny, harmless elemental pet"],
+      "subclasses": [
+        {"name": "School of Knowledge", "spellcast_trait": "Knowledge"},
+        {"name": "School of War", "spellcast_trait": "Knowledge"}
+      ]
+    }
+  ],
+  "ancestries": [
+    "Clank", "Drakona", "Dwarf", "Elf", "Faerie", "Faun", "Firbolg", "Fungril",
+    "Galapa", "Giant", "Goblin", "Halfling", "Human", "Infernis", "Katari",
+    "Orc", "Ribbet", "Simiah"
+  ],
+  "communities": [
+    "Highborne", "Loreborne", "Orderborne", "Ridgeborne", "Seaborne",
+    "Slyborne", "Underborne", "Wanderborne", "Wildborne"
+  ],
+  "domains": [
+    {"name": "Arcana", "classes": ["Druid", "Sorcerer"]},
+    {"name": "Blade", "classes": ["Guardian", "Warrior"]},
+    {"name": "Bone", "classes": ["Ranger", "Warrior"]},
+    {"name": "Codex", "classes": ["Bard", "Wizard"]},
+    {"name": "Grace", "classes": ["Bard", "Rogue"]},
+    {"name": "Midnight", "classes": ["Rogue", "Sorcerer"]},
+    {"name": "Sage", "classes": ["Druid", "Ranger"]},
+    {"name": "Splendor", "classes": ["Seraph", "Wizard"]},
+    {"name": "Valor", "classes": ["Guardian", "Seraph"]}
+  ],
+  "domain_cards_l1": [
+    {"domain": "Arcana", "name": "Rune Ward", "type": "spell", "recall_cost": 0},
+    {"domain": "Arcana", "name": "Unleash Chaos", "type": "spell", "recall_cost": 1},
+    {"domain": "Arcana", "name": "Wall Walk", "type": "spell", "recall_cost": 1},
+    {"domain": "Blade", "name": "Get Back Up", "type": "ability", "recall_cost": 1},
+    {"domain": "Blade", "name": "Not Good Enough", "type": "ability", "recall_cost": 1},
+    {"domain": "Blade", "name": "Whirlwind", "type": "ability", "recall_cost": 0},
+    {"domain": "Bone", "name": "Deft Maneuvers", "type": "ability", "recall_cost": 0},
+    {"domain": "Bone", "name": "I See It Coming", "type": "ability", "recall_cost": 1},
+    {"domain": "Bone", "name": "Untouchable", "type": "ability", "recall_cost": 1},
+    {"domain": "Codex", "name": "Book of Ava", "type": "grimoire", "recall_cost": 2},
+    {"domain": "Codex", "name": "Book of Illiat", "type": "grimoire", "recall_cost": 2},
+    {"domain": "Codex", "name": "Book of Tyfar", "type": "grimoire", "recall_cost": 2},
+    {"domain": "Grace", "name": "Deft Deceiver", "type": "ability", "recall_cost": 0},
+    {"domain": "Grace", "name": "Enrapture", "type": "spell", "recall_cost": 0},
+    {"domain": "Grace", "name": "Inspirational Words", "type": "ability", "recall_cost": 1},
+    {"domain": "Midnight", "name": "Pick and Pull", "type": "ability", "recall_cost": 0},
+    {"domain": "Midnight", "name": "Rain of Blades", "type": "spell", "recall_cost": 1},
+    {"domain": "Midnight", "name": "Uncanny Disguise", "type": "spell", "recall_cost": 0},
+    {"domain": "Sage", "name": "Gifted Tracker", "type": "ability", "recall_cost": 0},
+    {"domain": "Sage", "name": "Nature's Tongue", "type": "ability", "recall_cost": 0},
+    {"domain": "Sage", "name": "Vicious Entangle", "type": "spell", "recall_cost": 1},
+    {"domain": "Splendor", "name": "Bolt Beacon", "type": "spell", "recall_cost": 1},
+    {"domain": "Splendor", "name": "Mending Touch", "type": "spell", "recall_cost": 1},
+    {"domain": "Splendor", "name": "Reassurance", "type": "ability", "recall_cost": 0},
+    {"domain": "Valor", "name": "Bare Bones", "type": "ability", "recall_cost": 0},
+    {"domain": "Valor", "name": "Forceful Push", "type": "ability", "recall_cost": 0},
+    {"domain": "Valor", "name": "I Am Your Shield", "type": "ability", "recall_cost": 1}
+  ],
+  "weapons_tier1": [
+    {"name": "Broadsword", "trait": "Agility", "range": "Melee", "damage": "d8 phy", "burden": "One-Handed", "is_magic": false, "feature": "Reliable: +1 to attack rolls"},
+    {"name": "Longsword", "trait": "Agility", "range": "Melee", "damage": "d10+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": null},
+    {"name": "Battleaxe", "trait": "Strength", "range": "Melee", "damage": "d10+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": null},
+    {"name": "Greatsword", "trait": "Strength", "range": "Melee", "damage": "d10+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": "Massive: -1 to Evasion; on a successful attack, roll an additional damage die and discard the lowest result."},
+    {"name": "Mace", "trait": "Strength", "range": "Melee", "damage": "d8+1 phy", "burden": "One-Handed", "is_magic": false, "feature": null},
+    {"name": "Warhammer", "trait": "Strength", "range": "Melee", "damage": "d12+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": "Heavy: -1 to Evasion"},
+    {"name": "Dagger", "trait": "Finesse", "range": "Melee", "damage": "d8+1 phy", "burden": "One-Handed", "is_magic": false, "feature": null},
+    {"name": "Quarterstaff", "trait": "Instinct", "range": "Melee", "damage": "d10+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": null},
+    {"name": "Cutlass", "trait": "Presence", "range": "Melee", "damage": "d8+1 phy", "burden": "One-Handed", "is_magic": false, "feature": null},
+    {"name": "Rapier", "trait": "Presence", "range": "Melee", "damage": "d8 phy", "burden": "One-Handed", "is_magic": false, "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."},
+    {"name": "Halberd", "trait": "Strength", "range": "Very Close", "damage": "d10+2 phy", "burden": "Two-Handed", "is_magic": false, "feature": "Cumbersome: -1 to Finesse"},
+    {"name": "Spear", "trait": "Finesse", "range": "Very Close", "damage": "d8+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": null},
+    {"name": "Shortbow", "trait": "Agility", "range": "Far", "damage": "d6+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": null},
+    {"name": "Crossbow", "trait": "Finesse", "range": "Far", "damage": "d6+1 phy", "burden": "One-Handed", "is_magic": false, "feature": null},
+    {"name": "Longbow", "trait": "Agility", "range": "Very Far", "damage": "d8+3 phy", "burden": "Two-Handed", "is_magic": false, "feature": "Cumbersome: -1 to Finesse"},
+    {"name": "Arcane Gauntlets", "trait": "Strength", "range": "Melee", "damage": "d10+3 mag", "burden": "Two-Handed", "is_magic": true, "feature": null},
+    {"name": "Hallowed Axe", "trait": "Strength", "range": "Melee", "damage": "d8+1 mag", "burden": "One-Handed", "is_magic": true, "feature": null},
+    {"name": "Glowing Rings", "trait": "Agility", "range": "Very Close", "damage": "d10+2 mag", "burden": "Two-Handed", "is_magic": true, "feature": null},
+    {"name": "Hand Runes", "trait": "Instinct", "range": "Very Close", "damage": "d10 mag", "burden": "One-Handed", "is_magic": true, "feature": null},
+    {"name": "Returning Blade", "trait": "Finesse", "range": "Close", "damage": "d8 mag", "burden": "One-Handed", "is_magic": true, "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."},
+    {"name": "Shortstaff", "trait": "Instinct", "range": "Close", "damage": "d8+1 mag", "burden": "One-Handed", "is_magic": true, "feature": null},
+    {"name": "Dualstaff", "trait": "Instinct", "range": "Far", "damage": "d6+3 mag", "burden": "Two-Handed", "is_magic": true, "feature": null},
+    {"name": "Scepter", "trait": "Presence", "range": "Far", "damage": "d6 mag", "burden": "Two-Handed", "is_magic": true, "feature": "Versatile: This weapon can also be used with these statistics-Presence, Melee, d8."},
+    {"name": "Wand", "trait": "Knowledge", "range": "Far", "damage": "d6+1 mag", "burden": "One-Handed", "is_magic": true, "feature": null},
+    {"name": "Greatstaff", "trait": "Knowledge", "range": "Very Far", "damage": "d6 mag", "burden": "Two-Handed", "is_magic": true, "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."}
+  ],
+  "armor_tier1": [
+    {"name": "Gambeson Armor", "base_thresholds": [5, 11], "base_score": 3, "feature": "Flexible: +1 to Evasion"},
+    {"name": "Leather Armor", "base_thresholds": [6, 13], "base_score": 3, "feature": null},
+    {"name": "Chainmail Armor", "base_thresholds": [7, 15], "base_score": 4, "feature": "Heavy: -1 to Evasion"},
+    {"name": "Full Plate Armor", "base_thresholds": [8, 17], "base_score": 4, "feature": "Very Heavy: -2 to Evasion; -1 to Agility"}
+  ]
+}
