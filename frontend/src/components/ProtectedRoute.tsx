@@ -11,7 +11,7 @@ export default function ProtectedRoute({ roles, children }: ProtectedRouteProps)
 
   if (loading) return <p className="text-slate-600">Loading…</p>;
   if (!user) return <Navigate to="/login" replace />;
-  if (!roles.includes(user.role)) {
+  if (user.role !== 'host' && !roles.includes(user.role)) {
     return <p className="text-slate-600">You don&apos;t have access to this area.</p>;
   }
   return <>{children}</>;

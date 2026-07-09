@@ -52,7 +52,11 @@ behind a `<feature>_enabled` flag (default off) toggled from the Settings page.
 
 Lightweight self-hosted auth — no OAuth. Sessions are a signed, httpOnly cookie
 (`dhcm_session`); passwords are hashed with argon2. Roles are `host`, `gm`,
-`player`, enforced server-side on every protected router.
+`player`, enforced server-side on every protected router. `host` is a
+superuser — it satisfies any role check, so a host account can also open the
+GM and Player areas. In the GM area a host acts as its own GM (campaigns are
+still scoped to that literal account id), not as an admin over every GM's
+data.
 
 The first host account is bootstrapped at startup from `DHCM_HOST_USERNAME` /
 `DHCM_HOST_PASSWORD` env vars (skipped, with a warning, if unset). From there,
