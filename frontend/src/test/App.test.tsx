@@ -51,13 +51,13 @@ describe('App', () => {
   it('shows the launch page at / with links to each area', async () => {
     renderApp('/', null);
     const launch = await screen.findByRole('region', { name: 'Launch' });
-    expect(within(launch).getByRole('heading', { name: 'Daggerheart Campaign Manager' })).toBeInTheDocument();
+    expect(within(launch).getByRole('heading', { name: 'DAGGERHEART' })).toBeInTheDocument();
     expect(within(launch).getByRole('link', { name: 'Host' })).toHaveAttribute('href', '/login');
-    expect(within(launch).getByRole('link', { name: 'GM Dashboard' })).toHaveAttribute(
+    expect(within(launch).getByRole('link', { name: 'Gamemaster' })).toHaveAttribute(
       'href',
       '/login',
     );
-    expect(within(launch).getByRole('link', { name: 'Player Dashboard' })).toHaveAttribute(
+    expect(within(launch).getByRole('link', { name: 'Player' })).toHaveAttribute(
       'href',
       '/login',
     );
@@ -67,7 +67,7 @@ describe('App', () => {
     renderApp('/', null);
     const launch = await screen.findByRole('region', { name: 'Launch' });
 
-    await userEvent.click(within(launch).getByRole('link', { name: 'GM Dashboard' }));
+    await userEvent.click(within(launch).getByRole('link', { name: 'Gamemaster' }));
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument(),
     );

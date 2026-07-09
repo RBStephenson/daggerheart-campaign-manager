@@ -10,7 +10,7 @@ export default function Layout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen overflow-x-hidden bg-slate-100">
       <nav aria-label="Main navigation" className="bg-slate-800">
         <div className="mx-auto flex max-w-5xl items-center gap-1 px-4 py-3">
           <span className="mr-4 font-semibold text-white">Daggerheart Campaign Manager</span>
