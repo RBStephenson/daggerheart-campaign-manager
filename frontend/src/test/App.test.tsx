@@ -22,6 +22,9 @@ function mockFetch(currentUser: MockUser) {
           json: () => Promise.resolve({ id: 1, username: 'alice', role: 'host' }),
         });
       }
+      if (url.startsWith('/api/campaigns')) {
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) });
+      }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
     }),
   );
@@ -73,8 +76,10 @@ describe('App', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'correct-horse');
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
+    // Mock login always returns a host user; landing on Gamemaster (not the
+    // default Host redirect) proves the launch page's `from` state was used.
     await waitFor(() =>
-      expect(screen.getByText(/don't have access/)).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument(),
     );
   });
 
@@ -89,6 +94,20 @@ describe('App', () => {
     renderApp('/host', { id: 1, username: 'alice', role: 'host' });
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument(),
+    );
+  });
+
+  it('lets a host user reach /gm as superuser', async () => {
+    renderApp('/gm', { id: 1, username: 'alice', role: 'host' });
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument(),
+    );
+  });
+
+  it('lets a host user reach /player as superuser', async () => {
+    renderApp('/player', { id: 1, username: 'alice', role: 'host' });
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Player' })).toBeInTheDocument(),
     );
   });
 

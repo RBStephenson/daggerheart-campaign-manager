@@ -19,12 +19,12 @@ export default function Layout() {
               Host
             </NavLink>
           )}
-          {(!user || user.role === 'gm') && (
+          {(!user || user.role === 'gm' || user.role === 'host') && (
             <NavLink to="/gm" className={navLinkClass}>
               Gamemaster
             </NavLink>
           )}
-          {(!user || user.role === 'player') && (
+          {(!user || user.role === 'player' || user.role === 'host') && (
             <NavLink to="/player" className={navLinkClass}>
               Player
             </NavLink>

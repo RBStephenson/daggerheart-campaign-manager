@@ -16,10 +16,21 @@ def test_disabled_flag_returns_404(as_user, db: Session) -> None:
     assert resp.status_code == 404
 
 
-def test_non_gm_forbidden(as_user, db: Session) -> None:
+def test_player_forbidden(as_user, db: Session) -> None:
     enable_campaigns(db)
-    resp = as_user("host").get("/api/campaigns")
+    resp = as_user("player").get("/api/campaigns")
     assert resp.status_code == 403
+
+
+def test_host_has_superuser_access(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    client = as_user("host")
+    create_resp = client.post("/api/campaigns", json={"name": "Host's own campaign"})
+    assert create_resp.status_code == 200
+
+    list_resp = client.get("/api/campaigns")
+    assert list_resp.status_code == 200
+    assert [c["name"] for c in list_resp.json()] == ["Host's own campaign"]
 
 
 def test_create_and_list_campaign(as_user, db: Session) -> None:

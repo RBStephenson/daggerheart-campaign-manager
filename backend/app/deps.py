@@ -39,8 +39,10 @@ def require_user(
 
 
 def require_role(*roles: str) -> Callable[[User], User]:
+    """Require one of `roles`. "host" always passes — it's the superuser role."""
+
     def dependency(user: Annotated[User, Depends(require_user)]) -> User:
-        if user.role not in roles:
+        if user.role != "host" and user.role not in roles:
             raise HTTPException(status_code=403, detail="Forbidden")
         return user
 
