@@ -18,6 +18,10 @@ docker-compose up
   default 8000 to avoid clashing with other local projects
 - Frontend: http://localhost:5173 (proxies `/api` to the backend container)
 
+Vite's dev server watches with polling (`vite.config.ts`) — plain filesystem
+events aren't reliable across the Docker bind mount on Windows/macOS, so
+HMR would otherwise silently serve stale code after an edit.
+
 ### Running checks locally
 
 Backend (from `backend/`):
