@@ -10,7 +10,7 @@ export default function LaunchPage() {
   return (
     <section
       aria-label="Launch"
-      className="relative left-1/2 -mt-6 -mb-6 flex min-h-[calc(100vh-64px)] w-screen -translate-x-1/2 flex-col items-center justify-center overflow-hidden bg-[#0b0810] px-4 py-16 text-center sm:py-24"
+      className="relative left-1/2 -mt-6 -mb-6 flex min-h-[80vh] w-screen -translate-x-1/2 flex-col items-center justify-center overflow-hidden bg-[#0b0810] px-4 py-16 text-center sm:py-24"
     >
       <div
         aria-hidden
@@ -29,13 +29,13 @@ export default function LaunchPage() {
           Campaign Manager
         </p>
 
-        <div className="mt-12 flex flex-col items-center justify-center gap-8 sm:flex-row sm:items-end">
+        <div className="mt-12 flex flex-col items-center justify-center gap-6 sm:gap-4 md:flex-row md:items-end md:gap-8">
           {areas.map(({ to, label, image }) => (
             <Link
               key={to}
               to="/login"
               state={{ from: to }}
-              className="group block w-56 shrink-0 overflow-hidden rounded-lg shadow-2xl shadow-black/60 ring-1 ring-amber-400/20 transition-transform duration-300 hover:-translate-y-3 hover:ring-amber-400/60 focus-visible:-translate-y-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="group block w-full max-w-56 shrink-0 overflow-hidden rounded-lg shadow-2xl shadow-black/60 ring-1 ring-amber-400/20 transition-transform duration-300 hover:-translate-y-3 hover:ring-amber-400/60 focus-visible:-translate-y-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               <img
                 src={image}
