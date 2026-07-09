@@ -5,7 +5,7 @@ type ToggleSwitchProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'c
 /** Accessible switch styled as a track+thumb, backed by a real checkbox. */
 export default function ToggleSwitch(props: ToggleSwitchProps) {
   return (
-    <span className="relative inline-flex h-6 w-11 shrink-0 items-center">
+    <label className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center">
       <input type="checkbox" className="peer sr-only" {...props} />
       <span
         aria-hidden
@@ -15,6 +15,6 @@ export default function ToggleSwitch(props: ToggleSwitchProps) {
         aria-hidden
         className="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"
       />
-    </span>
+    </label>
   );
 }
