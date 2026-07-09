@@ -17,6 +17,10 @@ frontend/dist/
 *.sqlite3
 *.db
 data/
+# ...but the SRD reference dataset is source, not runtime data
+!backend/app/data/
+!backend/app/data/srd/
+!backend/app/data/srd/*.json
 
 # Local-only agent instructions
 AGENTS.md
