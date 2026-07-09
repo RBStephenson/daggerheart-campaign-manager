@@ -24,6 +24,7 @@ DEFAULTS: dict[str, Any] = {
     "realtime_enabled": False,
     "campaigns_enabled": False,
     "chat_enabled": False,
+    "player_area_enabled": False,
 }
 
 

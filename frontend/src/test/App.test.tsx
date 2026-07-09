@@ -22,7 +22,7 @@ function mockFetch(currentUser: MockUser) {
           json: () => Promise.resolve({ id: 1, username: 'alice', role: 'host' }),
         });
       }
-      if (url.startsWith('/api/campaigns')) {
+      if (url.startsWith('/api/campaigns') || url.startsWith('/api/player')) {
         return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) });
       }
       return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
