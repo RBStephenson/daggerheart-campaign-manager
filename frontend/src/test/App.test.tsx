@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -43,6 +43,39 @@ function renderApp(route: string, currentUser: MockUser) {
 describe('App', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it('shows the launch page at / with links to each area', async () => {
+    renderApp('/', null);
+    const launch = await screen.findByRole('region', { name: 'Launch' });
+    expect(within(launch).getByRole('heading', { name: 'Daggerheart Campaign Manager' })).toBeInTheDocument();
+    expect(within(launch).getByRole('link', { name: 'Host' })).toHaveAttribute('href', '/login');
+    expect(within(launch).getByRole('link', { name: 'GM Dashboard' })).toHaveAttribute(
+      'href',
+      '/login',
+    );
+    expect(within(launch).getByRole('link', { name: 'Player Dashboard' })).toHaveAttribute(
+      'href',
+      '/login',
+    );
+  });
+
+  it('logging in from the launch page redirects to the chosen area', async () => {
+    renderApp('/', null);
+    const launch = await screen.findByRole('region', { name: 'Launch' });
+
+    await userEvent.click(within(launch).getByRole('link', { name: 'GM Dashboard' }));
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument(),
+    );
+
+    await userEvent.type(screen.getByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Password'), 'correct-horse');
+    await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/don't have access/)).toBeInTheDocument(),
+    );
   });
 
   it('redirects unauthenticated users to /login', async () => {
