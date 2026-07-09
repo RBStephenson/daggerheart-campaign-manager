@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import GamemasterPage from './pages/gm/GamemasterPage';
+import DataManagementPage from './pages/host/DataManagementPage';
 import HostPage from './pages/host/HostPage';
 import HostSettingsPage from './pages/host/HostSettingsPage';
 import LaunchPage from './pages/launch/LaunchPage';
@@ -22,6 +23,7 @@ export default function App() {
           }
         >
           <Route path="settings" element={<HostSettingsPage />} />
+          <Route path="data" element={<DataManagementPage />} />
         </Route>
         <Route
           path="gm"

@@ -23,6 +23,7 @@ export const DEFAULTS: AppSettings = {
   campaigns_enabled: false,
   chat_enabled: false,
   player_area_enabled: false,
+  data_management_enabled: false,
 };
 
 interface AppSettingsContextValue {

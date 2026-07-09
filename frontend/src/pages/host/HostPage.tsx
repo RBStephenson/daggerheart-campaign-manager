@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useAppSettings } from '../../context/AppSettingsContext';
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium ${
@@ -8,6 +9,7 @@ const tabClass = ({ isActive }: { isActive: boolean }) =>
 export default function HostPage() {
   const location = useLocation();
   const atRoot = location.pathname === '/host';
+  const { settings } = useAppSettings();
 
   return (
     <section aria-label="Host">
@@ -16,6 +18,11 @@ export default function HostPage() {
         <NavLink to="/host/settings" className={tabClass}>
           Settings
         </NavLink>
+        {settings.data_management_enabled && (
+          <NavLink to="/host/data" className={tabClass}>
+            Data Management
+          </NavLink>
+        )}
       </div>
       {atRoot ? (
         <p className="text-slate-600">Server configuration and feature flags live here.</p>
