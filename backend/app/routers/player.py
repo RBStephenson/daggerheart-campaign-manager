@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -11,6 +12,7 @@ from app.db import get_db
 from app.deps import require_role
 from app.models import Campaign, CampaignMembership, CampaignNote, Character, User
 from app.routers.settings import get_settings
+from app.schemas.character_sheet import validate_extra
 from app.schemas.player import (
     CharacterCreate,
     CharacterOut,
@@ -24,6 +26,14 @@ from app.schemas.player import (
 def _require_player_area_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
     if not get_settings(db).get("player_area_enabled", False):
         raise HTTPException(status_code=404)
+
+
+def _validate_extra_or_422(extra: str | None) -> None:
+    """Validate a populated `extra` sheet, translating failures to HTTP 422."""
+    try:
+        validate_extra(extra)
+    except (ValidationError, ValueError) as e:
+        raise HTTPException(status_code=422, detail=f"Invalid character sheet: {e}") from e
 
 
 router = APIRouter(
@@ -84,6 +94,7 @@ def create_character(
     player: Annotated[User, Depends(require_role("player"))],
 ) -> Character:
     _require_membership(body.campaign_id, db, player)
+    _validate_extra_or_422(body.extra)
     character = Character(
         player_user_id=player.id,
         campaign_id=body.campaign_id,
@@ -110,6 +121,8 @@ def update_character(
 ) -> Character:
     character = _get_owned_character(character_id, db, player)
     updates = body.model_dump(exclude_unset=True)
+    if "extra" in updates:
+        _validate_extra_or_422(updates["extra"])
     for field, value in updates.items():
         setattr(character, field, value)
     db.commit()

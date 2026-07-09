@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.models import AppSetting, Campaign, CampaignMembership, User
 from tests.conftest import make_user
+from tests.test_character_sheet import valid_bard_sheet
 
 
 def enable(db: Session, *keys: str) -> None:
@@ -101,6 +102,81 @@ def test_create_and_list_own_character(as_user, db: Session) -> None:
 
     list_resp = client.get("/api/player/characters")
     assert [c["name"] for c in list_resp.json()] == ["Kael"]
+
+
+def test_create_character_with_valid_sheet(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled")
+    gm = make_user(db, username="gm1", role="gm")
+    campaign = make_campaign(db, gm_id=gm.id)
+    client = as_user("player", username="alice")
+    player = db.query(User).filter_by(username="alice").one()
+    make_membership(db, campaign_id=campaign.id, player_id=player.id)
+
+    resp = client.post(
+        "/api/player/characters",
+        json={
+            "campaign_id": campaign.id,
+            "name": "Lyra",
+            "char_class": "Bard",
+            "ancestry": "Human",
+            "community": "Wanderborne",
+            "level": 1,
+            "extra": json.dumps(valid_bard_sheet()),
+        },
+    )
+    assert resp.status_code == 200
+    assert json.loads(resp.json()["extra"])["char_class"] == "Bard"
+
+
+def test_create_character_with_invalid_sheet_is_422(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled")
+    gm = make_user(db, username="gm1", role="gm")
+    campaign = make_campaign(db, gm_id=gm.id)
+    client = as_user("player", username="alice")
+    player = db.query(User).filter_by(username="alice").one()
+    make_membership(db, campaign_id=campaign.id, player_id=player.id)
+
+    bad = valid_bard_sheet()
+    bad["evasion"] = 99  # doesn't match the Bard's starting Evasion
+    resp = client.post(
+        "/api/player/characters",
+        json={"campaign_id": campaign.id, "name": "Lyra", "extra": json.dumps(bad)},
+    )
+    assert resp.status_code == 422
+    assert "character sheet" in resp.json()["detail"].lower()
+
+
+def test_create_character_empty_extra_still_works(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled")
+    gm = make_user(db, username="gm1", role="gm")
+    campaign = make_campaign(db, gm_id=gm.id)
+    client = as_user("player", username="alice")
+    player = db.query(User).filter_by(username="alice").one()
+    make_membership(db, campaign_id=campaign.id, player_id=player.id)
+
+    # The flat form never populates `extra` — the default "{}" must stay valid.
+    resp = client.post(
+        "/api/player/characters",
+        json={"campaign_id": campaign.id, "name": "Flat"},
+    )
+    assert resp.status_code == 200
+
+
+def test_update_character_with_invalid_sheet_is_422(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled")
+    gm = make_user(db, username="gm1", role="gm")
+    campaign = make_campaign(db, gm_id=gm.id)
+    client = as_user("player", username="alice")
+    player = db.query(User).filter_by(username="alice").one()
+    make_membership(db, campaign_id=campaign.id, player_id=player.id)
+    char_id = client.post(
+        "/api/player/characters", json={"campaign_id": campaign.id, "name": "Lyra"}
+    ).json()["id"]
+
+    bad = valid_bard_sheet()
+    bad["subclass"] = "Nightwalker"  # not a Bard subclass
+    resp = client.put(f"/api/player/characters/{char_id}", json={"extra": json.dumps(bad)})
+    assert resp.status_code == 422
 
 
 def test_character_ownership_isolation(as_user, db: Session) -> None:

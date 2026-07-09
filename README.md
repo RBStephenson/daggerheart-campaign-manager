@@ -180,3 +180,26 @@ type-`ACKNOWLEDGED`-to-confirm dialog.
 | `POST /api/database/repair` | Snapshot, then `REINDEX` if unhealthy |
 | `POST /api/database/restore` | Upload and swap in a validated backup file |
 | `POST /api/database/reset` | Snapshot, then wipe and recreate an empty schema |
+
+## Character creation (Daggerheart SRD)
+
+Behind the `character_creation_enabled` feature flag (default off, toggle on
+`/host/settings`). Provides SRD-driven, guided Level 1 character creation for the
+Player area.
+
+The canonical SRD reference data (classes, subclasses, ancestries, communities,
+domains, level-1 domain cards, Tier-1 weapons/armor, and the trait array) lives in
+`backend/app/data/srd/character_creation.json` and is served read-only to the
+frontend, so the wizard and the server share a single source of truth. When a
+character's `extra` field is populated, it must validate as a `CharacterSheet`
+(`app/schemas/character_sheet.py`) — cross-checked against the SRD data — or the
+create/update returns 422. An empty `extra` (`"{}"`) stays valid, so the simple
+flat character form is unaffected.
+
+Scope: structured mechanical data + names. Full feature-card prose (subclass /
+ancestry / domain-card rules text) and the dedicated secondary-weapon table are
+deferred to a later ticket.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/srd/character-creation` | The SRD character-creation reference dataset (auth required) |
