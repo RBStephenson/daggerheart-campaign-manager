@@ -1,4 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import Badge from '../../components/ui/Badge';
+import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import ChatPanel from '../../components/ChatPanel';
 import {
@@ -15,14 +17,24 @@ import {
 
 type ActiveSessions = Record<number, GameSession | undefined>;
 
+const cardClass =
+  'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
+const inputClass =
+  'w-full rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember';
+const ghostButtonClass =
+  'rounded-md border border-hairline/20 px-3 py-2 text-sm text-parchment/70 transition-colors hover:bg-white/5 hover:text-parchment focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember';
+
 export default function GamemasterPage() {
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
   const [activeSessions, setActiveSessions] = useState<ActiveSessions>({});
   const [disabled, setDisabled] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   async function refresh() {
+    setLoading(true);
+    setError(null);
     try {
       const list = await listCampaigns();
       setCampaigns(list);
@@ -40,6 +52,8 @@ export default function GamemasterPage() {
         setError('Failed to load campaigns.');
         console.error(err);
       }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -87,148 +101,158 @@ export default function GamemasterPage() {
 
   if (disabled) {
     return (
-      <section aria-label="Gamemaster">
-        <h1 className="mb-4 text-2xl font-bold text-slate-900">Gamemaster</h1>
-        <p className="text-slate-600">The campaigns feature is currently disabled.</p>
+      <section
+        aria-label="Gamemaster"
+        className="relative left-1/2 -mt-6 -mb-6 w-screen -translate-x-1/2 bg-void px-4 py-10"
+      >
+        <div className="mx-auto max-w-5xl">
+          <h1 className="font-display text-2xl text-parchment">Gamemaster</h1>
+          <p className="mt-2 text-parchment/60">The campaigns feature is currently disabled.</p>
+        </div>
       </section>
     );
   }
 
   return (
-    <section aria-label="Gamemaster">
-      <h1 className="mb-4 text-2xl font-bold text-slate-900">Gamemaster</h1>
-      {error && (
-        <p role="alert" className="mb-4 text-sm text-red-600">
-          {error}
+    <section
+      aria-label="Gamemaster"
+      className="relative left-1/2 -mt-6 -mb-6 w-screen -translate-x-1/2 bg-void px-4 py-10"
+    >
+      <div className="relative mx-auto max-w-5xl">
+        <div className="mb-1 flex items-baseline justify-between">
+          <h1 className="font-display text-2xl text-parchment">Gamemaster</h1>
+          {campaigns && (
+            <span className="text-sm text-parchment/50">{campaigns.length} campaigns</span>
+          )}
+        </div>
+        <p className="mb-6 text-sm text-parchment/50">
+          Manage your campaigns, run sessions, and chat with your table.
         </p>
-      )}
 
-      <form onSubmit={(e) => void handleCreate(e)} className="mb-6 flex flex-col gap-2 max-w-md">
-        <input
-          name="name"
-          placeholder="Campaign name"
-          required
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
-        />
-        <textarea
-          name="description"
-          placeholder="Description (optional)"
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
-        />
-        <button
-          type="submit"
-          className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-        >
-          Create campaign
-        </button>
-      </form>
-
-      <ul className="flex flex-col gap-3">
-        {campaigns?.map((campaign) => {
-          const activeSession = activeSessions[campaign.id];
-          return (
-            <li
-              key={campaign.id}
-              className="rounded-md border border-slate-200 bg-white p-4"
+        {error && (
+          <div
+            role="alert"
+            className="mb-4 flex items-center justify-between gap-4 rounded-md border border-danger/50 bg-danger-bg/10 px-4 py-3 text-sm text-danger-text"
+          >
+            <span>{error}</span>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              className="shrink-0 rounded-md border border-danger/50 px-3 py-1 text-xs font-medium text-danger-text hover:bg-danger-bg/20"
             >
-              {editingId === campaign.id ? (
-                <form
-                  onSubmit={(e) => void handleUpdate(campaign.id, e)}
-                  className="flex flex-col gap-2"
-                >
-                  <input
-                    name="name"
-                    defaultValue={campaign.name}
-                    required
-                    className="w-full rounded-md border border-slate-300 px-3 py-2"
-                  />
-                  <textarea
-                    name="description"
-                    defaultValue={campaign.description}
-                    className="w-full rounded-md border border-slate-300 px-3 py-2"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      className="rounded-md bg-slate-900 px-3 py-2 text-sm text-white"
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="rounded-md px-3 py-2 text-sm text-slate-600"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <h2 className="break-words font-semibold text-slate-900">
-                        {campaign.name}
-                      </h2>
-                      {campaign.description && (
-                        <p className="break-words text-sm text-slate-600">
-                          {campaign.description}
-                        </p>
-                      )}
-                    </div>
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                        activeSession
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {activeSession ? 'Session active' : 'No active session'}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {activeSession ? (
-                      <button
-                        type="button"
-                        onClick={() => void handleEndSession(campaign.id, activeSession.id)}
-                        className="rounded-md bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
-                      >
-                        End session
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => void handleStartSession(campaign.id)}
-                        className="rounded-md bg-green-700 px-3 py-2 text-sm text-white hover:bg-green-800"
-                      >
-                        Start session
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(campaign.id)}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete(campaign.id)}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                  {activeSession && <ChatPanel room={activeSession.room} />}
-                </>
-              )}
-            </li>
-          );
-        })}
-        {campaigns?.length === 0 && (
-          <p className="text-slate-600">No campaigns yet. Create one above.</p>
+              Retry
+            </button>
+          </div>
         )}
-      </ul>
+
+        <form onSubmit={(e) => void handleCreate(e)} className={`mb-6 flex max-w-md flex-col gap-2 ${cardClass}`}>
+          <h2 className="mb-1 font-display text-sm tracking-wide text-parchment/80">
+            New Campaign
+          </h2>
+          <input name="name" placeholder="Campaign name" required className={inputClass} />
+          <textarea name="description" placeholder="Description (optional)" className={inputClass} />
+          <button
+            type="submit"
+            className="self-start rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
+          >
+            Create campaign
+          </button>
+        </form>
+
+        {loading ? (
+          <ul className="flex flex-col gap-3" aria-label="Loading campaigns">
+            {[0, 1, 2].map((i) => (
+              <li key={i} className={cardClass}>
+                <Skeleton className="mb-2 h-5 w-1/3" />
+                <Skeleton className="h-4 w-2/3" />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {campaigns?.map((campaign) => {
+              const activeSession = activeSessions[campaign.id];
+              return (
+                <li key={campaign.id} className={cardClass}>
+                  {editingId === campaign.id ? (
+                    <form
+                      onSubmit={(e) => void handleUpdate(campaign.id, e)}
+                      className="flex flex-col gap-2"
+                    >
+                      <input name="name" defaultValue={campaign.name} required className={inputClass} />
+                      <textarea name="description" defaultValue={campaign.description} className={inputClass} />
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingId(null)}
+                          className="rounded-md px-3 py-2 text-sm text-parchment/60 hover:text-parchment"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <h2 className="break-words font-display text-base text-parchment">
+                            {campaign.name}
+                          </h2>
+                          {campaign.description && (
+                            <p className="break-words text-sm text-parchment/60">
+                              {campaign.description}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant={activeSession ? 'success' : 'neutral'}>
+                          {activeSession ? 'Session active' : 'No active session'}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {activeSession ? (
+                          <button
+                            type="button"
+                            onClick={() => void handleEndSession(campaign.id, activeSession.id)}
+                            className="rounded-md border border-danger/50 px-3 py-2 text-sm text-danger-text transition-colors hover:bg-danger-bg/10"
+                          >
+                            End session
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => void handleStartSession(campaign.id)}
+                            className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
+                          >
+                            Start session
+                          </button>
+                        )}
+                        <button type="button" onClick={() => setEditingId(campaign.id)} className={ghostButtonClass}>
+                          Edit
+                        </button>
+                        <button type="button" onClick={() => void handleDelete(campaign.id)} className={ghostButtonClass}>
+                          Delete
+                        </button>
+                      </div>
+                      {activeSession && <ChatPanel room={activeSession.room} />}
+                    </>
+                  )}
+                </li>
+              );
+            })}
+            {campaigns?.length === 0 && (
+              <li className="rounded-[12px] border border-dashed border-hairline/25 p-6 text-center text-sm text-parchment/50">
+                No campaigns yet. Create one above.
+              </li>
+            )}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }
