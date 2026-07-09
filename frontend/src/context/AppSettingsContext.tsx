@@ -24,6 +24,7 @@ export const DEFAULTS: AppSettings = {
   chat_enabled: false,
   player_area_enabled: false,
   data_management_enabled: false,
+  character_creation_enabled: false,
 };
 
 interface AppSettingsContextValue {

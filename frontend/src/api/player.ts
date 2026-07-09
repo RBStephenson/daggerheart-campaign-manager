@@ -43,13 +43,16 @@ export function createCharacter(input: {
   ancestry: string;
   community: string;
   level: number;
+  extra?: string;
 }): Promise<Character> {
   return apiPost('/api/player/characters', input);
 }
 
 export function updateCharacter(
   id: number,
-  updates: Partial<Pick<Character, 'name' | 'char_class' | 'ancestry' | 'community' | 'level'>>,
+  updates: Partial<
+    Pick<Character, 'name' | 'char_class' | 'ancestry' | 'community' | 'level' | 'extra'>
+  >,
 ): Promise<Character> {
   return apiPut(`/api/player/characters/${id}`, updates);
 }

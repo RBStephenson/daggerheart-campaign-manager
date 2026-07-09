@@ -10,12 +10,19 @@ import {
   type Character,
   type MemberCampaign,
 } from '../../api/player';
+import { getCharacterCreationData } from '../../api/srd';
+import CharacterWizard from './CharacterWizard';
 
 export default function PlayerPage() {
   const [disabled, setDisabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [campaigns, setCampaigns] = useState<MemberCampaign[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
+  const [wizardCampaignId, setWizardCampaignId] = useState<number | null>(null);
+  // /api/settings is host-only (403 for players), so this can't come from
+  // AppSettingsContext — probe the SRD endpoint itself and treat a 404 (flag
+  // off) the same way every other player-area feature is gated: invisible.
+  const [characterCreationAvailable, setCharacterCreationAvailable] = useState(false);
 
   const [noteCampaignId, setNoteCampaignId] = useState<number | null>(null);
   const [noteBody, setNoteBody] = useState('');
@@ -43,6 +50,12 @@ export default function PlayerPage() {
 
   useEffect(() => {
     void refresh();
+  }, []);
+
+  useEffect(() => {
+    getCharacterCreationData()
+      .then(() => setCharacterCreationAvailable(true))
+      .catch(() => setCharacterCreationAvailable(false));
   }, []);
 
   useEffect(() => {
@@ -126,7 +139,29 @@ export default function PlayerPage() {
       )}
 
       <h2 className="mb-2 text-lg font-semibold text-slate-900">My Characters</h2>
-      {campaigns.length > 0 && (
+      {characterCreationAvailable && campaigns.length > 0 && (
+        <div className="mb-4">
+          {wizardCampaignId === null ? (
+            <button
+              type="button"
+              onClick={() => setWizardCampaignId(campaigns[0]?.id ?? null)}
+              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+            >
+              Create Character (Guided)
+            </button>
+          ) : (
+            <CharacterWizard
+              campaignId={wizardCampaignId}
+              onCreated={() => {
+                setWizardCampaignId(null);
+                void refresh();
+              }}
+              onCancel={() => setWizardCampaignId(null)}
+            />
+          )}
+        </div>
+      )}
+      {!characterCreationAvailable && campaigns.length > 0 && (
         <form
           onSubmit={(e) => void handleCreateCharacter(e)}
           className="mb-4 flex max-w-md flex-col gap-2"
