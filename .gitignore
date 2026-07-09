@@ -18,6 +18,9 @@ frontend/dist/
 *.db
 data/
 
+# Local-only agent instructions
+AGENTS.md
+
 # Env / IDE
 .env
 .env.*
