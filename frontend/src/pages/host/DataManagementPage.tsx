@@ -156,7 +156,7 @@ export default function DataManagementPage() {
         </div>
       )}
 
-      <p className="mb-4 text-sm text-slate-600">
+      <p className="mb-4 text-sm text-admin-subtext dark:text-admin-subtext-dark">
         Back up the campaign database to a file, restore from a previous backup, or wipe it
         entirely. This affects the database only.
       </p>
@@ -165,16 +165,16 @@ export default function DataManagementPage() {
         <button
           onClick={backup}
           disabled={busy !== null}
-          className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+          className="self-start rounded-md bg-admin-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {busy === 'backup' ? 'Preparing backup…' : 'Download Backup'}
         </button>
 
-        <div className="rounded-md border border-slate-200 bg-white p-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <div className="rounded-md border border-admin-border bg-admin-card p-4 dark:border-admin-border-dark dark:bg-admin-card-dark">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-admin-subtext dark:text-admin-subtext-dark">
             Database Health
           </p>
-          <p className="mb-3 text-xs text-slate-500">
+          <p className="mb-3 text-xs text-admin-subtext dark:text-admin-subtext-dark">
             Run a SQLite integrity check, or attempt a safe index repair. Repair snapshots the
             database first.
           </p>
@@ -195,7 +195,7 @@ export default function DataManagementPage() {
             <button
               onClick={checkHealth}
               disabled={busy !== null}
-              className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-md border border-admin-border bg-admin-card px-3 py-2 text-sm text-admin-heading hover:bg-admin-divider disabled:cursor-not-allowed disabled:opacity-40 dark:border-admin-border-dark dark:bg-admin-card-dark dark:text-admin-heading-dark dark:hover:bg-admin-divider-dark"
             >
               {busy === 'health' ? 'Checking…' : 'Check Health'}
             </button>
@@ -209,11 +209,11 @@ export default function DataManagementPage() {
           </div>
         </div>
 
-        <div className="rounded-md border border-red-300 bg-red-50 p-4">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-red-700">
+        <div className="rounded-md border border-red-300 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-red-700 dark:text-red-300">
             Danger Zone
           </p>
-          <p className="mb-4 text-xs text-red-700/80">
+          <p className="mb-4 text-xs text-red-700/80 dark:text-red-300/70">
             These actions permanently overwrite or erase the campaign database and cannot be
             undone. Download a backup first.
           </p>
@@ -221,7 +221,7 @@ export default function DataManagementPage() {
             <button
               onClick={openRestore}
               disabled={busy !== null}
-              className="rounded-md border border-red-400 bg-white px-3 py-2 text-sm text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-md border border-red-400 bg-white px-3 py-2 text-sm text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-800 dark:bg-transparent dark:text-red-300 dark:hover:bg-red-950/40"
             >
               Restore from Backup…
             </button>
@@ -245,8 +245,8 @@ export default function DataManagementPage() {
 
       {danger && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-lg border border-red-300 bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-bold text-red-700">
+          <div className="w-full max-w-md rounded-lg border border-red-300 bg-white p-6 shadow-xl dark:border-red-900/60 dark:bg-admin-card-dark">
+            <h3 className="mb-2 text-lg font-bold text-red-700 dark:text-red-300">
               {danger === 'repair'
                 ? 'Repair database?'
                 : danger === 'restore'
@@ -254,23 +254,23 @@ export default function DataManagementPage() {
                   : 'Delete all data?'}
             </h3>
             {danger === 'repair' ? (
-              <p className="mb-4 text-sm text-slate-700">
+              <p className="mb-4 text-sm text-admin-heading dark:text-admin-heading-dark">
                 This will snapshot the current database, run SQLite <span className="font-mono">REINDEX</span>,
                 and verify the result with an integrity check.
               </p>
             ) : danger === 'restore' ? (
-              <p className="mb-4 text-sm text-slate-700">
+              <p className="mb-4 text-sm text-admin-heading dark:text-admin-heading-dark">
                 This will <strong className="text-red-700">overwrite the entire current database</strong> with
                 the contents of <span className="font-mono">{restoreFile?.name}</span>. This{' '}
                 <strong className="text-red-700">cannot be recovered</strong> unless you have a backup.
               </p>
             ) : (
-              <p className="mb-4 text-sm text-slate-700">
+              <p className="mb-4 text-sm text-admin-heading dark:text-admin-heading-dark">
                 This will <strong className="text-red-700">permanently erase every campaign, character,
                 and message</strong> in the database. This <strong className="text-red-700">cannot be undone</strong>.
               </p>
             )}
-            <label className="mb-1.5 block text-xs text-slate-500">
+            <label className="mb-1.5 block text-xs text-admin-subtext dark:text-admin-subtext-dark">
               Type <span className="font-mono font-semibold text-red-700">{ACK_PHRASE}</span> to confirm:
             </label>
             <input
@@ -278,7 +278,7 @@ export default function DataManagementPage() {
               value={ack}
               onChange={(e) => setAck(e.target.value)}
               placeholder={ACK_PHRASE}
-              className="mb-4 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm tracking-wider focus:border-red-500 focus:outline-none"
+              className="mb-4 w-full rounded-md border border-admin-border bg-admin-card px-3 py-2 font-mono text-sm tracking-wider text-admin-heading focus:border-red-500 focus:outline-none dark:border-admin-border-dark dark:bg-admin-bg-dark dark:text-admin-heading-dark"
             />
             {dangerError && (
               <div className="mb-4 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
@@ -289,7 +289,7 @@ export default function DataManagementPage() {
               <button
                 onClick={closeDanger}
                 disabled={busy !== null}
-                className="rounded-md bg-slate-100 px-4 py-2 text-sm text-slate-700 hover:bg-slate-200 disabled:opacity-40"
+                className="rounded-md bg-admin-divider px-4 py-2 text-sm text-admin-heading hover:opacity-80 disabled:opacity-40 dark:bg-admin-divider-dark dark:text-admin-heading-dark"
               >
                 Cancel
               </button>
