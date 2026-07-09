@@ -1,1 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+/* Host admin area only: toggled via a `.dark` class on the Host layout
+   wrapper (a real, persisted user preference — not the system
+   prefers-color-scheme). Dark-fantasy areas never carry this class, so
+   `dark:` utilities can't leak into them. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: 'Cinzel', serif;
+  --font-sans: 'Inter', sans-serif;
+
+  /* Dark-fantasy theme (Launch, Login, Gamemaster, Player, Wizard) */
+  --color-void: #0b0810;
+  --color-nightshade: #16111f;
+  --color-hairline: #f5d096;
+  --color-input-dark: #0f0b17;
+  --color-parchment: #f3e9d8;
+  --color-ember: #d9a54e;
+  --color-ember-bright: #f2c265;
+  --color-arcane: #8b6cf0;
+  --color-danger: #c96a5c;
+  --color-danger-text: #e08a7a;
+  --color-danger-bg: #c45444;
+
+  /* Clean admin theme (Host) — light values are the defaults; dark values
+     are applied via `dark:` utilities on the same elements. */
+  --color-admin-bg: #f7f5f1;
+  --color-admin-card: #ffffff;
+  --color-admin-border: #e2e0dc;
+  --color-admin-divider: #efece6;
+  --color-admin-heading: #211c14;
+  --color-admin-subtext: #6b6459;
+  --color-admin-accent: #a5691f;
+
+  --color-admin-bg-dark: #171310;
+  --color-admin-card-dark: #211c17;
+  --color-admin-border-dark: #3a332b;
+  --color-admin-divider-dark: #2c2620;
+  --color-admin-heading-dark: #f1ece3;
+  --color-admin-subtext-dark: #a89e8f;
+}
