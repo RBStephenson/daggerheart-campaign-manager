@@ -20,7 +20,9 @@ router = APIRouter(tags=["settings"])
 
 # Every known setting and its default. Feature flags are named
 # `<feature>_enabled` and default to False.
-DEFAULTS: dict[str, Any] = {}
+DEFAULTS: dict[str, Any] = {
+    "realtime_enabled": False,
+}
 
 
 def get_settings(db: Session) -> dict[str, Any]:

@@ -18,7 +18,9 @@ export interface AppSettings {
   [key: string]: boolean | number | string;
 }
 
-export const DEFAULTS: AppSettings = {};
+export const DEFAULTS: AppSettings = {
+  realtime_enabled: false,
+};
 
 interface AppSettingsContextValue {
   settings: AppSettings;
