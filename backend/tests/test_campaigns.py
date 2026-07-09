@@ -3,6 +3,7 @@ import json
 from sqlalchemy.orm import Session
 
 from app.models import AppSetting
+from tests.conftest import make_user
 
 
 def enable_campaigns(db: Session) -> None:
@@ -161,3 +162,70 @@ def test_list_sessions(as_user, db: Session) -> None:
     resp = client.get(f"/api/campaigns/{campaign_id}/sessions")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
+
+
+def test_add_member(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    gm_client = as_user("gm")
+    campaign_id = gm_client.post("/api/campaigns", json={"name": "Windmere"}).json()["id"]
+    make_user(db, username="alice", role="player")
+
+    resp = gm_client.post(f"/api/campaigns/{campaign_id}/members", json={"username": "alice"})
+    assert resp.status_code == 200
+    assert resp.json()["player_username"] == "alice"
+
+    list_resp = gm_client.get(f"/api/campaigns/{campaign_id}/members")
+    assert [m["player_username"] for m in list_resp.json()] == ["alice"]
+
+
+def test_add_member_rejects_non_player(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    gm_client = as_user("gm")
+    campaign_id = gm_client.post("/api/campaigns", json={"name": "Windmere"}).json()["id"]
+    make_user(db, username="bob", role="gm")
+
+    resp = gm_client.post(f"/api/campaigns/{campaign_id}/members", json={"username": "bob"})
+    assert resp.status_code == 404
+
+
+def test_add_member_rejects_unknown_username(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    gm_client = as_user("gm")
+    campaign_id = gm_client.post("/api/campaigns", json={"name": "Windmere"}).json()["id"]
+
+    resp = gm_client.post(f"/api/campaigns/{campaign_id}/members", json={"username": "ghost"})
+    assert resp.status_code == 404
+
+
+def test_add_member_rejects_duplicate(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    gm_client = as_user("gm")
+    campaign_id = gm_client.post("/api/campaigns", json={"name": "Windmere"}).json()["id"]
+    make_user(db, username="alice", role="player")
+    gm_client.post(f"/api/campaigns/{campaign_id}/members", json={"username": "alice"})
+
+    resp = gm_client.post(f"/api/campaigns/{campaign_id}/members", json={"username": "alice"})
+    assert resp.status_code == 409
+
+
+def test_remove_member(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    gm_client = as_user("gm")
+    campaign_id = gm_client.post("/api/campaigns", json={"name": "Windmere"}).json()["id"]
+    player = make_user(db, username="alice", role="player")
+    gm_client.post(f"/api/campaigns/{campaign_id}/members", json={"username": "alice"})
+
+    resp = gm_client.delete(f"/api/campaigns/{campaign_id}/members/{player.id}")
+    assert resp.status_code == 204
+    assert gm_client.get(f"/api/campaigns/{campaign_id}/members").json() == []
+
+
+def test_cannot_manage_members_of_other_gms_campaign(as_user, db: Session) -> None:
+    enable_campaigns(db)
+    gm_a = as_user("gm", username="gm-a")
+    campaign_id = gm_a.post("/api/campaigns", json={"name": "Windmere"}).json()["id"]
+    make_user(db, username="alice", role="player")
+
+    gm_b = as_user("gm", username="gm-b")
+    resp = gm_b.post(f"/api/campaigns/{campaign_id}/members", json={"username": "alice"})
+    assert resp.status_code == 404

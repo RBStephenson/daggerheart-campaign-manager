@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -89,3 +89,50 @@ class ChatMessage(Base):
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CampaignMembership(Base):
+    """A player's membership in a campaign, granted by the GM."""
+
+    __tablename__ = "campaign_memberships"
+    __table_args__ = (UniqueConstraint("campaign_id", "player_user_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id"), nullable=False)
+    player_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    joined_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Character(Base):
+    """A player-owned character within a campaign.
+
+    Core Daggerheart fields are columns; anything else lives in `extra`
+    as a JSON-encoded string so the schema doesn't need to chase every
+    rule-book detail.
+    """
+
+    __tablename__ = "characters"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    player_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    char_class: Mapped[str] = mapped_column(String(100), nullable=False, default="")
+    ancestry: Mapped[str] = mapped_column(String(100), nullable=False, default="")
+    community: Mapped[str] = mapped_column(String(100), nullable=False, default="")
+    level: Mapped[int] = mapped_column(nullable=False, default=1)
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CampaignNote(Base):
+    """A player's private notes for a campaign — one per player per campaign."""
+
+    __tablename__ = "campaign_notes"
+    __table_args__ = (UniqueConstraint("campaign_id", "player_user_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id"), nullable=False)
+    player_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

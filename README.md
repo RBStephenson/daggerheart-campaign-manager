@@ -133,3 +133,27 @@ room key is `session-{id}` (see [Realtime](#realtime)).
 | `GET /api/campaigns/{id}/sessions` | List a campaign's sessions |
 | `POST /api/campaigns/{id}/sessions` | Start a session (409 if one is already active) |
 | `POST /api/campaigns/{id}/sessions/{session_id}/end` | End a session |
+| `GET /api/campaigns/{id}/members` | List a campaign's players |
+| `POST /api/campaigns/{id}/members` | Add a player by username (404 if not a `player` account) |
+| `DELETE /api/campaigns/{id}/members/{user_id}` | Remove a player |
+
+## Player: characters, campaigns, notes
+
+Behind the `player_area_enabled` feature flag (default off, toggle on
+`/host/settings`). A player only sees campaigns they've been added to by a
+GM (via the membership endpoints above) — everything here 404s for a
+campaign they're not a member of, same invisible-rather-than-erroring
+pattern as the rest of the app. Characters are owned by the creating player;
+ownership isolation is enforced the same way as campaigns (404, not 403).
+Notes are one free-text note per player per campaign, private to that
+player — upserted on save.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/player/campaigns` | Campaigns the current player is a member of |
+| `GET /api/player/characters` | The player's own characters (`?campaign_id=` to filter) |
+| `POST /api/player/characters` | Create a character (requires membership in `campaign_id`) |
+| `PUT /api/player/characters/{id}` | Update a character (partial) |
+| `DELETE /api/player/characters/{id}` | Delete a character |
+| `GET /api/player/campaigns/{id}/note` | Get the player's own note for a campaign |
+| `PUT /api/player/campaigns/{id}/note` | Save (upsert) the player's own note |
