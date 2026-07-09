@@ -2,7 +2,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "8002:8000"
     volumes:
       - ./backend:/app
       - dhcm-data:/data
@@ -14,12 +14,14 @@ services:
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
-    image: node:20
+    image: node:20-slim
     working_dir: /app
     volumes:
       - ./frontend:/app
     ports:
       - "5173:5173"
+    environment:
+      VITE_API_PROXY_TARGET: http://backend:8000
     command: sh -c "npm install && npm run dev -- --host"
 
 volumes:
