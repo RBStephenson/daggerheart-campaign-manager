@@ -18,6 +18,19 @@ describe('ToggleSwitch', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: 'Chat' }));
     expect(onChange).toHaveBeenCalled();
   });
+
+  it('toggles when clicking the visible track, not just the hidden input directly', async () => {
+    // The real <input> is visually hidden (sr-only); clicks land on the
+    // decorative track/thumb spans. Only a <label> wrapper forwards those
+    // clicks to the input natively — regression test for that wiring.
+    const onChange = vi.fn();
+    const { container } = render(
+      <ToggleSwitch checked={false} onChange={onChange} aria-label="Realtime" />,
+    );
+    const track = container.querySelector('span[aria-hidden]') as HTMLElement;
+    await userEvent.click(track);
+    expect(onChange).toHaveBeenCalled();
+  });
 });
 
 describe('Skeleton', () => {
