@@ -11,6 +11,7 @@ validated against that same table with the one-handed constraint; the dedicated
 SRD secondary-weapon table and full feature-card prose are deferred.
 """
 
+import json
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
@@ -143,3 +144,24 @@ class CharacterSheet(BaseModel):
             raise ValueError(f"Unknown Tier 1 armor: {self.equipment.armor!r}")
 
         return self
+
+
+def validate_extra(extra: str | None) -> None:
+    """Validate a `Character.extra` value as a CharacterSheet, when populated.
+
+    An empty value (``None``, ``""``, or ``"{}"``) is allowed for backward
+    compatibility with the flat character form, which never populates a sheet.
+    A non-empty object must validate fully as a `CharacterSheet`.
+
+    Raises `ValueError` / `pydantic.ValidationError` on invalid content; callers
+    translate these into HTTP 422.
+    """
+    if not extra:
+        return
+    try:
+        data = json.loads(extra)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"extra is not valid JSON: {e}") from e
+    if not isinstance(data, dict) or not data:
+        return
+    CharacterSheet.model_validate(data)

@@ -26,6 +26,7 @@ DEFAULTS: dict[str, Any] = {
     "chat_enabled": False,
     "player_area_enabled": False,
     "data_management_enabled": False,
+    "character_creation_enabled": False,
 }
 
 
