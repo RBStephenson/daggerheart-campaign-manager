@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #0b0810; }
+    * { box-sizing: border-box; }
+    ::selection { background: rgba(217,165,78,0.35); }
+    input::placeholder, textarea::placeholder { color: inherit; opacity: 0.45; }
+    @keyframes skeleton-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    .skel { animation: skeleton-pulse 1.4s ease-in-out infinite; }
+  </style>
+</helmet>
+
+<div style="font-family: 'Inter', sans-serif; min-height: 100vh; background: #0b0810;">
+
+  <!-- preview switcher -->
+  <div style="position: sticky; top: 0; z-index: 50; display: flex; gap: 6px; padding: 10px 16px; background: #050308; border-bottom: 1px solid rgba(245,208,150,0.15); overflow-x: auto;">
+    <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ isLaunch }}" hint-placeholder-val="{{ true }}">
+    <section data-screen-label="Launch" style="position: relative; min-height: calc(100vh - 45px); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 60px 16px;">
+      <div aria-hidden="true" style="position: absolute; top: -160px; left: 15%; width: 380px; height: 380px; border-radius: 50%; background: rgba(217,165,78,0.10); filter: blur(120px);"></div>
+      <div aria-hidden="true" style="position: absolute; bottom: -160px; right: 15%; width: 380px; height: 380px; border-radius: 50%; background: rgba(139,108,240,0.15); filter: blur(120px);"></div>
+
+      <div style="position: relative; max-width: 960px; width: 100%; text-align: center;">
+        <h1 style="font-family: 'Cinzel', serif; font-size: clamp(24px, 7vw, 36px); letter-spacing: 0.22em; color: rgba(242,224,190,0.92); margin: 0;">DAGGERHEART</h1>
+        <p style="margin: 8px 0 0; font-size: 11px; letter-spacing: 0.4em; color: rgba(242,224,190,0.5); text-transform: uppercase;">Campaign Manager</p>
+
+        <div style="margin-top: 48px; display: flex; flex-wrap: wrap; align-items: stretch; justify-content: center; gap: 24px; width: 100%;">
+          <sc-for list="{{ launchAreas }}" as="area" hint-placeholder-count="3">
+            <div onClick="{{ area.onClick }}" role="img" aria-label="{{ area.label }}" style="{{ area.tileStyle }}"></div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+    <section data-screen-label="Login" style="position: relative; min-height: calc(100vh - 45px); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 16px;">
+      <div aria-hidden="true" style="position: absolute; top: -160px; left: 15%; width: 380px; height: 380px; border-radius: 50%; background: rgba(217,165,78,0.10); filter: blur(120px);"></div>
+      <div aria-hidden="true" style="position: absolute; bottom: -160px; right: 15%; width: 380px; height: 380px; border-radius: 50%; background: rgba(139,108,240,0.15); filter: blur(120px);"></div>
+
+      <div style="position: relative; width: 100%; max-width: 380px;">
+        <div style="text-align: center; margin-bottom: 28px;">
+          <h1 style="font-family: 'Cinzel', serif; font-size: clamp(20px, 7vw, 26px); letter-spacing: 0.18em; color: rgba(242,224,190,0.92); margin: 0;">DAGGERHEART</h1>
+          <p style="margin: 6px 0 0; font-size: 11px; letter-spacing: 0.35em; color: rgba(242,224,190,0.45); text-transform: uppercase;">Campaign Manager</p>
+        </div>
+
+        <div style="background: rgba(22,17,31,0.75); border: 1px solid rgba(245,208,150,0.16); border-radius: 14px; padding: 22px; backdrop-filter: blur(6px); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+          <h2 style="font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 0.08em; color: #f3e9d8; margin: 0 0 20px; text-align: center;">Enter the Realm</h2>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; letter-spacing: 0.05em; color: rgba(243,233,216,0.65); text-transform: uppercase;">
+              Username
+              <input type="text" value="{{ login.username }}" onChange="{{ setLoginUsername }}" placeholder="your name" style="{{ loginUsernameStyle }}" />
+              <sc-if value="{{ loginErrors.username }}" hint-placeholder-val="{{ false }}">
+                <span style="text-transform: none; letter-spacing: normal; color: #e08a7a; font-size: 12px;">{{ loginErrors.username }}</span>
+              </sc-if>
+            </label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; letter-spacing: 0.05em; color: rgba(243,233,216,0.65); text-transform: uppercase;">
+              Password
+              <input type="password" value="{{ login.password }}" onChange="{{ setLoginPassword }}" placeholder="••••••••" style="{{ loginPasswordStyle }}" />
+              <sc-if value="{{ loginErrors.password }}" hint-placeholder-val="{{ false }}">
+                <span style="text-transform: none; letter-spacing: normal; color: #e08a7a; font-size: 12px;">{{ loginErrors.password }}</span>
+              </sc-if>
+            </label>
+            <sc-if value="{{ loginServerError }}" hint-placeholder-val="{{ false }}">
+              <p role="alert" style="margin: 0; font-size: 13px; color: #e08a7a; text-align: center;">{{ loginServerError }}</p>
+            </sc-if>
+            <button type="button" onClick="{{ submitLogin }}" style="margin-top: 6px; width: 100%; padding: 11px; border-radius: 8px; border: none; background: #d9a54e; color: #1a1206; font-weight: 600; font-size: 14px; letter-spacing: 0.03em; cursor: pointer;">{{ loginButtonLabel }}</button>
+          </div>
+        </div>
+        <p style="text-align: center; margin-top: 18px; font-size: 12px; color: rgba(243,233,216,0.35);">Invite-only · ask your Host or GM for access</p>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isGm }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Gamemaster" style="min-height: calc(100vh - 45px); padding: 32px 16px 60px; position: relative; overflow: hidden;">
+      <div aria-hidden="true" style="position: absolute; top: -200px; right: -100px; width: 420px; height: 420px; border-radius: 50%; background: rgba(139,108,240,0.10); filter: blur(140px);"></div>
+      <div style="position: relative; max-width: 880px; margin: 0 auto;">
+
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 4px;">
+          <h1 style="font-family: 'Cinzel', serif; font-size: clamp(24px, 6vw, 30px); letter-spacing: 0.04em; color: #f3e9d8; margin: 0;">Gamemaster</h1>
+          <span style="font-size: 12px; letter-spacing: 0.08em; color: rgba(243,233,216,0.4); text-transform: uppercase;">{{ campaignCountLabel }}</span>
+        </div>
+        <p style="color: rgba(243,233,216,0.5); font-size: 14px; margin: 6px 0 16px;">Manage your campaigns, run sessions, and chat with your table.</p>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 24px;">
+          <sc-for list="{{ dataStateChips }}" as="dsc" hint-placeholder-count="3">
+            <span onClick="{{ dsc.onClick }}" style="{{ dsc.style }}">{{ dsc.label }}</span>
+          </sc-for>
+        </div>
+
+        <div style="background: rgba(22,17,31,0.6); border: 1px solid rgba(245,208,150,0.14); border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <h2 style="font-family: 'Cinzel', serif; font-size: 15px; letter-spacing: 0.06em; color: rgba(242,224,190,0.85); margin: 0 0 14px;">New Campaign</h2>
+          <div style="display: flex; flex-direction: column; gap: 10px; max-width: 480px;">
+            <input placeholder="Campaign name" style="padding: 10px 12px; border-radius: 8px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.18); color: #f3e9d8; font-size: 14px; font-family: 'Inter', sans-serif;" />
+            <textarea placeholder="Description (optional)" rows="2" style="padding: 10px 12px; border-radius: 8px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.18); color: #f3e9d8; font-size: 14px; font-family: 'Inter', sans-serif; resize: vertical;"></textarea>
+            <button type="button" style="align-self: flex-start; padding: 9px 18px; border-radius: 8px; border: none; background: #d9a54e; color: #1a1206; font-weight: 600; font-size: 13px; cursor: pointer;">Create campaign</button>
+          </div>
+        </div>
+
+        <sc-if value="{{ gmLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <sc-for list="{{ skeletonRows }}" as="sk" hint-placeholder-count="3">
+              <div class="skel" style="height: 92px; border-radius: 12px; background: rgba(243,233,216,0.06); border: 1px solid rgba(245,208,150,0.1);"></div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ gmEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align: center; padding: 48px 20px; border: 1px dashed rgba(245,208,150,0.2); border-radius: 12px;">
+            <p style="margin: 0; color: rgba(243,233,216,0.55); font-size: 14px;">No campaigns yet. Create one above.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ gmError }}" hint-placeholder-val="{{ false }}">
+          <div style="padding: 20px; border-radius: 12px; background: rgba(196,84,68,0.1); border: 1px solid rgba(196,84,68,0.3); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <p style="margin: 0; color: #e08a7a; font-size: 14px;">Failed to load campaigns.</p>
+            <button type="button" onClick="{{ retry }}" style="padding: 7px 14px; border-radius: 7px; border: 1px solid rgba(224,138,122,0.4); background: transparent; color: #e08a7a; font-size: 13px; cursor: pointer;">Retry</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ gmHasData }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <sc-for list="{{ campaigns }}" as="c" hint-placeholder-count="3">
+              <div style="background: rgba(22,17,31,0.65); border: 1px solid rgba(245,208,150,0.14); border-radius: 12px; padding: 18px 20px;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+                  <div style="min-width: 0;">
+                    <h3 style="margin: 0; font-family: 'Cinzel', serif; font-size: 17px; color: #f3e9d8; letter-spacing: 0.02em;">{{ c.name }}</h3>
+                    <p style="margin: 4px 0 0; font-size: 13px; color: rgba(243,233,216,0.5);">{{ c.description }}</p>
+                  </div>
+                  <span style="{{ c.badgeStyle }}">{{ c.badgeLabel }}</span>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+                  <button type="button" style="{{ c.sessionButtonStyle }}">{{ c.sessionButtonLabel }}</button>
+                  <button type="button" style="padding: 8px 14px; border-radius: 7px; background: transparent; border: 1px solid rgba(245,208,150,0.25); color: rgba(243,233,216,0.8); font-size: 13px; cursor: pointer;">Edit</button>
+                  <button type="button" style="padding: 8px 14px; border-radius: 7px; background: transparent; border: 1px solid rgba(245,208,150,0.25); color: rgba(243,233,216,0.8); font-size: 13px; cursor: pointer;">Delete</button>
+                </div>
+
+                <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top: 16px; border-top: 1px solid rgba(245,208,150,0.12); padding-top: 14px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                      <span style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(243,233,216,0.45);">Table Chat</span>
+                      <span style="font-size: 11px; background: #34d399; color: #06251b; padding: 2px 8px; border-radius: 999px; font-weight: 600;">2 new</span>
+                    </div>
+                    <div style="margin-top: 10px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.1); border-radius: 8px; padding: 10px 12px; max-height: 120px; overflow-y: auto;">
+                      <p style="margin: 0 0 8px; font-size: 13px; color: rgba(243,233,216,0.75);"><strong style="color: #d9a54e;">Rowan:</strong> heading to the tavern now</p>
+                      <p style="margin: 0; font-size: 13px; color: rgba(243,233,216,0.75);"><strong style="color: #8b6cf0;">Sable:</strong> rolling for perception...</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                      <input placeholder="Message the table..." style="flex: 1; padding: 8px 10px; border-radius: 7px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.15); color: #f3e9d8; font-size: 13px;" />
+                      <button type="button" style="padding: 8px 14px; border-radius: 7px; border: none; background: rgba(217,165,78,0.18); color: #d9a54e; font-size: 13px; font-weight: 600; cursor: pointer;">Send</button>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isPlayer }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Player" style="min-height: calc(100vh - 45px); padding: 32px 16px 60px; position: relative; overflow: hidden;">
+      <div aria-hidden="true" style="position: absolute; top: -180px; left: -80px; width: 400px; height: 400px; border-radius: 50%; background: rgba(217,165,78,0.08); filter: blur(140px);"></div>
+      <div style="position: relative; max-width: 880px; margin: 0 auto;">
+        <h1 style="font-family: 'Cinzel', serif; font-size: clamp(24px, 6vw, 30px); letter-spacing: 0.04em; color: #f3e9d8; margin: 0 0 4px;">Player</h1>
+        <p style="color: rgba(243,233,216,0.5); font-size: 14px; margin: 0 0 16px;">Your campaigns, characters, and notes.</p>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 26px;">
+          <sc-for list="{{ dataStateChips }}" as="dsc2" hint-placeholder-count="3">
+            <span onClick="{{ dsc2.onClick }}" style="{{ dsc2.style }}">{{ dsc2.label }}</span>
+          </sc-for>
+        </div>
+
+        <h2 style="font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 0.05em; color: rgba(242,224,190,0.85); margin: 0 0 10px;">My Campaigns</h2>
+
+        <sc-if value="{{ plLoading }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+            <div class="skel" style="width: 130px; height: 30px; border-radius: 999px; background: rgba(243,233,216,0.06); border: 1px solid rgba(245,208,150,0.1);"></div>
+            <div class="skel" style="width: 150px; height: 30px; border-radius: 999px; background: rgba(243,233,216,0.06); border: 1px solid rgba(245,208,150,0.1);"></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ plEmpty }}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0 0 30px; color: rgba(243,233,216,0.5); font-size: 14px;">You haven't been added to a campaign yet. Ask your GM for an invite.</p>
+        </sc-if>
+        <sc-if value="{{ plError }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom: 30px; padding: 16px 20px; border-radius: 12px; background: rgba(196,84,68,0.1); border: 1px solid rgba(196,84,68,0.3); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <p style="margin: 0; color: #e08a7a; font-size: 14px;">Failed to load your data.</p>
+            <button type="button" onClick="{{ retry }}" style="padding: 7px 14px; border-radius: 7px; border: 1px solid rgba(224,138,122,0.4); background: transparent; color: #e08a7a; font-size: 13px; cursor: pointer;">Retry</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ plHasData }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px;">
+            <sc-for list="{{ playerCampaigns }}" as="pc" hint-placeholder-count="2">
+              <span style="padding: 7px 14px; border-radius: 999px; background: rgba(139,108,240,0.14); border: 1px solid rgba(139,108,240,0.3); color: #c9b8fb; font-size: 13px;">{{ pc.name }}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <h2 style="font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 0.05em; color: rgba(242,224,190,0.85); margin: 0;">My Characters</h2>
+          <sc-if value="{{ showWizard }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ closeWizard }}" style="padding: 9px 16px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.25); background: transparent; color: rgba(243,233,216,0.8); font-weight: 600; font-size: 13px; cursor: pointer;">Cancel</button>
+          </sc-if>
+          <sc-if value="{{ showWizardButton }}" hint-placeholder-val="{{ true }}">
+            <button type="button" onClick="{{ openWizard }}" style="padding: 9px 16px; border-radius: 8px; border: none; background: #d9a54e; color: #1a1206; font-weight: 600; font-size: 13px; cursor: pointer;">Create Character (Guided)</button>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ showWizard }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom: 32px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px;">
+              <sc-for list="{{ wizardSteps }}" as="ws" hint-placeholder-count="8">
+                <span onClick="{{ ws.onClick }}" style="{{ ws.style }}">{{ ws.n }}. {{ ws.label }}</span>
+              </sc-for>
+            </div>
+
+            <div style="background: rgba(22,17,31,0.7); border: 1px solid rgba(245,208,150,0.16); border-radius: 12px; padding: 18px; max-width: 520px; width: 100%;">
+
+              <sc-if value="{{ wizardStep0 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <label style="{{ wLabelStyle }}">Character Name
+                    <input value="{{ w.name }}" onChange="{{ setName }}" placeholder="Rowan Ashvale" style="{{ wInputStyle }}" />
+                  </label>
+                  <label style="{{ wLabelStyle }}">Class
+                    <select value="{{ w.className }}" onChange="{{ setClassName }}" style="{{ wInputStyle }}">
+                      <option value="">Choose a class…</option>
+                      <sc-for list="{{ classOptions }}" as="opt" hint-placeholder-count="3">
+                        <option value="{{ opt.name }}">{{ opt.label }}</option>
+                      </sc-for>
+                    </select>
+                  </label>
+                  <sc-if value="{{ w.className }}" hint-placeholder-val="{{ false }}">
+                    <label style="{{ wLabelStyle }}">Subclass
+                      <select value="{{ w.subclass }}" onChange="{{ setSubclass }}" style="{{ wInputStyle }}">
+                        <option value="">Choose a subclass…</option>
+                        <sc-for list="{{ subclassOptions }}" as="sub" hint-placeholder-count="2">
+                          <option value="{{ sub }}">{{ sub }}</option>
+                        </sc-for>
+                      </select>
+                    </label>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep1 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <label style="{{ wLabelStyle }}">Ancestry
+                    <select value="{{ w.ancestry }}" onChange="{{ setAncestry }}" style="{{ wInputStyle }}">
+                      <option value="">Choose an ancestry…</option>
+                      <sc-for list="{{ ancestries }}" as="a" hint-placeholder-count="3">
+                        <option value="{{ a }}">{{ a }}</option>
+                      </sc-for>
+                    </select>
+                  </label>
+                  <label style="{{ wLabelStyle }}">Community
+                    <select value="{{ w.community }}" onChange="{{ setCommunity }}" style="{{ wInputStyle }}">
+                      <option value="">Choose a community…</option>
+                      <sc-for list="{{ communities }}" as="cm" hint-placeholder-count="3">
+                        <option value="{{ cm }}">{{ cm }}</option>
+                      </sc-for>
+                    </select>
+                  </label>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep2 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <p style="{{ wHintStyle }}">Assign each modifier from +2, +1, +1, +0, +0, -1 to a trait. Each value can only be used once.</p>
+                  <sc-for list="{{ traitRows }}" as="tr" hint-placeholder-count="6">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                      <span style="font-size: 13px; color: #f3e9d8;">{{ tr.name }}</span>
+                      <select value="{{ tr.value }}" onChange="{{ tr.onChange }}" style="width: 90px; padding: 7px 8px; border-radius: 7px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.18); color: #f3e9d8; font-size: 13px;">
+                        <option value="">—</option>
+                        <sc-for list="{{ tr.options }}" as="tv" hint-placeholder-count="3">
+                          <option value="{{ tv }}">{{ tv }}</option>
+                        </sc-for>
+                      </select>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep3 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <p style="{{ wHintStyle }}">Evasion 10 · HP 6 · Stress 6 · Hope 2 · Proficiency 1</p>
+                  <label style="{{ wLabelStyle }}">Primary Weapon
+                    <select value="{{ w.primaryWeapon }}" onChange="{{ setPrimaryWeapon }}" style="{{ wInputStyle }}">
+                      <option value="">Choose a weapon…</option>
+                      <sc-for list="{{ weapons }}" as="wp" hint-placeholder-count="2">
+                        <option value="{{ wp }}">{{ wp }}</option>
+                      </sc-for>
+                    </select>
+                  </label>
+                  <label style="{{ wLabelStyle }}">Armor
+                    <select value="{{ w.armor }}" onChange="{{ setArmor }}" style="{{ wInputStyle }}">
+                      <option value="">Choose armor…</option>
+                      <sc-for list="{{ armors }}" as="ar" hint-placeholder-count="2">
+                        <option value="{{ ar }}">{{ ar }}</option>
+                      </sc-for>
+                    </select>
+                  </label>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep4 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <p style="{{ wHintStyle }}">Two Experiences, each with a +2 modifier.</p>
+                  <input value="{{ w.exp1 }}" onChange="{{ setExp1 }}" placeholder="Experience 1 (e.g. Bounty Hunter)" style="{{ wInputStyle }}" />
+                  <input value="{{ w.exp2 }}" onChange="{{ setExp2 }}" placeholder="Experience 2 (e.g. Silver Tongue)" style="{{ wInputStyle }}" />
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep5 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <p style="{{ wHintStyle }}">Choose two Level 1 domain cards from {{ domainNames }}.</p>
+                  <select value="{{ w.domainCard1 }}" onChange="{{ setDomainCard1 }}" style="{{ wInputStyle }}">
+                    <option value="">Choose a card…</option>
+                    <sc-for list="{{ domainCards }}" as="dc1" hint-placeholder-count="2">
+                      <option value="{{ dc1 }}">{{ dc1 }}</option>
+                    </sc-for>
+                  </select>
+                  <select value="{{ w.domainCard2 }}" onChange="{{ setDomainCard2 }}" style="{{ wInputStyle }}">
+                    <option value="">Choose a card…</option>
+                    <sc-for list="{{ domainCards2 }}" as="dc2" hint-placeholder-count="2">
+                      <option value="{{ dc2 }}">{{ dc2 }}</option>
+                    </sc-for>
+                  </select>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep6 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                  <label style="{{ wLabelStyle }}">Background
+                    <textarea value="{{ w.background }}" onChange="{{ setBackground }}" rows="4" placeholder="Answer a background question, or leave blank to discover it through play." style="{{ wTextareaStyle }}"></textarea>
+                  </label>
+                  <label style="{{ wLabelStyle }}">Connections (one per line)
+                    <textarea value="{{ w.connections }}" onChange="{{ setConnections }}" rows="4" style="{{ wTextareaStyle }}"></textarea>
+                  </label>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ wizardStep7 }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: rgba(243,233,216,0.8);">
+                  <p style="margin: 0;"><strong style="color: #f3e9d8;">{{ review.name }}</strong> — {{ review.classLine }}</p>
+                  <p style="margin: 0;">{{ review.heritage }}</p>
+                  <p style="margin: 0;">Traits: {{ review.traits }}</p>
+                  <p style="margin: 0;">{{ review.equipment }}</p>
+                  <p style="margin: 0;">Experiences: {{ review.experiences }}</p>
+                  <p style="margin: 0;">Domain Cards: {{ review.domainCards }}</p>
+                </div>
+              </sc-if>
+
+              <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+                <button type="button" onClick="{{ wizardBack }}" style="padding: 9px 18px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.25); background: transparent; color: rgba(243,233,216,0.8); font-size: 13px; cursor: pointer;">{{ wizardBackLabel }}</button>
+                <button type="button" onClick="{{ wizardNext }}" disabled="{{ wizardNextDisabled }}" style="{{ wizardNextStyle }}">{{ wizardNextLabel }}</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showWizardButton }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ plLoading }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px;">
+              <sc-for list="{{ skeletonRows }}" as="skc" hint-placeholder-count="2">
+                <div class="skel" style="height: 78px; border-radius: 12px; background: rgba(243,233,216,0.06); border: 1px solid rgba(245,208,150,0.1);"></div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ plEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align: center; padding: 40px 20px; margin-bottom: 32px; border: 1px dashed rgba(245,208,150,0.2); border-radius: 12px;">
+              <p style="margin: 0; color: rgba(243,233,216,0.5); font-size: 14px;">No characters yet.</p>
+            </div>
+          </sc-if>
+          <sc-if value="{{ plHasData }}" hint-placeholder-val="{{ true }}">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px;">
+              <sc-for list="{{ characters }}" as="ch" hint-placeholder-count="2">
+                <div style="background: rgba(22,17,31,0.65); border: 1px solid rgba(245,208,150,0.14); border-radius: 12px; padding: 16px 18px;">
+                  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;">
+                    <h3 style="margin: 0; font-family: 'Cinzel', serif; font-size: 16px; color: #f3e9d8;">{{ ch.name }}</h3>
+                    <span style="font-size: 11px; color: rgba(217,165,78,0.9); font-weight: 600;">LVL {{ ch.level }}</span>
+                  </div>
+                  <p style="margin: 6px 0 0; font-size: 13px; color: rgba(243,233,216,0.55);">{{ ch.subtitle }}</p>
+                  <p style="margin: 8px 0 0; font-size: 12px; color: rgba(243,233,216,0.35);">{{ ch.campaign }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <h2 style="font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 0.05em; color: rgba(242,224,190,0.85); margin: 0 0 10px;">Notes</h2>
+        <sc-if value="{{ plEmpty }}" hint-placeholder-val="{{ false }}">
+          <p style="color: rgba(243,233,216,0.5); font-size: 14px; margin: 0;">Join a campaign to keep notes.</p>
+        </sc-if>
+        <sc-if value="{{ plLoading }}" hint-placeholder-val="{{ false }}">
+          <div class="skel" style="max-width: 520px; height: 150px; border-radius: 10px; background: rgba(243,233,216,0.06); border: 1px solid rgba(245,208,150,0.1);"></div>
+        </sc-if>
+        <sc-if value="{{ plHasData }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width: 520px;">
+          <select style="width: 100%; margin-bottom: 8px; padding: 9px 12px; border-radius: 8px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.18); color: #f3e9d8; font-size: 13px;">
+            <sc-for list="{{ playerCampaigns }}" as="pc2" hint-placeholder-count="2">
+              <option>{{ pc2.name }}</option>
+            </sc-for>
+          </select>
+          <textarea rows="5" placeholder="Private notes for this campaign..." style="width: 100%; padding: 10px 12px; border-radius: 8px; background: #0f0b17; border: 1px solid rgba(245,208,150,0.18); color: #f3e9d8; font-size: 13px; resize: vertical;"></textarea>
+          <button type="button" style="margin-top: 10px; padding: 9px 18px; border-radius: 8px; border: none; background: rgba(217,165,78,0.18); color: #d9a54e; font-weight: 600; font-size: 13px; cursor: pointer;">Save note</button>
+        </div>
+        </sc-if>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{ isHost }}" hint-placeholder-val="{{ false }}">
+    <section data-screen-label="Host" style="min-height: calc(100vh - 45px); padding: 32px 16px 60px; background: {{ hc.bg }};">
+      <div style="max-width: 880px; margin: 0 auto;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: baseline; gap: 10px;">
+            <h1 style="font-family: 'Cinzel', serif; font-size: clamp(22px, 6vw, 28px); margin: 0; color: {{ hc.heading }};">Host</h1>
+            <span style="font-size: 12px; color: #a5691f; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">Admin</span>
+          </div>
+          <button type="button" onClick="{{ toggleHostDark }}" style="{{ hostDarkToggleStyle }}">{{ hostDarkToggleLabel }}</button>
+        </div>
+        <p style="font-size: 14px; margin: 6px 0 26px; color: {{ hc.subtext }};">Feature flags and data management for this instance.</p>
+
+        <div style="display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid {{ hc.border }};">
+          <span onClick="{{ goHostSettings }}" style="{{ hostSettingsTabStyle }}">Settings</span>
+          <span onClick="{{ goHostData }}" style="{{ hostDataTabStyle }}">Data</span>
+        </div>
+
+        <sc-if value="{{ isHostSettings }}" hint-placeholder-val="{{ true }}">
+          <div style="border-radius: 10px; border: 1px solid {{ hc.border }}; background: {{ hc.card }};">
+            <sc-for list="{{ flags }}" as="flag" hint-placeholder-count="5">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid {{ hc.divider }};">
+                <div>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: {{ hc.heading }};">{{ flag.label }}</p>
+                  <p style="margin: 3px 0 0; font-size: 12px; color: {{ hc.subtext }};">{{ flag.desc }}</p>
+                </div>
+                <span onClick="{{ flag.onToggle }}" style="{{ flag.toggleStyle }}"><span style="{{ flag.knobStyle }}"></span></span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isHostData }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius: 10px; border: 1px solid {{ hc.border }}; background: {{ hc.card }}; padding: 20px;">
+            <h2 style="margin: 0 0 4px; font-size: 15px; font-weight: 600; color: {{ hc.heading }};">Database</h2>
+            <p style="margin: 0 0 14px; font-size: 12px; color: {{ hc.subtext }};">Backup, repair, and destructive operations.</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;">
+              <button type="button" onClick="{{ runBackup }}" style="{{ hostButtonStyle }}">Download backup</button>
+              <button type="button" onClick="{{ runHealthCheck }}" style="{{ hostButtonStyle }}">Run health check</button>
+              <button type="button" onClick="{{ openReset }}" style="{{ hostDangerButtonStyle }}">Reset database</button>
+            </div>
+            <sc-if value="{{ healthStatus }}" hint-placeholder-val="{{ false }}">
+              <p style="margin: 0; font-size: 13px; color: #2f7a4f;">{{ healthStatus }}</p>
+            </sc-if>
+            <sc-if value="{{ showResetConfirm }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 14px; padding: 16px; border-radius: 8px; background: {{ hc.dangerBg }}; border: 1px solid {{ hc.dangerBorder }};">
+                <p style="margin: 0 0 10px; font-size: 13px; color: {{ hc.dangerText }};">This wipes the database and recreates an empty schema. Type <strong>ACKNOWLEDGED</strong> to confirm.</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <input value="{{ resetConfirmText }}" onChange="{{ setResetConfirmText }}" placeholder="ACKNOWLEDGED" style="{{ hostInputStyle }}" />
+                  <button type="button" onClick="{{ confirmReset }}" disabled="{{ resetDisabled }}" style="{{ resetButtonStyle }}">Confirm reset</button>
+                  <button type="button" onClick="{{ cancelReset }}" style="{{ hostButtonStyle }}">Cancel</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    tab: 'launch',
+    dataState: 'data',
+    hostTab: 'settings',
+    hostDark: false,
+    login: { username: '', password: '' },
+    loginTouched: {},
+    loginServerError: '',
+    loginSubmitting: false,
+    healthStatus: '',
+    showResetConfirm: false,
+    resetConfirmText: '',
+    showWizard: false,
+    wizardStep: 0,
+    w: {
+      name: '', className: '', subclass: '', ancestry: '', community: '',
+      traits: { Agility: '', Strength: '', Finesse: '', Instinct: '', Presence: '', Knowledge: '' },
+      primaryWeapon: '', armor: '', exp1: '', exp2: '', domainCard1: '', domainCard2: '',
+      background: '', connections: '',
+    },
+  };
+
+  STEP_LABELS = ['Class', 'Heritage', 'Traits', 'Equipment', 'Experiences', 'Domain Cards', 'Background', 'Review'];
+  TRAIT_NAMES = ['Agility', 'Strength', 'Finesse', 'Instinct', 'Presence', 'Knowledge'];
+  TRAIT_ARRAY = ['+2', '+1', '+1', '+0', '+0', '-1'];
+
+  SRD = {
+    classes: {
+      Warrior: { domains: ['Blade', 'Bone'], subclasses: ['Stalwart', 'Vengeance'] },
+      Sorcerer: { domains: ['Arcana', 'Midnight'], subclasses: ['Elementalist', 'Primal Origin'] },
+      Ranger: { domains: ['Sage', 'Bone'], subclasses: ['Beastbound', 'Wayfinder'] },
+    },
+    ancestries: ['Human', 'Fae', 'Firbolg', 'Clank', 'Katari'],
+    communities: ['Wanderborne', 'Ridgeborne', 'Loreborne', 'Seaborne'],
+    weapons: ['Longsword — Agility, Melee, d8 (One-Handed)', 'Greataxe — Strength, Melee, d10 (Two-Handed)', 'Shortbow — Agility, Far, d6 (Two-Handed)'],
+    armors: ['Leather Armor — thresholds 6/12, score 3', 'Chainmail — thresholds 8/16, score 4'],
+    domainCards: {
+      Blade: ['Get Back Up', 'Whirlwind'],
+      Bone: ['Rise to the Challenge', 'Not Good Enough'],
+      Arcana: ['Rune Ward', 'Splendor'],
+      Midnight: ['Pick and Pull', 'Uncanny Disguise'],
+      Sage: ['Nature Shift', 'Wild Growth'],
+    },
+  };
+
+  campaigns = [
+    { name: 'The Sunken Spire', description: 'A drowned tower hides a secret the tide wants kept.', active: true },
+    { name: 'Embers of Kalthane', description: 'A frontier town, a dying ember-forge, and a war brewing.', active: false },
+    { name: 'Wake of the Wyrm', description: 'One-shot: a dragon\u2019s hoard, three factions, one night.', active: false },
+  ];
+
+  playerCampaigns = [
+    { name: 'The Sunken Spire' },
+    { name: 'Embers of Kalthane' },
+  ];
+
+  characters = [
+    { name: 'Rowan Ashvale', level: 3, subtitle: 'Warrior · Human · Wanderborne', campaign: 'The Sunken Spire' },
+    { name: 'Sable Nightwhisper', level: 2, subtitle: 'Sorcerer · Fae · Ridgeborne', campaign: 'Embers of Kalthane' },
+  ];
+
+  flags = [
+    { label: 'Realtime', desc: 'WebSocket sync across host, GM, and player views.', on: true },
+    { label: 'Chat', desc: 'Table chat during active sessions.', on: true },
+    { label: 'Campaigns', desc: 'Gamemaster campaign & session management.', on: true },
+    { label: 'Player area', desc: 'Characters, notes, and campaign membership for players.', on: true },
+    { label: 'Character creation', desc: 'Guided SRD character wizard.', on: false },
+  ];
+
+  renderVals() {
+    const { tab } = this.state;
+    const set = (t) => () => this.setState({ tab: t });
+    const chip = (id, label) => ({
+      label,
+      onClick: set(id),
+      style: `padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:0.03em;border:1px solid ${tab === id ? 'rgba(217,165,78,0.5)' : 'rgba(245,208,150,0.15)'};background:${tab === id ? 'rgba(217,165,78,0.16)' : 'transparent'};color:${tab === id ? '#f2c265' : 'rgba(243,233,216,0.5)'};cursor:pointer;white-space:nowrap;`,
+    });
+
+    const campaigns = this.campaigns.map((c) => ({
+      ...c,
+      badgeLabel: c.active ? 'Session active' : 'No active session',
+      badgeStyle: `flex-shrink:0;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.03em;${c.active ? 'background:rgba(52,211,153,0.15);color:#34d399;' : 'background:rgba(243,233,216,0.08);color:rgba(243,233,216,0.45);'}`,
+      sessionButtonLabel: c.active ? 'End session' : 'Start session',
+      sessionButtonStyle: c.active
+        ? 'padding:8px 14px;border-radius:7px;border:1px solid rgba(196,84,68,0.4);background:rgba(196,84,68,0.12);color:#e08a7a;font-size:13px;cursor:pointer;'
+        : 'padding:8px 14px;border-radius:7px;border:none;background:#d9a54e;color:#1a1206;font-weight:600;font-size:13px;cursor:pointer;',
+    }));
+
+    const flags = this.flags.map((f, i) => ({
+      ...f,
+      toggleStyle: `cursor:pointer;display:inline-flex;align-items:center;width:38px;height:22px;border-radius:999px;padding:2px;background:${f.on ? '#a5691f' : '#d8d4cc'};transition:background 0.15s;`,
+      knobStyle: `width:18px;height:18px;border-radius:50%;background:#fff;transform:translateX(${f.on ? '16px' : '0px'});transition:transform 0.15s;display:block;`,
+      onToggle: () => {
+        this.flags = this.flags.map((ff, j) => (j === i ? { ...ff, on: !ff.on } : ff));
+        this.forceUpdate();
+      },
+    }));
+
+    const hostTab = this.state.hostTab;
+    const hostDark = this.state.hostDark;
+    const hc = hostDark
+      ? { bg: '#171310', card: '#211c17', border: '#3a332b', divider: '#2c2620', heading: '#f1ece3', subtext: '#a89e8f', dangerBg: 'rgba(196,84,68,0.12)', dangerBorder: 'rgba(196,84,68,0.35)', dangerText: '#e0a89a', inputBg: '#171310', inputText: '#f1ece3' }
+      : { bg: '#f7f5f1', card: '#ffffff', border: '#e2e0dc', divider: '#efece6', heading: '#211c14', subtext: '#6b6459', dangerBg: '#fdf2f0', dangerBorder: '#f0c9c1', dangerText: '#7a3226', inputBg: '#ffffff', inputText: '#211c14' };
+    const hostTabStyle = (id) => `cursor:pointer;padding:10px 4px;margin-right:16px;font-size:13px;font-weight:600;color:${hostTab === id ? hc.heading : hc.subtext};border-bottom:2px solid ${hostTab === id ? '#a5691f' : 'transparent'};`;
+    const hostButtonStyle = `padding:8px 14px;border-radius:7px;border:1px solid ${hc.border};background:${hc.card};color:${hc.heading};font-size:13px;cursor:pointer;`;
+    const hostDangerButtonStyle = `padding:8px 14px;border-radius:7px;border:1px solid #c96a5c;background:${hc.dangerBg};color:${hostDark ? '#e0a89a' : '#a3372a'};font-size:13px;cursor:pointer;`;
+    const hostInputStyle = `flex:1;min-width:160px;padding:8px 10px;border-radius:7px;border:1px solid ${hc.border};background:${hc.inputBg};color:${hc.inputText};font-size:13px;`;
+
+    const resetValid = this.state.resetConfirmText === 'ACKNOWLEDGED';
+    const confirmReset = () => {
+      if (!resetValid) return;
+      this.setState({ showResetConfirm: false, resetConfirmText: '', healthStatus: 'Database reset complete.' });
+    };
+
+    const wStep = this.state.wizardStep;
+    const w = this.state.w;
+    const setW = (patch) => this.setState((s) => ({ w: { ...s.w, ...patch } }));
+
+    const wizardSteps = this.STEP_LABELS.map((label, i) => ({
+      n: i + 1,
+      label,
+      onClick: () => this.setState({ wizardStep: i }),
+      style: `cursor:pointer;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.02em;border:1px solid ${i === wStep ? 'rgba(217,165,78,0.5)' : 'rgba(245,208,150,0.14)'};background:${i === wStep ? 'rgba(217,165,78,0.16)' : 'transparent'};color:${i === wStep ? '#f2c265' : 'rgba(243,233,216,0.4)'};`,
+    }));
+
+    const wLabelStyle = 'display:flex;flex-direction:column;gap:6px;font-size:12px;letter-spacing:0.04em;color:rgba(243,233,216,0.65);text-transform:uppercase;';
+    const wInputStyle = 'width:100%;padding:10px 12px;border-radius:8px;background:#0f0b17;border:1px solid rgba(245,208,150,0.18);color:#f3e9d8;font-size:14px;font-family:\'Inter\',sans-serif;';
+    const wTextareaStyle = wInputStyle + 'resize:vertical;';
+    const wHintStyle = 'margin:0;font-size:12px;color:rgba(243,233,216,0.45);';
+
+    const selectedClass = this.SRD.classes[w.className];
+    const classOptions = Object.keys(this.SRD.classes).map((name) => ({
+      name,
+      label: `${name} (${this.SRD.classes[name].domains.join(' & ')})`,
+    }));
+    const subclassOptions = selectedClass ? selectedClass.subclasses : [];
+    const domains = selectedClass ? selectedClass.domains : [];
+    const domainNames = domains.join(' or ');
+    const allDomainCards = domains.flatMap((d) => this.SRD.domainCards[d].map((n) => `${d} — ${n}`));
+    const domainCards = allDomainCards.filter((c) => c !== w.domainCard2);
+    const domainCards2 = allDomainCards.filter((c) => c !== w.domainCard1);
+
+    const usedTraitValues = Object.values(w.traits).filter(Boolean);
+    const traitRows = this.TRAIT_NAMES.map((name) => {
+      const current = w.traits[name];
+      const pool = this.TRAIT_ARRAY.filter((v) => !usedTraitValues.includes(v) || v === current);
+      return {
+        name,
+        value: current,
+        options: pool,
+        onChange: (e) => setW({ traits: { ...w.traits, [name]: e.target.value } }),
+      };
+    });
+    const traitsComplete = this.TRAIT_NAMES.every((t) => w.traits[t]);
+
+    const stepValid = [
+      w.name.trim() !== '' && w.className !== '' && w.subclass !== '',
+      w.ancestry !== '' && w.community !== '',
+      traitsComplete,
+      w.primaryWeapon !== '' && w.armor !== '',
+      w.exp1.trim() !== '' && w.exp2.trim() !== '',
+      w.domainCard1 !== '' && w.domainCard2 !== '' && w.domainCard1 !== w.domainCard2,
+      true,
+      true,
+    ][wStep];
+
+    const review = {
+      name: w.name || '(unnamed)',
+      classLine: `${w.className || '—'} (${w.subclass || '—'})`,
+      heritage: `${w.ancestry || '—'} · ${w.community || '—'}`,
+      traits: this.TRAIT_NAMES.map((t) => `${t} ${w.traits[t] || '—'}`).join(', '),
+      equipment: `Weapon: ${w.primaryWeapon || '—'} · Armor: ${w.armor || '—'}`,
+      experiences: `${w.exp1 || '—'} (+2), ${w.exp2 || '—'} (+2)`,
+      domainCards: `${w.domainCard1 || '—'}, ${w.domainCard2 || '—'}`,
+    };
+
+    const openWizard = () => this.setState({ showWizard: true, wizardStep: 0 });
+    const closeWizard = () => this.setState({ showWizard: false, wizardStep: 0 });
+    const finishWizard = () => {
+      this.characters = [...this.characters, {
+        name: w.name, level: 1,
+        subtitle: `${w.className} · ${w.ancestry} · ${w.community}`,
+        campaign: 'The Sunken Spire',
+      }];
+      this.setState({
+        showWizard: false, wizardStep: 0,
+        w: { name: '', className: '', subclass: '', ancestry: '', community: '',
+          traits: { Agility: '', Strength: '', Finesse: '', Instinct: '', Presence: '', Knowledge: '' },
+          primaryWeapon: '', armor: '', exp1: '', exp2: '', domainCard1: '', domainCard2: '',
+          background: '', connections: '' },
+      });
+    };
+
+    const dataState = this.state.dataState;
+    const dataStateChip = (id, label) => ({
+      label,
+      onClick: () => this.setState({ dataState: id }),
+      style: `cursor:pointer;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:0.03em;border:1px solid ${dataState === id ? 'rgba(217,165,78,0.5)' : 'rgba(245,208,150,0.14)'};background:${dataState === id ? 'rgba(217,165,78,0.16)' : 'transparent'};color:${dataState === id ? '#f2c265' : 'rgba(243,233,216,0.4)'};`,
+    });
+    const dataStateChips = [
+      dataStateChip('data', 'Populated'),
+      dataStateChip('empty', 'Empty'),
+      dataStateChip('loading', 'Loading'),
+      dataStateChip('error', 'Error'),
+    ];
+
+    const tileBase = 'cursor:pointer;flex:0 1 180px;max-width:224px;min-width:140px;height:300px;border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,0.6);border:1px solid rgba(217,165,78,0.2);background-size:cover;background-position:center;background-color:rgba(243,233,216,0.05);';
+    const login = this.state.login;
+    const touched = this.state.loginTouched;
+    const loginErrors = {
+      username: touched.username && !login.username.trim() ? 'Username is required.' : '',
+      password: touched.password && !login.password ? 'Password is required.' : '',
+    };
+    const inputStyle = (hasErr) => `width:100%;padding:10px 12px;border-radius:8px;background:#0f0b17;border:1px solid ${hasErr ? '#c96a5c' : 'rgba(245,208,150,0.2)'};color:#f3e9d8;font-size:14px;font-family:'Inter',sans-serif;`;
+    const canSubmitLogin = login.username.trim() !== '' && login.password !== '';
+    const submitLogin = () => {
+      this.setState({ loginTouched: { username: true, password: true } });
+      if (!canSubmitLogin) return;
+      this.setState({ loginSubmitting: true, loginServerError: '' });
+      setTimeout(() => {
+        this.setState({ loginSubmitting: false, loginServerError: 'Invalid username or password.' });
+      }, 500);
+    };
+
+    const launchAreas = [
+      { label: 'Host', onClick: set('login'), tileStyle: `${tileBase}background-image:url('./assets/launch/host.webp');` },
+      { label: 'Gamemaster', onClick: set('login'), tileStyle: `${tileBase}background-image:url('./assets/launch/gm.webp');` },
+      { label: 'Player', onClick: set('login'), tileStyle: `${tileBase}background-image:url('./assets/launch/players.webp');` },
+    ];
+
+    return {
+      isLaunch: tab === 'launch',
+      isLogin: tab === 'login',
+      isGm: tab === 'gm',
+      isPlayer: tab === 'player',
+      isHost: tab === 'host',
+      launchAreas,
+      tabs: [
+        chip('launch', 'Launch'),
+        chip('login', 'Login'),
+        chip('gm', 'Gamemaster'),
+        chip('player', 'Player'),
+        chip('host', 'Host'),
+      ],
+      campaigns,
+      playerCampaigns: this.playerCampaigns,
+      characters: this.characters,
+      flags,
+
+      login,
+      loginErrors,
+      loginServerError: this.state.loginServerError,
+      loginUsernameStyle: inputStyle(!!loginErrors.username),
+      loginPasswordStyle: inputStyle(!!loginErrors.password),
+      setLoginUsername: (e) => this.setState((s) => ({ login: { ...s.login, username: e.target.value }, loginTouched: { ...s.loginTouched, username: true } })),
+      setLoginPassword: (e) => this.setState((s) => ({ login: { ...s.login, password: e.target.value }, loginTouched: { ...s.loginTouched, password: true } })),
+      submitLogin,
+      loginButtonLabel: this.state.loginSubmitting ? 'Logging in…' : 'Log in',
+
+      hc,
+      toggleHostDark: () => this.setState({ hostDark: !hostDark }),
+      hostDarkToggleLabel: hostDark ? 'Light mode' : 'Dark mode',
+      hostDarkToggleStyle: `padding:7px 14px;border-radius:7px;border:1px solid ${hc.border};background:${hc.card};color:${hc.heading};font-size:12px;font-weight:600;cursor:pointer;`,
+      hostButtonStyle,
+      hostDangerButtonStyle,
+      hostInputStyle,
+      isHostSettings: hostTab === 'settings',
+      isHostData: hostTab === 'data',
+      hostSettingsTabStyle: hostTabStyle('settings'),
+      hostDataTabStyle: hostTabStyle('data'),
+      goHostSettings: () => this.setState({ hostTab: 'settings' }),
+      goHostData: () => this.setState({ hostTab: 'data' }),
+      healthStatus: this.state.healthStatus,
+      runBackup: () => this.setState({ healthStatus: 'Backup downloaded.' }),
+      runHealthCheck: () => this.setState({ healthStatus: 'Integrity check passed — database is healthy.' }),
+      openReset: () => this.setState({ showResetConfirm: true, healthStatus: '' }),
+      showResetConfirm: this.state.showResetConfirm,
+      resetConfirmText: this.state.resetConfirmText,
+      setResetConfirmText: (e) => this.setState({ resetConfirmText: e.target.value }),
+      resetDisabled: !resetValid,
+      resetButtonStyle: `padding:8px 14px;border-radius:7px;border:none;background:${resetValid ? '#c0392b' : 'rgba(192,57,43,0.35)'};color:#fff;font-size:13px;cursor:${resetValid ? 'pointer' : 'not-allowed'};`,
+      confirmReset,
+      cancelReset: () => this.setState({ showResetConfirm: false, resetConfirmText: '' }),
+
+      dataStateChips,
+      campaignCountLabel: dataState === 'loading' ? 'Loading…' : dataState === 'empty' ? '0 Campaigns' : `${this.campaigns.length} Campaigns`,
+      skeletonRows: [0, 1, 2],
+      gmLoading: dataState === 'loading',
+      gmEmpty: dataState === 'empty',
+      gmError: dataState === 'error',
+      gmHasData: dataState === 'data',
+      plLoading: dataState === 'loading',
+      plEmpty: dataState === 'empty',
+      plError: dataState === 'error',
+      plHasData: dataState === 'data',
+      retry: () => this.setState({ dataState: 'data' }),
+
+      showWizard: this.state.showWizard,
+      showWizardButton: !this.state.showWizard,
+      openWizard,
+      closeWizard,
+      wizardSteps,
+      wLabelStyle,
+      wInputStyle,
+      wTextareaStyle,
+      wHintStyle,
+      w,
+      classOptions,
+      subclassOptions,
+      ancestries: this.SRD.ancestries,
+      communities: this.SRD.communities,
+      weapons: this.SRD.weapons,
+      armors: this.SRD.armors,
+      domainNames,
+      domainCards,
+      domainCards2,
+      traitRows,
+      review,
+      setName: (e) => setW({ name: e.target.value }),
+      setClassName: (e) => setW({ className: e.target.value, subclass: '' }),
+      setSubclass: (e) => setW({ subclass: e.target.value }),
+      setAncestry: (e) => setW({ ancestry: e.target.value }),
+      setCommunity: (e) => setW({ community: e.target.value }),
+      setPrimaryWeapon: (e) => setW({ primaryWeapon: e.target.value }),
+      setArmor: (e) => setW({ armor: e.target.value }),
+      setExp1: (e) => setW({ exp1: e.target.value }),
+      setExp2: (e) => setW({ exp2: e.target.value }),
+      setDomainCard1: (e) => setW({ domainCard1: e.target.value }),
+      setDomainCard2: (e) => setW({ domainCard2: e.target.value }),
+      setBackground: (e) => setW({ background: e.target.value }),
+      setConnections: (e) => setW({ connections: e.target.value }),
+
+      wizardStep0: wStep === 0,
+      wizardStep1: wStep === 1,
+      wizardStep2: wStep === 2,
+      wizardStep3: wStep === 3,
+      wizardStep4: wStep === 4,
+      wizardStep5: wStep === 5,
+      wizardStep6: wStep === 6,
+      wizardStep7: wStep === 7,
+      wizardBackLabel: wStep === 0 ? 'Cancel' : 'Back',
+      wizardNextLabel: wStep === 7 ? 'Create Character' : 'Next',
+      wizardNextDisabled: !stepValid,
+      wizardNextStyle: `padding:9px 18px;border-radius:8px;border:none;background:${stepValid ? '#d9a54e' : 'rgba(217,165,78,0.25)'};color:${stepValid ? '#1a1206' : 'rgba(26,18,6,0.5)'};font-weight:600;font-size:13px;cursor:${stepValid ? 'pointer' : 'not-allowed'};`,
+      wizardBack: () => (wStep === 0 ? closeWizard() : this.setState({ wizardStep: wStep - 1 })),
+      wizardNext: () => {
+        if (!stepValid) return;
+        if (wStep === 7) finishWizard();
+        else this.setState({ wizardStep: wStep + 1 });
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>
