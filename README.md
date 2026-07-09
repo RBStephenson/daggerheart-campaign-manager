@@ -16,7 +16,8 @@ docker-compose up
 
 - Backend: http://localhost:8002 (OpenAPI docs at `/docs`) — mapped off the
   default 8000 to avoid clashing with other local projects
-- Frontend: http://localhost:5173 (proxies `/api` to the backend container)
+- Frontend: http://localhost:5173 (proxies `/api` and `/ws` to the backend
+  container)
 
 Vite's dev server watches with polling (`vite.config.ts`) — plain filesystem
 events aren't reliable across the Docker bind mount on Windows/macOS, so
@@ -93,6 +94,25 @@ internally (replies `{type: "pong", payload: {}}`) and broadcasts anything
 else to the rest of the room. Frontend: `useWebSocket(room, { onMessage })`
 in `frontend/src/hooks/useWebSocket.ts`, with automatic exponential-backoff
 reconnect.
+
+## Chat
+
+Behind the `chat_enabled` feature flag (default off, toggle on
+`/host/settings`). Chat is a `type: "chat"` message on the same `/ws/{room}`
+connection from [Realtime](#realtime) — not a separate endpoint. Sending
+`{type: "chat", payload: {body}}` persists the message and broadcasts it
+(including back to the sender) to everyone in the room; the flag being off
+makes the server silently drop chat-type messages rather than closing the
+connection, since realtime and chat are independent flags. History is a
+regular REST endpoint for the initial load and pagination.
+
+`ChatPanel` (`frontend/src/components/ChatPanel.tsx`) is a collapsible panel
+with an unread badge; it's wired into the Gamemaster area next to a
+campaign's active session.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/chat/{room}/messages` | History, oldest to newest. `?limit=` (default/max 50), `?before=<id>` for older pages |
 
 ## Gamemaster: campaigns & sessions
 

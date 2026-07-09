@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ApiError } from '../../api/client';
+import ChatPanel from '../../components/ChatPanel';
 import {
   createCampaign,
   deleteCampaign,
@@ -218,6 +219,7 @@ export default function GamemasterPage() {
                       Delete
                     </button>
                   </div>
+                  {activeSession && <ChatPanel room={activeSession.room} />}
                 </>
               )}
             </li>
