@@ -77,3 +77,15 @@ class GameSession(Base):
     @property
     def room(self) -> str:
         return f"session-{self.id}"
+
+
+class ChatMessage(Base):
+    """A persisted chat message, scoped to a WebSocket room."""
+
+    __tablename__ = "chat_messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    room: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

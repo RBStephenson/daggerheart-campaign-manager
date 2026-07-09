@@ -8,6 +8,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': process.env.VITE_API_PROXY_TARGET ?? 'http://localhost:8000',
+      '/ws': {
+        target: process.env.VITE_API_PROXY_TARGET ?? 'http://localhost:8000',
+        ws: true,
+      },
     },
     // Docker bind mounts on Windows/macOS don't emit native filesystem
     // events reliably; polling ensures HMR picks up edits from the host.

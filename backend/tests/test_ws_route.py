@@ -52,9 +52,9 @@ def test_broadcast_to_same_room(client: TestClient, db: Session) -> None:
     login(client, db, username="alice")
     with client.websocket_connect("/ws/room1") as ws_a:
         with client.websocket_connect("/ws/room1") as ws_b:
-            ws_a.send_json({"type": "chat", "payload": {"text": "hi"}})
+            ws_a.send_json({"type": "note", "payload": {"text": "hi"}})
             data = ws_b.receive_json()
-            assert data == {"type": "chat", "payload": {"text": "hi"}}
+            assert data == {"type": "note", "payload": {"text": "hi"}}
 
 
 def test_broadcast_does_not_cross_rooms(client: TestClient, db: Session) -> None:
@@ -62,7 +62,7 @@ def test_broadcast_does_not_cross_rooms(client: TestClient, db: Session) -> None
     login(client, db, username="alice")
     with client.websocket_connect("/ws/room1") as ws_a:
         with client.websocket_connect("/ws/room2") as ws_b:
-            ws_a.send_json({"type": "chat", "payload": {"text": "hi"}})
+            ws_a.send_json({"type": "note", "payload": {"text": "hi"}})
             ws_a.send_json({"type": "ping"})
             # ws_a's own ping response proves the server is still alive and
             # processed the chat message without delivering it to room2.

@@ -6,6 +6,9 @@ import * as campaignsApi from '../api/campaigns';
 import GamemasterPage from '../pages/gm/GamemasterPage';
 
 vi.mock('../api/campaigns');
+vi.mock('../components/ChatPanel', () => ({
+  default: ({ room }: { room: string }) => <div data-testid="chat-panel">{room}</div>,
+}));
 const mocked = vi.mocked(campaignsApi);
 
 describe('GamemasterPage', () => {
