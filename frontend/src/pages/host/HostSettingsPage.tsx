@@ -27,6 +27,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Data management',
     description: 'Backup, restore, repair, and reset the database.',
   },
+  library_enabled: {
+    label: 'Library',
+    description: 'GM world-building library: Regions, Factions, NPCs, and Adversaries.',
+  },
 };
 
 export default function HostSettingsPage() {
