@@ -23,17 +23,6 @@ def test_player_forbidden(as_user, db: Session) -> None:
     assert resp.status_code == 403
 
 
-def test_host_has_superuser_access(as_user, db: Session) -> None:
-    enable_campaigns(db)
-    client = as_user("host")
-    create_resp = client.post("/api/campaigns", json={"name": "Host's own campaign"})
-    assert create_resp.status_code == 200
-
-    list_resp = client.get("/api/campaigns")
-    assert list_resp.status_code == 200
-    assert [c["name"] for c in list_resp.json()] == ["Host's own campaign"]
-
-
 def test_create_and_list_campaign(as_user, db: Session) -> None:
     enable_campaigns(db)
     client = as_user("gm")

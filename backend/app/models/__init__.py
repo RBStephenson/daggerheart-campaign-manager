@@ -23,7 +23,7 @@ class AppSetting(Base):
 
 
 class User(Base):
-    """Application user. Role is one of "host", "gm", "player"."""
+    """Application user. Role is one of "gm", "player"."""
 
     __tablename__ = "users"
 
@@ -139,7 +139,7 @@ class CampaignNote(Base):
 
 
 class CustomClass(Base):
-    """Host-authored class, alongside the SRD's static classes.
+    """GM-authored class, alongside the SRD's static classes.
 
     ``domains_json``/``class_items_json``/``subclasses_json`` are JSON-encoded
     lists (subclasses: ``[{"name": ..., "spellcast_trait": ...}, ...]``),
@@ -159,7 +159,7 @@ class CustomClass(Base):
 
 
 class CustomAncestry(Base):
-    """Host-authored ancestry, alongside the SRD's static ancestries."""
+    """GM-authored ancestry, alongside the SRD's static ancestries."""
 
     __tablename__ = "custom_ancestries"
 
@@ -169,7 +169,7 @@ class CustomAncestry(Base):
 
 
 class CustomCommunity(Base):
-    """Host-authored community, alongside the SRD's static communities."""
+    """GM-authored community, alongside the SRD's static communities."""
 
     __tablename__ = "custom_communities"
 
@@ -179,7 +179,7 @@ class CustomCommunity(Base):
 
 
 class CustomDomain(Base):
-    """Host-authored domain, alongside the SRD's static domains.
+    """GM-authored domain, alongside the SRD's static domains.
 
     ``classes_json`` is a JSON-encoded list of class names (SRD or custom)
     granted this domain.
@@ -194,7 +194,7 @@ class CustomDomain(Base):
 
 
 class CustomDomainCard(Base):
-    """Host-authored Level 1 domain card, alongside the SRD's static cards.
+    """GM-authored Level 1 domain card, alongside the SRD's static cards.
 
     ``domain`` is a plain string, not a FK to ``custom_domains`` — it may
     name either an SRD domain (no DB row) or a custom one. Validity is
@@ -213,7 +213,7 @@ class CustomDomainCard(Base):
 
 
 class CustomWeapon(Base):
-    """Host-authored Tier 1 weapon, alongside the SRD's static weapon table."""
+    """GM-authored Tier 1 weapon, alongside the SRD's static weapon table."""
 
     __tablename__ = "custom_weapons"
 
@@ -229,7 +229,7 @@ class CustomWeapon(Base):
 
 
 class CustomArmor(Base):
-    """Host-authored Tier 1 armor, alongside the SRD's static armor table."""
+    """GM-authored Tier 1 armor, alongside the SRD's static armor table."""
 
     __tablename__ = "custom_armor"
 

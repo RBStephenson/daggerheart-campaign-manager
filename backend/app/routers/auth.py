@@ -93,12 +93,10 @@ def register(
 def create_invite(
     body: InviteCreateRequest,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(require_role("host", "gm"))],
+    current_user: Annotated[User, Depends(require_role("gm"))],
 ) -> Invite:
     if body.role not in ROLES:
         raise HTTPException(status_code=422, detail=f"Unknown role: {body.role}")
-    if current_user.role == "gm" and body.role != "player":
-        raise HTTPException(status_code=403, detail="GMs may only invite players")
 
     invite = Invite(
         token=generate_invite_token(),

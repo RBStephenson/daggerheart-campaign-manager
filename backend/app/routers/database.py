@@ -8,7 +8,7 @@ for index-only corruption; reset wipes all data. Restore and reset run
 `Base.metadata.create_all`) so the `alembic_version` table stays consistent
 with the `alembic upgrade head` the container runs on every start.
 
-Host-only, gated by `data_management_enabled`. A single in-process lock
+GM-only, gated by `data_management_enabled`. A single in-process lock
 serializes the destructive operations (repair/restore/reset) — this app has
 no background job/scanner concept to check for "busy" the way STL Studio does.
 """
@@ -44,7 +44,7 @@ def _require_data_management_enabled(db: Annotated[Session, Depends(get_db)]) ->
 router = APIRouter(
     prefix="/api/database",
     tags=["database"],
-    dependencies=[Depends(_require_data_management_enabled), Depends(require_role("host"))],
+    dependencies=[Depends(_require_data_management_enabled), Depends(require_role("gm"))],
 )
 
 

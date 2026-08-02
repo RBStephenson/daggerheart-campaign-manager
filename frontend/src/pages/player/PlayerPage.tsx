@@ -26,7 +26,7 @@ export default function PlayerPage() {
   const [campaigns, setCampaigns] = useState<MemberCampaign[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [wizardCampaignId, setWizardCampaignId] = useState<number | null>(null);
-  // /api/settings is host-only (403 for players), so this can't come from
+  // /api/settings is gm-only (403 for players), so this can't come from
   // AppSettingsContext — probe the SRD endpoint itself and treat a 404 (flag
   // off) the same way every other player-area feature is gated: invisible.
   const [characterCreationAvailable, setCharacterCreationAvailable] = useState(false);

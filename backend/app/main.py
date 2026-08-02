@@ -30,24 +30,24 @@ from app.security import hash_password
 logger = logging.getLogger(__name__)
 
 
-def _bootstrap_host_user() -> None:
-    """Create the initial host account from env vars if none exists yet."""
-    username = os.environ.get("DHCM_HOST_USERNAME")
-    password = os.environ.get("DHCM_HOST_PASSWORD")
+def _bootstrap_gm_user() -> None:
+    """Create the initial GM account from env vars if none exists yet."""
+    username = os.environ.get("DHCM_GM_USERNAME")
+    password = os.environ.get("DHCM_GM_PASSWORD")
     if not username or not password:
         logger.warning(
-            "DHCM_HOST_USERNAME / DHCM_HOST_PASSWORD not set — skipping host account bootstrap"
+            "DHCM_GM_USERNAME / DHCM_GM_PASSWORD not set — skipping GM account bootstrap"
         )
         return
     db = SessionLocal()
     try:
-        if db.scalar(select(User).where(User.role == "host")) is not None:
+        if db.scalar(select(User).where(User.role == "gm")) is not None:
             return
         db.add(
             User(
                 username=username,
                 password_hash=hash_password(password),
-                role="host",
+                role="gm",
                 created_at=datetime.now(UTC),
             )
         )
@@ -58,7 +58,7 @@ def _bootstrap_host_user() -> None:
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
-    _bootstrap_host_user()
+    _bootstrap_gm_user()
     yield
 
 

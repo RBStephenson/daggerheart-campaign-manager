@@ -44,7 +44,7 @@ def get_settings(db: Session) -> dict[str, Any]:
 @router.get("/api/settings")
 def read_settings(
     db: Annotated[Session, Depends(get_db)],
-    _user: Annotated[User, Depends(require_role("host"))],
+    _user: Annotated[User, Depends(require_role("gm"))],
 ) -> dict[str, Any]:
     return get_settings(db)
 
@@ -53,7 +53,7 @@ def read_settings(
 def update_settings(
     updates: dict[str, Any],
     db: Annotated[Session, Depends(get_db)],
-    _user: Annotated[User, Depends(require_role("host"))],
+    _user: Annotated[User, Depends(require_role("gm"))],
 ) -> dict[str, Any]:
     unknown = set(updates) - set(DEFAULTS)
     if unknown:
