@@ -31,3 +31,8 @@ AGENTS.md
 .env.*
 .vscode/
 .idea/
+
+# machine-local Norton SSL-inspection workaround — see backend/Dockerfile.local
+*.pem
+docker-compose.override.yml
+Dockerfile.local
