@@ -22,11 +22,17 @@ data/
 !backend/app/data/srd/
 !backend/app/data/srd/*.json
 
-# Local-only agent instructions
+# Local-only agent instructions (may contain personal workflow/PII, never commit)
 AGENTS.md
+.claude/
 
 # Env / IDE
 .env
 .env.*
 .vscode/
 .idea/
+
+# machine-local Norton SSL-inspection workaround — see backend/Dockerfile.local
+*.pem
+docker-compose.override.yml
+Dockerfile.local
