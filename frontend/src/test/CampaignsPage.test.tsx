@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/client';
 import * as campaignsApi from '../api/campaigns';
-import GamemasterPage from '../pages/gm/GamemasterPage';
+import CampaignsPage from '../pages/gm/CampaignsPage';
 
 vi.mock('../api/campaigns');
 vi.mock('../components/ChatPanel', () => ({
@@ -11,7 +11,7 @@ vi.mock('../components/ChatPanel', () => ({
 }));
 const mocked = vi.mocked(campaignsApi);
 
-describe('GamemasterPage', () => {
+describe('CampaignsPage', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mocked.listSessions.mockResolvedValue([]);
@@ -19,7 +19,7 @@ describe('GamemasterPage', () => {
 
   it('shows a disabled message when the backend 404s', async () => {
     mocked.listCampaigns.mockRejectedValue(new ApiError(404, 'not found'));
-    render(<GamemasterPage />);
+    render(<CampaignsPage />);
     await waitFor(() =>
       expect(screen.getByText(/campaigns feature is currently disabled/i)).toBeInTheDocument(),
     );
@@ -27,7 +27,7 @@ describe('GamemasterPage', () => {
 
   it('shows an empty state with no campaigns', async () => {
     mocked.listCampaigns.mockResolvedValue([]);
-    render(<GamemasterPage />);
+    render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByText(/No campaigns yet/)).toBeInTheDocument());
   });
 
@@ -52,7 +52,7 @@ describe('GamemasterPage', () => {
       },
     ]);
 
-    render(<GamemasterPage />);
+    render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
     expect(screen.getByText('Session active')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'End session' })).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe('GamemasterPage', () => {
       created_at: '2026-01-01T00:00:00Z',
     });
 
-    render(<GamemasterPage />);
+    render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByText(/No campaigns yet/)).toBeInTheDocument());
 
     await userEvent.type(screen.getByPlaceholderText('Campaign name'), 'New Campaign');
@@ -98,7 +98,7 @@ describe('GamemasterPage', () => {
       ended_at: null,
     });
 
-    render(<GamemasterPage />);
+    render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
 
     await userEvent.click(screen.getByRole('button', { name: 'Start session' }));

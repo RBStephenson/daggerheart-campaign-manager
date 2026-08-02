@@ -1,7 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-import GamemasterPage from './pages/gm/GamemasterPage';
+import CampaignsPage from './pages/gm/CampaignsPage';
+import GmPage from './pages/gm/GmPage';
+import LibraryPage from './pages/gm/LibraryPage';
 import DataManagementPage from './pages/host/DataManagementPage';
 import HostPage from './pages/host/HostPage';
 import HostSettingsPage from './pages/host/HostSettingsPage';
@@ -29,10 +31,13 @@ export default function App() {
           path="gm"
           element={
             <ProtectedRoute roles={['gm']}>
-              <GamemasterPage />
+              <GmPage />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<CampaignsPage />} />
+          <Route path="library" element={<LibraryPage />} />
+        </Route>
         <Route
           path="player"
           element={

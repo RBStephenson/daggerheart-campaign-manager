@@ -25,6 +25,7 @@ export const DEFAULTS: AppSettings = {
   player_area_enabled: false,
   data_management_enabled: false,
   character_creation_enabled: false,
+  library_enabled: false,
 };
 
 interface AppSettingsContextValue {
