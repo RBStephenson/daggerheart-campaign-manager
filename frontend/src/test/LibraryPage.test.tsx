@@ -37,30 +37,30 @@ describe('LibraryPage', () => {
     await waitFor(() => expect(mocked.createWorld).toHaveBeenCalledWith('Aetheris'));
   });
 
-  it('lists Regions by default once a world exists', async () => {
+  it('lists Continents by default once a world exists', async () => {
     mocked.listWorlds.mockResolvedValue([
       { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
     ]);
     mocked.listEntities.mockResolvedValue([]);
     render(<LibraryPage />);
 
-    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith(1, 'regions'));
-    expect(screen.getByText(/No regions yet/)).toBeInTheDocument();
+    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('continents', 1));
+    expect(screen.getByText(/No continents yet/)).toBeInTheDocument();
   });
 
-  it('switches entity type tabs and fetches the new type', async () => {
+  it('switches top-level tabs and fetches the new segment', async () => {
     mocked.listWorlds.mockResolvedValue([
       { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
     ]);
     mocked.listEntities.mockResolvedValue([]);
     render(<LibraryPage />);
-    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith(1, 'regions'));
+    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('continents', 1));
 
     await userEvent.click(screen.getByRole('button', { name: 'Factions' }));
-    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith(1, 'factions'));
+    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('factions', 1));
   });
 
-  it('creates an entity via the form', async () => {
+  it('creates a continent via the form, including its kind field', async () => {
     mocked.listWorlds.mockResolvedValue([
       { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
     ]);
@@ -68,23 +68,26 @@ describe('LibraryPage', () => {
     mocked.createEntity.mockResolvedValue({
       id: 2,
       world_id: 1,
-      name: 'Hillford',
+      name: 'Tharivor',
       summary: '',
       extra: '',
+      kind: 'primary continent',
       created_at: '2026-01-01T00:00:00Z',
       updated_at: '2026-01-01T00:00:00Z',
     });
     render(<LibraryPage />);
-    await waitFor(() => expect(screen.getByText(/No regions yet/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/No continents yet/)).toBeInTheDocument());
 
-    await userEvent.type(screen.getByPlaceholderText('Region name'), 'Hillford');
-    await userEvent.click(screen.getByRole('button', { name: 'Create region' }));
+    await userEvent.type(screen.getByPlaceholderText('Continent name'), 'Tharivor');
+    await userEvent.type(screen.getByPlaceholderText(/Kind/), 'primary continent');
+    await userEvent.click(screen.getByRole('button', { name: 'Create continent' }));
 
     await waitFor(() =>
-      expect(mocked.createEntity).toHaveBeenCalledWith(1, 'regions', {
-        name: 'Hillford',
+      expect(mocked.createEntity).toHaveBeenCalledWith('continents', 1, {
+        name: 'Tharivor',
         summary: '',
         extra: '',
+        kind: 'primary continent',
       }),
     );
   });
@@ -97,18 +100,82 @@ describe('LibraryPage', () => {
       {
         id: 2,
         world_id: 1,
-        name: 'Hillford',
-        summary: 'A frontier town.',
+        name: 'Tharivor',
+        summary: 'The primary continent.',
         extra: '',
+        kind: 'primary continent',
         created_at: '2026-01-01T00:00:00Z',
         updated_at: '2026-01-01T00:00:00Z',
       },
     ]);
     mocked.deleteEntity.mockResolvedValue(undefined);
     render(<LibraryPage />);
-    await waitFor(() => expect(screen.getByText('Hillford')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Tharivor')).toBeInTheDocument());
 
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    await waitFor(() => expect(mocked.deleteEntity).toHaveBeenCalledWith(1, 'regions', 2));
+    await waitFor(() => expect(mocked.deleteEntity).toHaveBeenCalledWith('continents', 1, 2));
+  });
+
+  it('drills from a continent into its regions, and from a region into its locations', async () => {
+    mocked.listWorlds.mockResolvedValue([
+      { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
+    ]);
+    mocked.listEntities.mockImplementation((segment, parentId) => {
+      if (segment === 'continents' && parentId === 1) {
+        return Promise.resolve([
+          {
+            id: 10,
+            world_id: 1,
+            name: 'Tharivor',
+            summary: '',
+            extra: '',
+            kind: '',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      }
+      if (segment === 'regions' && parentId === 10) {
+        return Promise.resolve([
+          {
+            id: 20,
+            continent_id: 10,
+            name: 'Hillford Valley',
+            summary: '',
+            extra: '',
+            kind: '',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      }
+      if (segment === 'locations' && parentId === 20) {
+        return Promise.resolve([
+          {
+            id: 30,
+            region_id: 20,
+            name: 'Hillford',
+            summary: '',
+            extra: '',
+            kind: 'town',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      }
+      return Promise.resolve([]);
+    });
+
+    render(<LibraryPage />);
+    await waitFor(() => expect(screen.getByText('Tharivor')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'View Regions' }));
+    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('regions', 10));
+    await waitFor(() => expect(screen.getByText('Hillford Valley')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'View Locations' }));
+    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('locations', 20));
+    await waitFor(() => expect(screen.getByText('Hillford')).toBeInTheDocument());
+    expect(screen.getByText('town')).toBeInTheDocument();
   });
 });

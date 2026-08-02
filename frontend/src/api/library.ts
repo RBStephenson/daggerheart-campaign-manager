@@ -8,15 +8,50 @@ export interface World {
 
 export interface LibraryEntity {
   id: number;
-  world_id: number;
   name: string;
   summary: string;
   extra: string;
+  kind?: string;
+  world_id?: number;
+  continent_id?: number;
+  region_id?: number;
   created_at: string;
   updated_at: string;
 }
 
-export type LibraryEntityType = 'regions' | 'factions' | 'npcs' | 'adversaries';
+// World > Continent > Region > Location is the place hierarchy; Faction/Npc/
+// Adversary hang directly off World. Each segment's parent segment and
+// whether it carries a free-text `kind` field mirrors the backend's shared
+// CRUD factory (see backend/app/routers/library.py).
+export type LibrarySegment =
+  | 'continents'
+  | 'regions'
+  | 'locations'
+  | 'factions'
+  | 'npcs'
+  | 'adversaries';
+
+const PARENT_SEGMENT: Record<LibrarySegment, string> = {
+  continents: 'worlds',
+  regions: 'continents',
+  locations: 'regions',
+  factions: 'worlds',
+  npcs: 'worlds',
+  adversaries: 'worlds',
+};
+
+export const SEGMENT_HAS_KIND: Record<LibrarySegment, boolean> = {
+  continents: true,
+  regions: true,
+  locations: true,
+  factions: false,
+  npcs: false,
+  adversaries: false,
+};
+
+function collectionUrl(segment: LibrarySegment, parentId: number): string {
+  return `/api/library/${PARENT_SEGMENT[segment]}/${parentId}/${segment}`;
+}
 
 export function listWorlds(): Promise<World[]> {
   return apiGet('/api/library/worlds');
@@ -26,31 +61,31 @@ export function createWorld(name: string): Promise<World> {
   return apiPost('/api/library/worlds', { name });
 }
 
-export function listEntities(worldId: number, type: LibraryEntityType): Promise<LibraryEntity[]> {
-  return apiGet(`/api/library/worlds/${worldId}/${type}`);
+export function listEntities(segment: LibrarySegment, parentId: number): Promise<LibraryEntity[]> {
+  return apiGet(collectionUrl(segment, parentId));
 }
 
 export function createEntity(
-  worldId: number,
-  type: LibraryEntityType,
-  body: { name: string; summary?: string; extra?: string },
+  segment: LibrarySegment,
+  parentId: number,
+  body: { name: string; summary?: string; extra?: string; kind?: string },
 ): Promise<LibraryEntity> {
-  return apiPost(`/api/library/worlds/${worldId}/${type}`, body);
+  return apiPost(collectionUrl(segment, parentId), body);
 }
 
 export function updateEntity(
-  worldId: number,
-  type: LibraryEntityType,
+  segment: LibrarySegment,
+  parentId: number,
   entityId: number,
-  updates: Partial<Pick<LibraryEntity, 'name' | 'summary' | 'extra'>>,
+  updates: Partial<Pick<LibraryEntity, 'name' | 'summary' | 'extra' | 'kind'>>,
 ): Promise<LibraryEntity> {
-  return apiPut(`/api/library/worlds/${worldId}/${type}/${entityId}`, updates);
+  return apiPut(`${collectionUrl(segment, parentId)}/${entityId}`, updates);
 }
 
 export function deleteEntity(
-  worldId: number,
-  type: LibraryEntityType,
+  segment: LibrarySegment,
+  parentId: number,
   entityId: number,
 ): Promise<void> {
-  return apiDelete(`/api/library/worlds/${worldId}/${type}/${entityId}`);
+  return apiDelete(`${collectionUrl(segment, parentId)}/${entityId}`);
 }

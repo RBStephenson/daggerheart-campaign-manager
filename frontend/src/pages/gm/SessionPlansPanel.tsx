@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
-import { listEntities, listWorlds, type LibraryEntity, type LibraryEntityType as LibrarySegment } from '../../api/library';
+import { listEntities, listWorlds, type LibraryEntity } from '../../api/library';
 import {
   createLink,
   createSessionPlan,
@@ -22,15 +22,38 @@ const inputClass =
 const ghostButtonClass =
   'rounded-md border border-hairline/20 px-3 py-2 text-sm text-parchment/70 transition-colors hover:bg-white/5 hover:text-parchment focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember';
 
-const LINK_TYPES: { type: LibraryEntityType; segment: LibrarySegment; label: string }[] = [
-  { type: 'region', segment: 'regions', label: 'Region' },
-  { type: 'faction', segment: 'factions', label: 'Faction' },
-  { type: 'npc', segment: 'npcs', label: 'NPC' },
-  { type: 'adversary', segment: 'adversaries', label: 'Adversary' },
+// Regions/Locations aren't listable directly off a world (they hang off a
+// Continent/Region respectively), so the link picker has to walk the
+// hierarchy and flatten it to get "every Region/Location in this world".
+async function listAllRegions(worldId: number): Promise<LibraryEntity[]> {
+  const continents = await listEntities('continents', worldId);
+  const perContinent = await Promise.all(continents.map((c) => listEntities('regions', c.id)));
+  return perContinent.flat();
+}
+
+async function listAllLocations(worldId: number): Promise<LibraryEntity[]> {
+  const regions = await listAllRegions(worldId);
+  const perRegion = await Promise.all(regions.map((r) => listEntities('locations', r.id)));
+  return perRegion.flat();
+}
+
+const LINK_TYPES: {
+  type: LibraryEntityType;
+  label: string;
+  list: (worldId: number) => Promise<LibraryEntity[]>;
+}[] = [
+  { type: 'continent', label: 'Continent', list: (w) => listEntities('continents', w) },
+  { type: 'region', label: 'Region', list: (w) => listAllRegions(w) },
+  { type: 'location', label: 'Location', list: (w) => listAllLocations(w) },
+  { type: 'faction', label: 'Faction', list: (w) => listEntities('factions', w) },
+  { type: 'npc', label: 'NPC', list: (w) => listEntities('npcs', w) },
+  { type: 'adversary', label: 'Adversary', list: (w) => listEntities('adversaries', w) },
 ];
 
 const EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
+  continent: [],
   region: [],
+  location: [],
   faction: [],
   npc: [],
   adversary: [],
@@ -39,7 +62,7 @@ const EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
 function LinksSection({ campaignId, planId }: { campaignId: number; planId: number }) {
   const [links, setLinks] = useState<SessionPlanLibraryLink[] | null>(null);
   const [worldId, setWorldId] = useState<number | null>(null);
-  const [entityType, setEntityType] = useState<LibraryEntityType>('region');
+  const [entityType, setEntityType] = useState<LibraryEntityType>('continent');
   const [entitiesByType, setEntitiesByType] =
     useState<Record<LibraryEntityType, LibraryEntity[]>>(EMPTY_ENTITIES_BY_TYPE);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +80,7 @@ function LinksSection({ campaignId, planId }: { campaignId: number; planId: numb
 
   useEffect(() => {
     if (worldId === null) return;
-    Promise.all(LINK_TYPES.map(({ segment }) => listEntities(worldId, segment)))
+    Promise.all(LINK_TYPES.map(({ list }) => list(worldId)))
       .then((results) => {
         const byType = { ...EMPTY_ENTITIES_BY_TYPE };
         LINK_TYPES.forEach(({ type }, i) => {

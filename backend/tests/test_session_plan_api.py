@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 import pytest
 from sqlalchemy.orm import Session
 
-from app.models import AppSetting, Campaign, Region, User, World
+from app.models import AppSetting, Campaign, Continent, Region, User, World
 from tests.conftest import make_user
 
 
@@ -27,7 +27,11 @@ def make_region(db: Session, *, name: str = "Hillford") -> Region:
     db.commit()
     db.refresh(world)
     now = datetime.now(UTC)
-    region = Region(world_id=world.id, name=name, created_at=now, updated_at=now)
+    continent = Continent(world_id=world.id, name="Tharivor", created_at=now, updated_at=now)
+    db.add(continent)
+    db.commit()
+    db.refresh(continent)
+    region = Region(continent_id=continent.id, name=name, created_at=now, updated_at=now)
     db.add(region)
     db.commit()
     db.refresh(region)
@@ -280,7 +284,9 @@ def test_session_plans_are_scoped_to_their_campaign(as_user, db: Session) -> Non
     assert [p["title"] for p in resp.json()] == ["Session A"]
 
 
-@pytest.mark.parametrize("segment", ["region", "faction", "npc", "adversary"])
+@pytest.mark.parametrize(
+    "segment", ["continent", "region", "location", "faction", "npc", "adversary"]
+)
 def test_link_accepts_every_library_entity_type(as_user, db: Session, segment: str) -> None:
     enable_session_planning(db)
     client, campaign = _as_gm_with_campaign(as_user, db)

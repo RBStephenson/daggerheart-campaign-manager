@@ -25,7 +25,13 @@ export interface SessionPlan {
   updated_at: string;
 }
 
-export type LibraryEntityType = 'region' | 'faction' | 'npc' | 'adversary';
+export type LibraryEntityType =
+  | 'continent'
+  | 'region'
+  | 'location'
+  | 'faction'
+  | 'npc'
+  | 'adversary';
 
 export interface SessionPlanLibraryLink {
   id: number;

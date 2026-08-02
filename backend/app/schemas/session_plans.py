@@ -17,7 +17,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-LibraryEntityType = Literal["region", "faction", "npc", "adversary"]
+LibraryEntityType = Literal["continent", "region", "location", "faction", "npc", "adversary"]
 
 
 class SessionBeat(BaseModel):

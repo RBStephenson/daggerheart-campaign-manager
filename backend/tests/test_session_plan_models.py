@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
-from app.models import Campaign, Region, SessionPlan, SessionPlanLibraryLink, World
+from app.models import Campaign, Continent, Region, SessionPlan, SessionPlanLibraryLink, World
 from tests.conftest import make_user
 
 
@@ -66,8 +66,18 @@ def test_session_plan_links_to_library_entity(db: Session) -> None:
     db.commit()
     db.refresh(world)
 
-    region = Region(
+    continent = Continent(
         world_id=world.id,
+        name="Tharivor",
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
+    )
+    db.add(continent)
+    db.commit()
+    db.refresh(continent)
+
+    region = Region(
+        continent_id=continent.id,
         name="Hillford",
         created_at=datetime.now(UTC),
         updated_at=datetime.now(UTC),

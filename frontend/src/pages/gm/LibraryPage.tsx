@@ -8,8 +8,9 @@ import {
   listEntities,
   listWorlds,
   updateEntity,
+  SEGMENT_HAS_KIND,
   type LibraryEntity,
-  type LibraryEntityType,
+  type LibrarySegment,
   type World,
 } from '../../api/library';
 
@@ -24,22 +25,42 @@ const tabClass = (active: boolean) =>
     active ? 'bg-ember/20 text-ember-bright' : 'text-parchment/60 hover:bg-white/5 hover:text-parchment'
   }`;
 
-const ENTITY_TYPES: { type: LibraryEntityType; label: string; singular: string }[] = [
-  { type: 'regions', label: 'Regions', singular: 'Region' },
-  { type: 'factions', label: 'Factions', singular: 'Faction' },
-  { type: 'npcs', label: 'NPCs', singular: 'NPC' },
-  { type: 'adversaries', label: 'Adversaries', singular: 'Adversary' },
+// Top-level Library tabs. Continents is the entry point into the place
+// hierarchy (World > Continent > Region > Location); Factions/NPCs/
+// Adversaries stay flat, scoped directly to the world.
+const TOP_LEVEL_TABS: { type: LibrarySegment; label: string }[] = [
+  { type: 'continents', label: 'Continents' },
+  { type: 'factions', label: 'Factions' },
+  { type: 'npcs', label: 'NPCs' },
+  { type: 'adversaries', label: 'Adversaries' },
 ];
 
+const SINGULAR: Record<LibrarySegment, string> = {
+  continents: 'Continent',
+  regions: 'Region',
+  locations: 'Location',
+  factions: 'Faction',
+  npcs: 'NPC',
+  adversaries: 'Adversary',
+};
+
+const CHILD_SEGMENT: Partial<Record<LibrarySegment, LibrarySegment>> = {
+  continents: 'regions',
+  regions: 'locations',
+};
+
 function EntityPanel({
-  worldId,
-  type,
-  singular,
+  segment,
+  parentId,
+  onDrillIn,
 }: {
-  worldId: number;
-  type: LibraryEntityType;
-  singular: string;
+  segment: LibrarySegment;
+  parentId: number;
+  onDrillIn?: (entity: LibraryEntity) => void;
 }) {
+  const singular = SINGULAR[segment];
+  const hasKind = SEGMENT_HAS_KIND[segment];
+  const childSegment = CHILD_SEGMENT[segment];
   const [entities, setEntities] = useState<LibraryEntity[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -47,7 +68,7 @@ function EntityPanel({
   async function refresh() {
     setLoading(true);
     try {
-      setEntities(await listEntities(worldId, type));
+      setEntities(await listEntities(segment, parentId));
     } finally {
       setLoading(false);
     }
@@ -55,7 +76,7 @@ function EntityPanel({
 
   useEffect(() => {
     void refresh();
-  }, []);
+  }, [segment, parentId]);
 
   async function handleCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,8 +85,9 @@ function EntityPanel({
     const name = String(form.get('name') ?? '').trim();
     const summary = String(form.get('summary') ?? '').trim();
     const extra = String(form.get('extra') ?? '').trim();
+    const kind = String(form.get('kind') ?? '').trim();
     if (!name) return;
-    await createEntity(worldId, type, { name, summary, extra });
+    await createEntity(segment, parentId, hasKind ? { name, summary, extra, kind } : { name, summary, extra });
     formEl.reset();
     await refresh();
   }
@@ -76,14 +98,15 @@ function EntityPanel({
     const name = String(form.get('name') ?? '').trim();
     const summary = String(form.get('summary') ?? '').trim();
     const extra = String(form.get('extra') ?? '').trim();
+    const kind = String(form.get('kind') ?? '').trim();
     if (!name) return;
-    await updateEntity(worldId, type, id, { name, summary, extra });
+    await updateEntity(segment, parentId, id, hasKind ? { name, summary, extra, kind } : { name, summary, extra });
     setEditingId(null);
     await refresh();
   }
 
   async function handleDelete(id: number) {
-    await deleteEntity(worldId, type, id);
+    await deleteEntity(segment, parentId, id);
     await refresh();
   }
 
@@ -94,6 +117,7 @@ function EntityPanel({
           New {singular}
         </h2>
         <input name="name" placeholder={`${singular} name`} required className={inputClass} />
+        {hasKind && <input name="kind" placeholder="Kind (optional, e.g. town, ruin)" className={inputClass} />}
         <textarea name="summary" placeholder="Summary (optional)" className={inputClass} />
         <textarea name="extra" placeholder="Notes (optional)" className={inputClass} />
         <button
@@ -120,6 +144,9 @@ function EntityPanel({
               {editingId === entity.id ? (
                 <form onSubmit={(e) => void handleUpdate(entity.id, e)} className="flex flex-col gap-2">
                   <input name="name" defaultValue={entity.name} required className={inputClass} />
+                  {hasKind && (
+                    <input name="kind" defaultValue={entity.kind ?? ''} placeholder="Kind" className={inputClass} />
+                  )}
                   <textarea name="summary" defaultValue={entity.summary} className={inputClass} />
                   <textarea name="extra" defaultValue={entity.extra} className={inputClass} />
                   <div className="flex gap-2">
@@ -141,6 +168,7 @@ function EntityPanel({
               ) : (
                 <>
                   <h3 className="break-words font-display text-base text-parchment">{entity.name}</h3>
+                  {entity.kind && <p className="text-xs uppercase tracking-wide text-parchment/40">{entity.kind}</p>}
                   {entity.summary && (
                     <p className="break-words text-sm text-parchment/60">{entity.summary}</p>
                   )}
@@ -151,6 +179,11 @@ function EntityPanel({
                     <button type="button" onClick={() => void handleDelete(entity.id)} className={ghostButtonClass}>
                       Delete
                     </button>
+                    {onDrillIn && childSegment && (
+                      <button type="button" onClick={() => onDrillIn(entity)} className={ghostButtonClass}>
+                        View {SINGULAR[childSegment]}s
+                      </button>
+                    )}
                   </div>
                 </>
               )}
@@ -167,10 +200,79 @@ function EntityPanel({
   );
 }
 
+type PlaceNav =
+  | { level: 'continents' }
+  | { level: 'regions'; continent: LibraryEntity }
+  | { level: 'locations'; continent: LibraryEntity; region: LibraryEntity };
+
+function PlaceHierarchyPanel({ worldId }: { worldId: number }) {
+  const [nav, setNav] = useState<PlaceNav>({ level: 'continents' });
+
+  if (nav.level === 'continents') {
+    return (
+      <EntityPanel
+        key="continents"
+        segment="continents"
+        parentId={worldId}
+        onDrillIn={(continent) => setNav({ level: 'regions', continent })}
+      />
+    );
+  }
+
+  if (nav.level === 'regions') {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => setNav({ level: 'continents' })}
+          className="mb-4 text-sm text-parchment/50 hover:text-parchment"
+        >
+          &larr; Continents
+        </button>
+        <p className="mb-3 text-xs uppercase tracking-wide text-parchment/40">
+          {nav.continent.name} &rsaquo; Regions
+        </p>
+        <EntityPanel
+          key={`regions-${nav.continent.id}`}
+          segment="regions"
+          parentId={nav.continent.id}
+          onDrillIn={(region) => setNav({ level: 'locations', continent: nav.continent, region })}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setNav({ level: 'regions', continent: nav.continent })}
+        className="mb-4 text-sm text-parchment/50 hover:text-parchment"
+      >
+        &larr; {nav.continent.name} Regions
+      </button>
+      <p className="mb-3 text-xs uppercase tracking-wide text-parchment/40">
+        {nav.continent.name} &rsaquo; {nav.region.name} &rsaquo; Locations
+      </p>
+      <EntityPanel key={`locations-${nav.region.id}`} segment="locations" parentId={nav.region.id} />
+    </div>
+  );
+}
+
+// EntityPanel needs a real worldId for the flat segments (factions/npcs/
+// adversaries) and the Continents entry point of the place hierarchy; this
+// small wrapper just threads the resolved world id through.
+function WorldScopedPanel({ worldId, segment }: { worldId: number; segment: LibrarySegment }) {
+  if (segment === 'continents') {
+    return <PlaceHierarchyPanel worldId={worldId} />;
+  }
+  return <EntityPanel key={segment} segment={segment} parentId={worldId} />;
+}
+
 export default function LibraryPage() {
   const [world, setWorld] = useState<World | null | undefined>(undefined);
   const [disabled, setDisabled] = useState(false);
-  const [activeType, setActiveType] = useState<LibraryEntityType>('regions');
+  const [activeType, setActiveType] = useState<LibrarySegment>('continents');
 
   async function loadWorld() {
     try {
@@ -217,7 +319,8 @@ export default function LibraryPage() {
           Name your world
         </h2>
         <p className="mb-1 text-sm text-parchment/50">
-          Your world holds every Region, Faction, NPC, and Adversary you build here.
+          Your world holds every Continent, Region, Location, Faction, NPC, and Adversary you
+          build here.
         </p>
         <input name="name" placeholder="World name" required className={inputClass} />
         <button
@@ -233,7 +336,7 @@ export default function LibraryPage() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-1">
-        {ENTITY_TYPES.map(({ type, label }) => (
+        {TOP_LEVEL_TABS.map(({ type, label }) => (
           <button
             key={type}
             type="button"
@@ -244,12 +347,7 @@ export default function LibraryPage() {
           </button>
         ))}
       </div>
-      <EntityPanel
-        key={activeType}
-        worldId={world.id}
-        type={activeType}
-        singular={ENTITY_TYPES.find((t) => t.type === activeType)!.singular}
-      />
+      <WorldScopedPanel key={activeType} worldId={world.id} segment={activeType} />
     </div>
   );
 }

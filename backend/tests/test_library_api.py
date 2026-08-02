@@ -5,7 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.models import AppSetting
 
-ENTITY_SEGMENTS = ["regions", "factions", "npcs", "adversaries"]
+# World > Continent > Region > Location is the place hierarchy; Faction/Npc/
+# Adversary hang directly off World. ENTITY_SEGMENTS covers every entity type
+# the shared CRUD factory builds; KIND_SEGMENTS is the subset with `kind`.
+ENTITY_SEGMENTS = ["continents", "regions", "locations", "factions", "npcs", "adversaries"]
+KIND_SEGMENTS = ["continents", "regions", "locations"]
 
 
 def enable_library(db: Session) -> None:
@@ -17,6 +21,45 @@ def make_world(client, name: str = "Aetheris") -> int:
     resp = client.post("/api/library/worlds", json={"name": name})
     assert resp.status_code == 200
     return resp.json()["id"]
+
+
+def make_continent(client, world_id: int, name: str = "Tharivor") -> int:
+    resp = client.post(f"/api/library/worlds/{world_id}/continents", json={"name": name})
+    assert resp.status_code == 200
+    return resp.json()["id"]
+
+
+def make_region(client, continent_id: int, name: str = "Hillford Valley") -> int:
+    resp = client.post(f"/api/library/continents/{continent_id}/regions", json={"name": name})
+    assert resp.status_code == 200
+    return resp.json()["id"]
+
+
+def build_chain(client, segment: str, world_id: int) -> tuple[str, str, int]:
+    """Build whatever parent chain `segment` needs under `world_id`.
+
+    Returns (collection_url, parent_field_name_in_response, parent_id).
+    """
+    if segment == "continents":
+        return f"/api/library/worlds/{world_id}/continents", "world_id", world_id
+    if segment == "regions":
+        continent_id = make_continent(client, world_id)
+        return f"/api/library/continents/{continent_id}/regions", "continent_id", continent_id
+    if segment == "locations":
+        continent_id = make_continent(client, world_id)
+        region_id = make_region(client, continent_id)
+        return f"/api/library/regions/{region_id}/locations", "region_id", region_id
+    return f"/api/library/worlds/{world_id}/{segment}", "world_id", world_id
+
+
+def missing_parent_url(segment: str) -> str:
+    if segment == "continents":
+        return "/api/library/worlds/999/continents"
+    if segment == "regions":
+        return "/api/library/continents/999/regions"
+    if segment == "locations":
+        return "/api/library/regions/999/locations"
+    return f"/api/library/worlds/999/{segment}"
 
 
 def test_disabled_flag_returns_404(as_user, db: Session) -> None:
@@ -63,25 +106,38 @@ def test_create_and_list_entity(as_user, db: Session, segment: str) -> None:
     enable_library(db)
     client = as_user("gm")
     world_id = make_world(client)
+    url, parent_field, parent_id = build_chain(client, segment, world_id)
 
     create_resp = client.post(
-        f"/api/library/worlds/{world_id}/{segment}",
+        url,
         json={"name": "Hillford", "summary": "A frontier town.", "extra": json.dumps({"a": 1})},
     )
     assert create_resp.status_code == 200
     assert create_resp.json()["name"] == "Hillford"
-    assert create_resp.json()["world_id"] == world_id
+    assert create_resp.json()[parent_field] == parent_id
 
-    list_resp = client.get(f"/api/library/worlds/{world_id}/{segment}")
+    list_resp = client.get(url)
     assert list_resp.status_code == 200
     assert [e["name"] for e in list_resp.json()] == ["Hillford"]
 
 
-@pytest.mark.parametrize("segment", ENTITY_SEGMENTS)
-def test_create_entity_in_missing_world_is_404(as_user, db: Session, segment: str) -> None:
+@pytest.mark.parametrize("segment", KIND_SEGMENTS)
+def test_create_entity_with_kind(as_user, db: Session, segment: str) -> None:
     enable_library(db)
     client = as_user("gm")
-    resp = client.post(f"/api/library/worlds/999/{segment}", json={"name": "Ghost"})
+    world_id = make_world(client)
+    url, _, _ = build_chain(client, segment, world_id)
+
+    create_resp = client.post(url, json={"name": "Hillford", "kind": "town"})
+    assert create_resp.status_code == 200
+    assert create_resp.json()["kind"] == "town"
+
+
+@pytest.mark.parametrize("segment", ENTITY_SEGMENTS)
+def test_create_entity_in_missing_parent_is_404(as_user, db: Session, segment: str) -> None:
+    enable_library(db)
+    client = as_user("gm")
+    resp = client.post(missing_parent_url(segment), json={"name": "Ghost"})
     assert resp.status_code == 404
 
 
@@ -90,26 +146,25 @@ def test_get_entity(as_user, db: Session, segment: str) -> None:
     enable_library(db)
     client = as_user("gm")
     world_id = make_world(client)
-    entity_id = client.post(
-        f"/api/library/worlds/{world_id}/{segment}", json={"name": "Hillford"}
-    ).json()["id"]
+    url, _, _ = build_chain(client, segment, world_id)
+    entity_id = client.post(url, json={"name": "Hillford"}).json()["id"]
 
-    resp = client.get(f"/api/library/worlds/{world_id}/{segment}/{entity_id}")
+    resp = client.get(f"{url}/{entity_id}")
     assert resp.status_code == 200
     assert resp.json()["name"] == "Hillford"
 
 
 @pytest.mark.parametrize("segment", ENTITY_SEGMENTS)
-def test_get_entity_from_wrong_world_is_404(as_user, db: Session, segment: str) -> None:
+def test_get_entity_from_wrong_parent_is_404(as_user, db: Session, segment: str) -> None:
     enable_library(db)
     client = as_user("gm")
     world_a = make_world(client, "Aetheris")
     world_b = make_world(client, "Elsewhere")
-    entity_id = client.post(
-        f"/api/library/worlds/{world_a}/{segment}", json={"name": "Hillford"}
-    ).json()["id"]
+    url_a, _, _ = build_chain(client, segment, world_a)
+    url_b, _, _ = build_chain(client, segment, world_b)
+    entity_id = client.post(url_a, json={"name": "Hillford"}).json()["id"]
 
-    resp = client.get(f"/api/library/worlds/{world_b}/{segment}/{entity_id}")
+    resp = client.get(f"{url_b}/{entity_id}")
     assert resp.status_code == 404
 
 
@@ -118,15 +173,25 @@ def test_update_entity(as_user, db: Session, segment: str) -> None:
     enable_library(db)
     client = as_user("gm")
     world_id = make_world(client)
-    entity_id = client.post(
-        f"/api/library/worlds/{world_id}/{segment}", json={"name": "Original"}
-    ).json()["id"]
+    url, _, _ = build_chain(client, segment, world_id)
+    entity_id = client.post(url, json={"name": "Original"}).json()["id"]
 
-    resp = client.put(
-        f"/api/library/worlds/{world_id}/{segment}/{entity_id}", json={"name": "Renamed"}
-    )
+    resp = client.put(f"{url}/{entity_id}", json={"name": "Renamed"})
     assert resp.status_code == 200
     assert resp.json()["name"] == "Renamed"
+
+
+@pytest.mark.parametrize("segment", KIND_SEGMENTS)
+def test_update_entity_kind(as_user, db: Session, segment: str) -> None:
+    enable_library(db)
+    client = as_user("gm")
+    world_id = make_world(client)
+    url, _, _ = build_chain(client, segment, world_id)
+    entity_id = client.post(url, json={"name": "Original", "kind": "town"}).json()["id"]
+
+    resp = client.put(f"{url}/{entity_id}", json={"kind": "ruin"})
+    assert resp.status_code == 200
+    assert resp.json()["kind"] == "ruin"
 
 
 @pytest.mark.parametrize("segment", ENTITY_SEGMENTS)
@@ -134,11 +199,10 @@ def test_update_rejects_unknown_field(as_user, db: Session, segment: str) -> Non
     enable_library(db)
     client = as_user("gm")
     world_id = make_world(client)
-    entity_id = client.post(
-        f"/api/library/worlds/{world_id}/{segment}", json={"name": "Original"}
-    ).json()["id"]
+    url, _, _ = build_chain(client, segment, world_id)
+    entity_id = client.post(url, json={"name": "Original"}).json()["id"]
 
-    resp = client.put(f"/api/library/worlds/{world_id}/{segment}/{entity_id}", json={"nope": "x"})
+    resp = client.put(f"{url}/{entity_id}", json={"nope": "x"})
     assert resp.status_code == 422
 
 
@@ -147,22 +211,39 @@ def test_delete_entity(as_user, db: Session, segment: str) -> None:
     enable_library(db)
     client = as_user("gm")
     world_id = make_world(client)
-    entity_id = client.post(
-        f"/api/library/worlds/{world_id}/{segment}", json={"name": "Doomed"}
-    ).json()["id"]
+    url, _, _ = build_chain(client, segment, world_id)
+    entity_id = client.post(url, json={"name": "Doomed"}).json()["id"]
 
-    resp = client.delete(f"/api/library/worlds/{world_id}/{segment}/{entity_id}")
+    resp = client.delete(f"{url}/{entity_id}")
     assert resp.status_code == 204
-    assert client.get(f"/api/library/worlds/{world_id}/{segment}/{entity_id}").status_code == 404
+    assert client.get(f"{url}/{entity_id}").status_code == 404
 
 
-def test_entities_are_scoped_to_their_world(as_user, db: Session) -> None:
+def test_full_hierarchy_end_to_end(as_user, db: Session) -> None:
     enable_library(db)
     client = as_user("gm")
-    world_a = make_world(client, "Aetheris")
-    world_b = make_world(client, "Elsewhere")
-    client.post(f"/api/library/worlds/{world_a}/regions", json={"name": "Hillford"})
-    client.post(f"/api/library/worlds/{world_b}/regions", json={"name": "Somewhere Else"})
+    world_id = make_world(client, "Aetheris")
 
-    resp = client.get(f"/api/library/worlds/{world_a}/regions")
-    assert [r["name"] for r in resp.json()] == ["Hillford"]
+    continent_id = client.post(
+        f"/api/library/worlds/{world_id}/continents",
+        json={"name": "Tharivor", "kind": "primary continent"},
+    ).json()["id"]
+    region_id = client.post(
+        f"/api/library/continents/{continent_id}/regions",
+        json={"name": "Hillford Valley", "kind": "river valley"},
+    ).json()["id"]
+    location_resp = client.post(
+        f"/api/library/regions/{region_id}/locations",
+        json={"name": "Hillford", "kind": "town"},
+    )
+    assert location_resp.status_code == 200
+    location = location_resp.json()
+    assert location["name"] == "Hillford"
+    assert location["kind"] == "town"
+    assert location["region_id"] == region_id
+
+    regions = client.get(f"/api/library/continents/{continent_id}/regions").json()
+    assert [r["name"] for r in regions] == ["Hillford Valley"]
+
+    locations = client.get(f"/api/library/regions/{region_id}/locations").json()
+    assert [loc["name"] for loc in locations] == ["Hillford"]
