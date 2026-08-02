@@ -29,11 +29,19 @@ const LINK_TYPES: { type: LibraryEntityType; segment: LibrarySegment; label: str
   { type: 'adversary', segment: 'adversaries', label: 'Adversary' },
 ];
 
+const EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
+  region: [],
+  faction: [],
+  npc: [],
+  adversary: [],
+};
+
 function LinksSection({ campaignId, planId }: { campaignId: number; planId: number }) {
   const [links, setLinks] = useState<SessionPlanLibraryLink[] | null>(null);
   const [worldId, setWorldId] = useState<number | null>(null);
   const [entityType, setEntityType] = useState<LibraryEntityType>('region');
-  const [entities, setEntities] = useState<LibraryEntity[]>([]);
+  const [entitiesByType, setEntitiesByType] =
+    useState<Record<LibraryEntityType, LibraryEntity[]>>(EMPTY_ENTITIES_BY_TYPE);
   const [error, setError] = useState<string | null>(null);
 
   async function refreshLinks() {
@@ -49,11 +57,22 @@ function LinksSection({ campaignId, planId }: { campaignId: number; planId: numb
 
   useEffect(() => {
     if (worldId === null) return;
-    const segment = LINK_TYPES.find((t) => t.type === entityType)!.segment;
-    listEntities(worldId, segment)
-      .then(setEntities)
-      .catch(() => setEntities([]));
-  }, [worldId, entityType]);
+    Promise.all(LINK_TYPES.map(({ segment }) => listEntities(worldId, segment)))
+      .then((results) => {
+        const byType = { ...EMPTY_ENTITIES_BY_TYPE };
+        LINK_TYPES.forEach(({ type }, i) => {
+          byType[type] = results[i];
+        });
+        setEntitiesByType(byType);
+      })
+      .catch(() => setEntitiesByType(EMPTY_ENTITIES_BY_TYPE));
+  }, [worldId]);
+
+  function entityName(type: LibraryEntityType, id: number): string {
+    const label = LINK_TYPES.find((t) => t.type === type)!.label;
+    const entity = entitiesByType[type].find((e) => e.id === id);
+    return entity ? `${label}: ${entity.name}` : `${label} #${id}`;
+  }
 
   async function handleAttach(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -84,11 +103,11 @@ function LinksSection({ campaignId, planId }: { campaignId: number; planId: numb
             key={link.id}
             className="flex items-center gap-2 rounded-md border border-hairline/20 px-2 py-1 text-xs text-parchment/70"
           >
-            {link.entity_type} #{link.entity_id}
+            {entityName(link.entity_type, link.entity_id)}
             <button
               type="button"
               onClick={() => void handleRemove(link.id)}
-              aria-label={`Remove ${link.entity_type} #${link.entity_id}`}
+              aria-label={`Remove ${entityName(link.entity_type, link.entity_id)}`}
               className="text-parchment/40 hover:text-danger-text"
             >
               ×
@@ -120,7 +139,7 @@ function LinksSection({ campaignId, planId }: { campaignId: number; planId: numb
           <option value="" disabled>
             Choose {LINK_TYPES.find((t) => t.type === entityType)!.label.toLowerCase()}...
           </option>
-          {entities.map((entity) => (
+          {entitiesByType[entityType].map((entity) => (
             <option key={entity.id} value={entity.id}>
               {entity.name}
             </option>
