@@ -31,6 +31,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Library',
     description: 'GM world-building library: Regions, Factions, NPCs, and Adversaries.',
   },
+  session_planning_enabled: {
+    label: 'Session planning',
+    description: "Draft a session's planned content ahead of play and attach Library entities.",
+  },
 };
 
 export default function HostSettingsPage() {
