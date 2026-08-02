@@ -27,6 +27,7 @@ DEFAULTS: dict[str, Any] = {
     "player_area_enabled": False,
     "data_management_enabled": False,
     "character_creation_enabled": False,
+    "library_enabled": False,
 }
 
 
