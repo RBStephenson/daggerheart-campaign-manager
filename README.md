@@ -50,23 +50,25 @@ behind a `<feature>_enabled` flag (default off) toggled from the Settings page.
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/health` | Liveness check |
-| `GET /api/settings` | All settings (defaults overlaid with stored values) — host only |
-| `PUT /api/settings` | Partial update; unknown keys rejected (422) — host only |
+| `GET /api/settings` | All settings (defaults overlaid with stored values) — gm only |
+| `PUT /api/settings` | Partial update; unknown keys rejected (422) — gm only |
 
 ## Auth
 
 Lightweight self-hosted auth — no OAuth. Sessions are a signed, httpOnly cookie
-(`dhcm_session`); passwords are hashed with argon2. Roles are `host`, `gm`,
-`player`, enforced server-side on every protected router. `host` is a
-superuser — it satisfies any role check, so a host account can also open the
-GM and Player areas. In the GM area a host acts as its own GM (campaigns are
-still scoped to that literal account id), not as an admin over every GM's
-data.
+(`dhcm_session`); passwords are hashed with argon2. Roles are `gm` and
+`player`, enforced server-side on every protected router. There's no separate
+"host" account: these are self-hosted, one-GM-per-instance installs (Docker
+Compose or otherwise), so the GM running the deployment is also its admin —
+`gm` covers campaigns/sessions/Library *and* server settings/data management.
+"Host" now refers only to the server/infra itself and the `/host` settings
+area, not to an account role. `gm` and `player` stay walled off from each
+other — a GM has no automatic access to the Player area (and vice versa); the
+GM will see character sheets through the GM interface instead.
 
-The first host account is bootstrapped at startup from `DHCM_HOST_USERNAME` /
-`DHCM_HOST_PASSWORD` env vars (skipped, with a warning, if unset). From there,
-hosts can invite GMs or players; GMs can only invite players. Invite tokens
-are single-use.
+The first GM account is bootstrapped at startup from `DHCM_GM_USERNAME` /
+`DHCM_GM_PASSWORD` env vars (skipped, with a warning, if unset). From there,
+GMs can invite other GMs or players. Invite tokens are single-use.
 
 Set `DHCM_SECRET_KEY` in production — without it, sessions are signed with a
 random per-process key and are invalidated on every restart.
@@ -76,7 +78,7 @@ random per-process key and are invalidated on every restart.
 | `POST /api/auth/login` | `{username, password}` → sets session cookie |
 | `POST /api/auth/logout` | Clears session cookie |
 | `GET /api/auth/me` | Current user, or `null` if unauthenticated |
-| `POST /api/auth/invites` | Create an invite token — host or gm only |
+| `POST /api/auth/invites` | Create an invite token — gm only |
 | `POST /api/auth/register` | `{token, username, password}` → consumes an invite |
 
 ## Realtime
@@ -161,7 +163,7 @@ player — upserted on save.
 ## Host: data management
 
 Behind the `data_management_enabled` feature flag (default off, toggle on
-`/host/settings`, tab appears at `/host/data` once enabled). Host-only.
+`/host/settings`, tab appears at `/host/data` once enabled). GM-only.
 Operates on the SQLite database file directly and never touches uploaded
 model/asset files. Backup and pre-destructive-op snapshots use SQLite's
 online backup API for a consistent copy (folds in WAL contents); restore
@@ -205,7 +207,7 @@ walks the 9 SRD steps (class+subclass, heritage, trait-array assignment, derived
 stats, equipment, experiences, domain cards, background/connections, review) and
 submits the assembled sheet as `extra`. `PlayerPage` shows a "Create Character
 (Guided)" entry point when available, with the flat form as a fallback. Because
-`/api/settings` is host-only (403 for players), availability isn't read from
+`/api/settings` is gm-only (403 for players), availability isn't read from
 `AppSettingsContext` — the page instead probes `GET /api/srd/character-creation`
 directly and treats a 404 as "disabled," the same invisible-rather-than-erroring
 pattern used everywhere else in the player area.

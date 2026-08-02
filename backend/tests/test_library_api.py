@@ -31,15 +31,6 @@ def test_player_forbidden(as_user, db: Session) -> None:
     assert resp.status_code == 403
 
 
-def test_host_has_superuser_access(as_user, db: Session) -> None:
-    enable_library(db)
-    client = as_user("host")
-    world_id = make_world(client)
-    resp = client.get("/api/library/worlds")
-    assert resp.status_code == 200
-    assert [w["id"] for w in resp.json()] == [world_id]
-
-
 def test_create_and_list_world(as_user, db: Session) -> None:
     enable_library(db)
     client = as_user("gm")

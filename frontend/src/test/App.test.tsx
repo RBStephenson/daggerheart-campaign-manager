@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -6,7 +6,7 @@ import App from '../App';
 import { AppSettingsProvider } from '../context/AppSettingsContext';
 import { AuthProvider } from '../context/AuthContext';
 
-type MockUser = { id: number; username: string; role: 'host' | 'gm' | 'player' } | null;
+type MockUser = { id: number; username: string; role: 'gm' | 'player' } | null;
 
 function mockFetch(currentUser: MockUser) {
   vi.stubGlobal(
@@ -19,7 +19,7 @@ function mockFetch(currentUser: MockUser) {
         return Promise.resolve({
           ok: true,
           status: 200,
-          json: () => Promise.resolve({ id: 1, username: 'alice', role: 'host' }),
+          json: () => Promise.resolve({ id: 1, username: 'alice', role: 'gm' }),
         });
       }
       if (url.startsWith('/api/campaigns') || url.startsWith('/api/player')) {
@@ -48,38 +48,10 @@ describe('App', () => {
     vi.restoreAllMocks();
   });
 
-  it('shows the launch page at / with links to each area', async () => {
+  it('redirects / to /login', async () => {
     renderApp('/', null);
-    const launch = await screen.findByRole('region', { name: 'Launch' });
-    expect(within(launch).getByRole('heading', { name: 'DAGGERHEART' })).toBeInTheDocument();
-    expect(within(launch).getByRole('link', { name: 'Host' })).toHaveAttribute('href', '/login');
-    expect(within(launch).getByRole('link', { name: 'Gamemaster' })).toHaveAttribute(
-      'href',
-      '/login',
-    );
-    expect(within(launch).getByRole('link', { name: 'Player' })).toHaveAttribute(
-      'href',
-      '/login',
-    );
-  });
-
-  it('logging in from the launch page redirects to the chosen area', async () => {
-    renderApp('/', null);
-    const launch = await screen.findByRole('region', { name: 'Launch' });
-
-    await userEvent.click(within(launch).getByRole('link', { name: 'Gamemaster' }));
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument(),
-    );
-
-    await userEvent.type(screen.getByLabelText('Username'), 'alice');
-    await userEvent.type(screen.getByLabelText('Password'), 'correct-horse');
-    await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
-
-    // Mock login always returns a host user; landing on Gamemaster (not the
-    // default Host redirect) proves the launch page's `from` state was used.
-    await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument(),
     );
   });
 
@@ -90,24 +62,24 @@ describe('App', () => {
     );
   });
 
-  it('lets a host user reach /host', async () => {
-    renderApp('/host', { id: 1, username: 'alice', role: 'host' });
+  it('lets a gm user reach /host', async () => {
+    renderApp('/host', { id: 1, username: 'alice', role: 'gm' });
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument(),
     );
   });
 
-  it('lets a host user reach /gm as superuser', async () => {
-    renderApp('/gm', { id: 1, username: 'alice', role: 'host' });
+  it('lets a gm user reach /gm', async () => {
+    renderApp('/gm', { id: 1, username: 'alice', role: 'gm' });
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument(),
     );
   });
 
-  it('lets a host user reach /player as superuser', async () => {
-    renderApp('/player', { id: 1, username: 'alice', role: 'host' });
+  it('denies a gm user access to /player', async () => {
+    renderApp('/player', { id: 1, username: 'alice', role: 'gm' });
     await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Player' })).toBeInTheDocument(),
+      expect(screen.getByText(/don't have access/)).toBeInTheDocument(),
     );
   });
 
@@ -125,8 +97,8 @@ describe('App', () => {
     );
   });
 
-  it('renders settings under /host/settings for a host', async () => {
-    renderApp('/host/settings', { id: 1, username: 'alice', role: 'host' });
+  it('renders settings under /host/settings for a gm', async () => {
+    renderApp('/host/settings', { id: 1, username: 'alice', role: 'gm' });
     await waitFor(() => expect(screen.getByText(/No settings yet/)).toBeInTheDocument());
   });
 
@@ -141,7 +113,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }));
 
     await waitFor(() =>
-      expect(screen.getByRole('heading', { name: 'Host' })).toBeInTheDocument(),
+      expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument(),
     );
   });
 });

@@ -93,7 +93,7 @@ def _enable_flag(client) -> None:
 
 
 def test_endpoints_404_when_flag_off(as_user) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     assert client.get("/api/database/backup").status_code == 404
     assert client.get("/api/database/health").status_code == 404
     assert client.post("/api/database/repair").status_code == 404
@@ -107,15 +107,15 @@ def test_endpoints_404_when_flag_off(as_user) -> None:
     )
 
 
-def test_endpoints_forbidden_for_non_host(as_user) -> None:
-    client = as_user("host")
+def test_endpoints_forbidden_for_non_gm(as_user) -> None:
+    client = as_user("gm")
     _enable_flag(client)
-    gm_client = as_user("gm", username="gm-user")
-    assert gm_client.get("/api/database/health").status_code == 403
+    player_client = as_user("player", username="player-user")
+    assert player_client.get("/api/database/health").status_code == 403
 
 
 def test_backup_returns_db_file(as_user) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     _enable_flag(client)
     resp = client.get("/api/database/backup")
     assert resp.status_code == 200
@@ -124,7 +124,7 @@ def test_backup_returns_db_file(as_user) -> None:
 
 
 def test_health_reports_ok_on_fresh_db(as_user) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     _enable_flag(client)
     resp = client.get("/api/database/health")
     assert resp.status_code == 200
@@ -134,7 +134,7 @@ def test_health_reports_ok_on_fresh_db(as_user) -> None:
 
 
 def test_repair_is_noop_on_healthy_db(as_user) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     _enable_flag(client)
     resp = client.post("/api/database/repair")
     assert resp.status_code == 200
@@ -145,7 +145,7 @@ def test_repair_is_noop_on_healthy_db(as_user) -> None:
 
 
 def test_restore_rejects_invalid_file(as_user) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     _enable_flag(client)
     resp = client.post(
         "/api/database/restore",
@@ -155,7 +155,7 @@ def test_restore_rejects_invalid_file(as_user) -> None:
 
 
 def test_restore_accepts_valid_backup_of_itself(as_user) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     _enable_flag(client)
     backup_bytes = client.get("/api/database/backup").content
     resp = client.post(
@@ -167,7 +167,7 @@ def test_restore_accepts_valid_backup_of_itself(as_user) -> None:
 
 
 def test_reset_wipes_all_data(as_user, db_session) -> None:
-    client = as_user("host")
+    client = as_user("gm")
     _enable_flag(client)
     make_user(db_session, username="throwaway", role="player")
 

@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { ApiError } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
   const { user, login } = useAuth();
-  const location = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [touched, setTouched] = useState({ username: false, password: false });
@@ -13,8 +12,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   if (user) {
-    const from = (location.state as { from?: string } | null)?.from ?? `/${user.role}`;
-    return <Navigate to={from} replace />;
+    return <Navigate to={`/${user.role}`} replace />;
   }
 
   const usernameError = touched.username && !username.trim() ? 'Username is required.' : null;

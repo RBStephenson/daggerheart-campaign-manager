@@ -48,7 +48,7 @@ def test_history_returned_chronologically(as_user, db: Session) -> None:
     add_message(db, room="room1", author_id=author.id, body="first")
     add_message(db, room="room1", author_id=author.id, body="second")
 
-    client = as_user("host")
+    client = as_user("gm")
     resp = client.get("/api/chat/room1/messages")
     assert resp.status_code == 200
     bodies = [m["body"] for m in resp.json()]
@@ -62,7 +62,7 @@ def test_history_scoped_to_room(as_user, db: Session) -> None:
     add_message(db, room="room1", author_id=author.id, body="in room1")
     add_message(db, room="room2", author_id=author.id, body="in room2")
 
-    client = as_user("host")
+    client = as_user("gm")
     resp = client.get("/api/chat/room1/messages")
     assert [m["body"] for m in resp.json()] == ["in room1"]
 
@@ -74,6 +74,6 @@ def test_history_before_pagination(as_user, db: Session) -> None:
     add_message(db, room="room1", author_id=author.id, body="second")
     third = add_message(db, room="room1", author_id=author.id, body="third")
 
-    client = as_user("host")
+    client = as_user("gm")
     resp = client.get(f"/api/chat/room1/messages?before={third.id}")
     assert [m["body"] for m in resp.json()] == ["first", "second"]

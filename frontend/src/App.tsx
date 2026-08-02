@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import CampaignsPage from './pages/gm/CampaignsPage';
@@ -7,7 +7,6 @@ import LibraryPage from './pages/gm/LibraryPage';
 import DataManagementPage from './pages/host/DataManagementPage';
 import HostPage from './pages/host/HostPage';
 import HostSettingsPage from './pages/host/HostSettingsPage';
-import LaunchPage from './pages/launch/LaunchPage';
 import LoginPage from './pages/login/LoginPage';
 import PlayerPage from './pages/player/PlayerPage';
 
@@ -15,11 +14,11 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<LaunchPage />} />
+        <Route index element={<Navigate to="/login" replace />} />
         <Route
           path="host"
           element={
-            <ProtectedRoute roles={['host']}>
+            <ProtectedRoute roles={['gm']}>
               <HostPage />
             </ProtectedRoute>
           }

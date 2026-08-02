@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { apiGet, apiPost } from '../api/client';
 
-export type Role = 'host' | 'gm' | 'player';
+export type Role = 'gm' | 'player';
 
 export interface AuthUser {
   id: number;

@@ -41,17 +41,17 @@ export default function Layout() {
             </div>
           </div>
           <div className="mt-2 flex flex-wrap gap-1">
-            {(!user || user.role === 'host') && (
+            {(!user || user.role === 'gm') && (
               <NavLink to="/host" className={navLinkClass}>
                 Host
               </NavLink>
             )}
-            {(!user || user.role === 'gm' || user.role === 'host') && (
+            {(!user || user.role === 'gm') && (
               <NavLink to="/gm" className={navLinkClass}>
                 Gamemaster
               </NavLink>
             )}
-            {(!user || user.role === 'player' || user.role === 'host') && (
+            {(!user || user.role === 'player') && (
               <NavLink to="/player" className={navLinkClass}>
                 Player
               </NavLink>

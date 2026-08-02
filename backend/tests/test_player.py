@@ -43,12 +43,6 @@ def test_non_player_forbidden(as_user, db: Session) -> None:
     assert resp.status_code == 403
 
 
-def test_host_has_superuser_access(as_user, db: Session) -> None:
-    enable(db, "player_area_enabled")
-    resp = as_user("host").get("/api/player/campaigns")
-    assert resp.status_code == 200
-
-
 def test_list_my_campaigns_only_shows_memberships(as_user, db: Session) -> None:
     enable(db, "player_area_enabled")
     gm = make_user(db, username="gm1", role="gm")
