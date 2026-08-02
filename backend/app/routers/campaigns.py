@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.deps import require_role
+from app.deps import get_owned_campaign, require_role
 from app.models import Campaign, CampaignMembership, GameSession, User
 from app.routers.settings import get_settings
 from app.schemas.campaigns import CampaignCreate, CampaignOut, CampaignUpdate, GameSessionOut
@@ -25,13 +25,6 @@ router = APIRouter(
     tags=["campaigns"],
     dependencies=[Depends(_require_campaigns_enabled)],
 )
-
-
-def _get_owned_campaign(campaign_id: int, db: Session, gm: User) -> Campaign:
-    campaign = db.get(Campaign, campaign_id)
-    if campaign is None or campaign.gm_user_id != gm.id:
-        raise HTTPException(status_code=404, detail="Campaign not found")
-    return campaign
 
 
 @router.get("", response_model=list[CampaignOut])
@@ -66,7 +59,7 @@ def get_campaign(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> Campaign:
-    return _get_owned_campaign(campaign_id, db, gm)
+    return get_owned_campaign(campaign_id, db, gm)
 
 
 @router.put("/{campaign_id}", response_model=CampaignOut)
@@ -76,7 +69,7 @@ def update_campaign(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> Campaign:
-    campaign = _get_owned_campaign(campaign_id, db, gm)
+    campaign = get_owned_campaign(campaign_id, db, gm)
     if body.name is not None:
         campaign.name = body.name
     if body.description is not None:
@@ -92,7 +85,7 @@ def delete_campaign(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> None:
-    campaign = _get_owned_campaign(campaign_id, db, gm)
+    campaign = get_owned_campaign(campaign_id, db, gm)
     db.delete(campaign)
     db.commit()
 
@@ -103,7 +96,7 @@ def list_sessions(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> list[GameSession]:
-    _get_owned_campaign(campaign_id, db, gm)
+    get_owned_campaign(campaign_id, db, gm)
     return list(
         db.scalars(
             select(GameSession)
@@ -119,7 +112,7 @@ def start_session(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> GameSession:
-    _get_owned_campaign(campaign_id, db, gm)
+    get_owned_campaign(campaign_id, db, gm)
     existing = db.scalar(
         select(GameSession).where(
             GameSession.campaign_id == campaign_id, GameSession.status == "active"
@@ -144,7 +137,7 @@ def end_session(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> GameSession:
-    _get_owned_campaign(campaign_id, db, gm)
+    get_owned_campaign(campaign_id, db, gm)
     session = db.get(GameSession, session_id)
     if session is None or session.campaign_id != campaign_id:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -164,7 +157,7 @@ def list_members(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> list[CampaignMemberOut]:
-    _get_owned_campaign(campaign_id, db, gm)
+    get_owned_campaign(campaign_id, db, gm)
     rows = db.execute(
         select(CampaignMembership, User.username)
         .join(User, CampaignMembership.player_user_id == User.id)
@@ -189,7 +182,7 @@ def add_member(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> CampaignMemberOut:
-    _get_owned_campaign(campaign_id, db, gm)
+    get_owned_campaign(campaign_id, db, gm)
     player = db.scalar(select(User).where(User.username == body.username))
     if player is None or player.role != "player":
         raise HTTPException(status_code=404, detail="No such player")
@@ -225,7 +218,7 @@ def remove_member(
     db: Annotated[Session, Depends(get_db)],
     gm: Annotated[User, Depends(require_role("gm"))],
 ) -> None:
-    _get_owned_campaign(campaign_id, db, gm)
+    get_owned_campaign(campaign_id, db, gm)
     member = db.scalar(
         select(CampaignMembership).where(
             CampaignMembership.campaign_id == campaign_id,

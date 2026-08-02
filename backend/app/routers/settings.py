@@ -28,6 +28,7 @@ DEFAULTS: dict[str, Any] = {
     "data_management_enabled": False,
     "character_creation_enabled": False,
     "library_enabled": False,
+    "session_planning_enabled": False,
 }
 
 

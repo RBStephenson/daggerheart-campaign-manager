@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, Request, WebSocket
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import User
+from app.models import Campaign, User
 from app.security import SESSION_COOKIE_NAME, read_session_token
 
 
@@ -47,3 +47,17 @@ def require_role(*roles: str) -> Callable[[User], User]:
         return user
 
     return dependency
+
+
+def get_owned_campaign(campaign_id: int, db: Session, gm: User) -> Campaign:
+    """Look up a campaign, scoped to the requesting GM's ownership.
+
+    Shared by any router that nests resources under a campaign (campaigns.py's
+    own session lifecycle, session_plans.py's session planning), so ownership
+    scoping lives in one place instead of being reimplemented per router.
+    """
+
+    campaign = db.get(Campaign, campaign_id)
+    if campaign is None or campaign.gm_user_id != gm.id:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return campaign
