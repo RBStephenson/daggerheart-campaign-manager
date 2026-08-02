@@ -3,13 +3,16 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/client';
 import * as campaignsApi from '../api/campaigns';
+import * as sessionPlansApi from '../api/sessionPlans';
 import CampaignsPage from '../pages/gm/CampaignsPage';
 
 vi.mock('../api/campaigns');
+vi.mock('../api/sessionPlans');
 vi.mock('../components/ChatPanel', () => ({
   default: ({ room }: { room: string }) => <div data-testid="chat-panel">{room}</div>,
 }));
 const mocked = vi.mocked(campaignsApi);
+const mockedPlans = vi.mocked(sessionPlansApi);
 
 describe('CampaignsPage', () => {
   beforeEach(() => {
@@ -103,5 +106,25 @@ describe('CampaignsPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Start session' }));
     await waitFor(() => expect(mocked.startSession).toHaveBeenCalledWith(1));
+  });
+
+  it('toggles the session plans panel for a campaign', async () => {
+    mocked.listCampaigns.mockResolvedValue([
+      {
+        id: 1,
+        name: 'Windmere',
+        description: '',
+        gm_user_id: 1,
+        created_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
+    mockedPlans.listSessionPlans.mockResolvedValue([]);
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Session plans' }));
+    await waitFor(() => expect(mockedPlans.listSessionPlans).toHaveBeenCalledWith(1));
+    expect(screen.getByRole('button', { name: 'Hide session plans' })).toBeInTheDocument();
   });
 });

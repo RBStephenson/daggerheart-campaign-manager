@@ -3,6 +3,7 @@ import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import ChatPanel from '../../components/ChatPanel';
+import SessionPlansPanel from './SessionPlansPanel';
 import {
   createCampaign,
   deleteCampaign,
@@ -31,6 +32,7 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [planningCampaignId, setPlanningCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -218,8 +220,24 @@ export default function CampaignsPage() {
                       <button type="button" onClick={() => void handleDelete(campaign.id)} className={ghostButtonClass}>
                         Delete
                       </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPlanningCampaignId(
+                            planningCampaignId === campaign.id ? null : campaign.id,
+                          )
+                        }
+                        className={ghostButtonClass}
+                      >
+                        {planningCampaignId === campaign.id ? 'Hide session plans' : 'Session plans'}
+                      </button>
                     </div>
                     {activeSession && <ChatPanel room={activeSession.room} />}
+                    {planningCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <SessionPlansPanel campaignId={campaign.id} />
+                      </div>
+                    )}
                   </>
                 )}
               </li>
