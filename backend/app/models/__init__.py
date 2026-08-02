@@ -311,3 +311,44 @@ class Adversary(Base):
     extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class SessionPlan(Base):
+    """A GM's plan for a future session of a campaign, defined ahead of play.
+
+    Distinct from `GameSession` (DHCM-8), which tracks a session actually being
+    run. Structured beats/events live in `extra` as a JSON-encoded string,
+    matching `Region.extra` — the schema doesn't need to chase every shape a
+    GM might plan a session around. `order` sequences plans within a campaign.
+    """
+
+    __tablename__ = "session_plans"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    order: Mapped[int] = mapped_column(nullable=False, default=0)
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class SessionPlanLibraryLink(Base):
+    """Links a `SessionPlan` to a Library entity expected to appear in it.
+
+    `entity_type` is one of "region"/"faction"/"npc"/"adversary". `entity_id`
+    is a plain int rather than a FK, since a single column can't reference
+    four different tables; validity of the (entity_type, entity_id) pair is
+    enforced at the API layer, the same tradeoff already accepted for
+    `CustomDomainCard.domain`.
+    """
+
+    __tablename__ = "session_plan_library_links"
+    __table_args__ = (UniqueConstraint("session_plan_id", "entity_type", "entity_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    session_plan_id: Mapped[int] = mapped_column(ForeignKey("session_plans.id"), nullable=False)
+    entity_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    entity_id: Mapped[int] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
