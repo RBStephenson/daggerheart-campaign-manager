@@ -252,8 +252,29 @@ class World(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
+class Continent(Base):
+    """A Library continent, scoped to a world and independent of any campaign.
+
+    Sits between World and Region in the Library hierarchy (World > Continent
+    > Region > Location). `kind` is a free-text descriptor (e.g. "primary
+    continent"); type-specific fields still live in `extra` as JSON, matching
+    `Character.extra`.
+    """
+
+    __tablename__ = "continents"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    kind: Mapped[str] = mapped_column(String(100), nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
 class Region(Base):
-    """A Library region, scoped to a world and independent of any campaign.
+    """A Library region, scoped to a continent and independent of any campaign.
 
     Type-specific fields (climate, terrain, notable locations, etc.) live in
     `extra` as a JSON-encoded string, matching `Character.extra` — the schema
@@ -263,10 +284,30 @@ class Region(Base):
     __tablename__ = "regions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    continent_id: Mapped[int] = mapped_column(ForeignKey("continents.id"), nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    kind: Mapped[str] = mapped_column(String(100), nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Location(Base):
+    """A Library location, scoped to a region and independent of any campaign.
+
+    The bottom tier of the Library hierarchy — a location always belongs to
+    a region (e.g. Hillford within the Hillford Valley region of Tharivor).
+    """
+
+    __tablename__ = "locations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    region_id: Mapped[int] = mapped_column(ForeignKey("regions.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    kind: Mapped[str] = mapped_column(String(100), nullable=False, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 

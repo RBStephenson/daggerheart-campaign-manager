@@ -134,7 +134,7 @@ describe('SessionPlansPanel', () => {
     mocked.createLink.mockResolvedValue({
       id: 9,
       session_plan_id: 2,
-      entity_type: 'region',
+      entity_type: 'continent',
       entity_id: 5,
       created_at: '2026-01-01T00:00:00Z',
     });
@@ -147,7 +147,10 @@ describe('SessionPlansPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Attach' }));
 
     await waitFor(() =>
-      expect(mocked.createLink).toHaveBeenCalledWith(1, 2, { entity_type: 'region', entity_id: 5 }),
+      expect(mocked.createLink).toHaveBeenCalledWith(1, 2, {
+        entity_type: 'continent',
+        entity_id: 5,
+      }),
     );
   });
 
@@ -167,23 +170,38 @@ describe('SessionPlansPanel', () => {
     mocked.listLinks.mockResolvedValue([
       { id: 9, session_plan_id: 2, entity_type: 'region', entity_id: 5, created_at: '2026-01-01T00:00:00Z' },
     ]);
-    mockedLibrary.listEntities.mockImplementation((_worldId, segment) =>
-      Promise.resolve(
-        segment === 'regions'
-          ? [
-              {
-                id: 5,
-                world_id: 1,
-                name: 'Hillford',
-                summary: '',
-                extra: '{}',
-                created_at: '2026-01-01T00:00:00Z',
-                updated_at: '2026-01-01T00:00:00Z',
-              },
-            ]
-          : [],
-      ),
-    );
+    // Region isn't listable directly off a world anymore — the panel walks
+    // Continent -> Region to build the picker, so the mock has to honor that
+    // same chain (continent 10 under world 1, region 5 under continent 10).
+    mockedLibrary.listEntities.mockImplementation((segment, parentId) => {
+      if (segment === 'continents' && parentId === 1) {
+        return Promise.resolve([
+          {
+            id: 10,
+            world_id: 1,
+            name: 'Tharivor',
+            summary: '',
+            extra: '{}',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      }
+      if (segment === 'regions' && parentId === 10) {
+        return Promise.resolve([
+          {
+            id: 5,
+            continent_id: 10,
+            name: 'Hillford',
+            summary: '',
+            extra: '{}',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      }
+      return Promise.resolve([]);
+    });
 
     render(<SessionPlansPanel campaignId={1} />);
     await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());

@@ -15,7 +15,17 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_owned_campaign, require_role
-from app.models import Adversary, Faction, Npc, Region, SessionPlan, SessionPlanLibraryLink, User
+from app.models import (
+    Adversary,
+    Continent,
+    Faction,
+    Location,
+    Npc,
+    Region,
+    SessionPlan,
+    SessionPlanLibraryLink,
+    User,
+)
 from app.routers.settings import get_settings
 from app.schemas.session_plans import (
     SessionPlanContent,
@@ -27,7 +37,9 @@ from app.schemas.session_plans import (
 )
 
 _LIBRARY_MODELS: dict[str, type] = {
+    "continent": Continent,
     "region": Region,
+    "location": Location,
     "faction": Faction,
     "npc": Npc,
     "adversary": Adversary,
