@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -136,3 +136,107 @@ class CampaignNote(Base):
     player_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False, default="")
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomClass(Base):
+    """Host-authored class, alongside the SRD's static classes.
+
+    ``domains_json``/``class_items_json``/``subclasses_json`` are JSON-encoded
+    lists (subclasses: ``[{"name": ..., "spellcast_trait": ...}, ...]``),
+    matching the shape of the SRD dataset's class entries.
+    """
+
+    __tablename__ = "custom_classes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    domains_json: Mapped[str] = mapped_column(Text, nullable=False)
+    starting_evasion: Mapped[int] = mapped_column(nullable=False)
+    starting_hp: Mapped[int] = mapped_column(nullable=False)
+    class_items_json: Mapped[str] = mapped_column(Text, nullable=False)
+    subclasses_json: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomAncestry(Base):
+    """Host-authored ancestry, alongside the SRD's static ancestries."""
+
+    __tablename__ = "custom_ancestries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomCommunity(Base):
+    """Host-authored community, alongside the SRD's static communities."""
+
+    __tablename__ = "custom_communities"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomDomain(Base):
+    """Host-authored domain, alongside the SRD's static domains.
+
+    ``classes_json`` is a JSON-encoded list of class names (SRD or custom)
+    granted this domain.
+    """
+
+    __tablename__ = "custom_domains"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    classes_json: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomDomainCard(Base):
+    """Host-authored Level 1 domain card, alongside the SRD's static cards.
+
+    ``domain`` is a plain string, not a FK to ``custom_domains`` — it may
+    name either an SRD domain (no DB row) or a custom one. Validity is
+    checked at the accessor/merge layer, not by the schema.
+    """
+
+    __tablename__ = "custom_domain_cards"
+    __table_args__ = (UniqueConstraint("domain", "name"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    domain: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    type: Mapped[str] = mapped_column(String(50), nullable=False)
+    recall_cost: Mapped[int] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomWeapon(Base):
+    """Host-authored Tier 1 weapon, alongside the SRD's static weapon table."""
+
+    __tablename__ = "custom_weapons"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    trait: Mapped[str] = mapped_column(String(20), nullable=False)
+    range: Mapped[str] = mapped_column(String(20), nullable=False)
+    damage: Mapped[str] = mapped_column(String(50), nullable=False)
+    burden: Mapped[str] = mapped_column(String(20), nullable=False)
+    is_magic: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    feature: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class CustomArmor(Base):
+    """Host-authored Tier 1 armor, alongside the SRD's static armor table."""
+
+    __tablename__ = "custom_armor"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    threshold_low: Mapped[int] = mapped_column(nullable=False)
+    threshold_high: Mapped[int] = mapped_column(nullable=False)
+    base_score: Mapped[int] = mapped_column(nullable=False)
+    feature: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
