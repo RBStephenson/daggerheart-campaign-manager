@@ -240,3 +240,74 @@ class CustomArmor(Base):
     base_score: Mapped[int] = mapped_column(nullable=False)
     feature: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class World(Base):
+    """A GM's world — the campaign-independent container for Library content."""
+
+    __tablename__ = "worlds"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Region(Base):
+    """A Library region, scoped to a world and independent of any campaign.
+
+    Type-specific fields (climate, terrain, notable locations, etc.) live in
+    `extra` as a JSON-encoded string, matching `Character.extra` — the schema
+    doesn't need to chase every field a GM might want to track.
+    """
+
+    __tablename__ = "regions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Faction(Base):
+    """A Library faction, scoped to a world and independent of any campaign."""
+
+    __tablename__ = "factions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Npc(Base):
+    """A Library NPC, scoped to a world and independent of any campaign."""
+
+    __tablename__ = "npcs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class Adversary(Base):
+    """A Library adversary/statblock, scoped to a world and independent of any campaign."""
+
+    __tablename__ = "adversaries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
