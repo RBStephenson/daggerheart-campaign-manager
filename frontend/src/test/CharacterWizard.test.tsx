@@ -98,6 +98,9 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
   secondary_weapons: [],
   armor: [{ tier: 1, name: 'Leather Armor', base_thresholds: [6, 13], base_score: 3, feature: null }],
   combat_wheelchair: [],
+  beastform_options: [],
+  loot: [],
+  consumables: [],
 };
 
 async function completeWizard() {

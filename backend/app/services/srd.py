@@ -105,6 +105,24 @@ def domain_cards_l1_by_key() -> dict[tuple[str, str], dict[str, Any]]:
     return {(c["domain"], c["name"]): c for c in domain_cards() if c["level"] == 1}
 
 
+@lru_cache(maxsize=1)
+def beastform_options() -> tuple[dict[str, Any], ...]:
+    """All Druid Beastform options (tiers 1-4, 24 categories)."""
+    return tuple(get_dataset()["beastform_options"])
+
+
+@lru_cache(maxsize=1)
+def loot() -> tuple[dict[str, Any], ...]:
+    """The Loot table (60 entries, roll 1-60)."""
+    return tuple(get_dataset()["loot"])
+
+
+@lru_cache(maxsize=1)
+def consumables() -> tuple[dict[str, Any], ...]:
+    """The Consumables table (60 entries, roll 1-60)."""
+    return tuple(get_dataset()["consumables"])
+
+
 def subclass_names(class_name: str) -> frozenset[str]:
     cls = classes_by_name().get(class_name)
     if cls is None:

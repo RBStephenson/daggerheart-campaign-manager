@@ -5057,5 +5057,1251 @@
       "burden": "One-Handed",
       "feature": "Reliable: +1 to attack rolls"
     }
+  ],
+  "beastform_options": [
+    {
+      "tier": 1,
+      "category": "Agile Scout",
+      "examples": "Fox, Mouse, Weasel, etc.",
+      "trait": "Agility",
+      "trait_bonus": 1,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Agility",
+        "damage": "d4 phy"
+      },
+      "advantages": [
+        "deceive",
+        "locate",
+        "sneak"
+      ],
+      "features": [
+        {
+          "name": "Agile",
+          "text": "Your movement is silent, and you can spend a Hope to move up to Far range without rolling."
+        },
+        {
+          "name": "Fragile",
+          "text": "When you take Major or greater damage, you drop out of Beastform."
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "category": "Household Friend",
+      "examples": "Cat, Dog, Rabbit, etc.",
+      "trait": "Instinct",
+      "trait_bonus": 1,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Instinct",
+        "damage": "d6 phy"
+      },
+      "advantages": [
+        "climb",
+        "locate",
+        "protect"
+      ],
+      "features": [
+        {
+          "name": "Companion",
+          "text": "When you Help an Ally, you can roll a d8 as your advantage die."
+        },
+        {
+          "name": "Fragile",
+          "text": "When you take Major or greater damage, you drop out of Beastform."
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "category": "Nimble Grazer",
+      "examples": "Deer, Gazelle, Goat, etc.",
+      "trait": "Agility",
+      "trait_bonus": 1,
+      "evasion_bonus": 3,
+      "attack": {
+        "range": "Melee",
+        "trait": "Agility",
+        "damage": "d6 phy"
+      },
+      "advantages": [
+        "leap",
+        "sneak",
+        "sprint"
+      ],
+      "features": [
+        {
+          "name": "Elusive Prey",
+          "text": "When an attack roll against you would succeed, you can mark a Stress and roll a d4. Add the result to your Evasion against this attack."
+        },
+        {
+          "name": "Fragile",
+          "text": "When you take Major or greater damage, you drop out of Beastform."
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "category": "Pack Predator",
+      "examples": "Coyote, Hyena, Wolf, etc.",
+      "trait": "Strength",
+      "trait_bonus": 2,
+      "evasion_bonus": 1,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d8+2 phy"
+      },
+      "advantages": [
+        "attack",
+        "sprint",
+        "track"
+      ],
+      "features": [
+        {
+          "name": "Hobbling Strike",
+          "text": "When you succeed on an attack against a target within Melee range, you can mark a Stress to make the target temporarily Vulnerable."
+        },
+        {
+          "name": "Pack Hunting",
+          "text": "When you succeed on an attack against the same target as an ally who acts immediately before you, add a d8 to your damage roll."
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "category": "Aquatic Scout",
+      "examples": "Eel, Fish, Octopus, etc.",
+      "trait": "Agility",
+      "trait_bonus": 1,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Agility",
+        "damage": "d4 phy"
+      },
+      "advantages": [
+        "navigate",
+        "sneak",
+        "swim"
+      ],
+      "features": [
+        {
+          "name": "Aquatic",
+          "text": "You can breathe and move naturally underwater."
+        },
+        {
+          "name": "Fragile",
+          "text": "When you take Major or greater damage, you drop out of Beastform."
+        }
+      ]
+    },
+    {
+      "tier": 1,
+      "category": "Stalking Arachnid",
+      "examples": "Tarantula, Wolf Spider, etc.",
+      "trait": "Finesse",
+      "trait_bonus": 1,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Finesse",
+        "damage": "d6+1 phy"
+      },
+      "advantages": [
+        "attack",
+        "climb",
+        "sneak"
+      ],
+      "features": [
+        {
+          "name": "Venomous Bite",
+          "text": "When you succeed on an attack against a target within Melee range, the target becomes temporarily Poisoned. A Poisoned creature takes 1d10 direct physical damage each time they act."
+        },
+        {
+          "name": "Webslinger",
+          "text": "You can create a strong web material useful for both adventuring and battle. The web is resilient enough to support one creature. You can temporarily Restrain a target within Close range by succeeding on a Finesse Roll against them."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "category": "Armored Sentry",
+      "examples": "Armadillo, Pangolin, Turtle, etc.",
+      "trait": "Strength",
+      "trait_bonus": 1,
+      "evasion_bonus": 1,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d8+2 phy"
+      },
+      "advantages": [
+        "dig",
+        "locate",
+        "protect"
+      ],
+      "features": [
+        {
+          "name": "Armored Shell",
+          "text": "Your hardened exterior gives you resistance to physical damage. Additionally, mark an Armor Slot to retract into your shell. While in your shell, physical damage is reduced by a number equal to your Armor Score (after applying resistance), but you can't perform other actions without leaving this form."
+        },
+        {
+          "name": "Cannonball",
+          "text": "Mark a Stress to allow an ally to throw or launch you at an adversary. To do so, the ally makes an attack roll using Agility or Strength (their choice) against a target within Close range. On a success, the adversary takes d12+2 physical damage using the thrower's Proficiency. You can spend a Hope to target an additional adversary within Very Close range of the first. The second target takes half the damage dealt to the first target."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "category": "Powerful Beast",
+      "examples": "Bear, Bull, Moose, etc.",
+      "trait": "Strength",
+      "trait_bonus": 3,
+      "evasion_bonus": 1,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d10+4 phy"
+      },
+      "advantages": [
+        "navigate",
+        "protect",
+        "scare"
+      ],
+      "features": [
+        {
+          "name": "Rampage",
+          "text": "When you roll a 1 on a damage die, you can roll a d10 and add the result to the damage roll. Additionally, before you make an attack roll, you can mark a Stress to gain a +1 bonus to your Proficiency for that attack."
+        },
+        {
+          "name": "Thick Hide",
+          "text": "You gain a +2 bonus to your damage thresholds."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "category": "Mighty Strider",
+      "examples": "Camel, Horse, Zebra, etc.",
+      "trait": "Agility",
+      "trait_bonus": 1,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Agility",
+        "damage": "d8+1 phy"
+      },
+      "advantages": [
+        "leap",
+        "navigate",
+        "sprint"
+      ],
+      "features": [
+        {
+          "name": "Carrier",
+          "text": "You can carry up to two willing allies with you when you move."
+        },
+        {
+          "name": "Trample",
+          "text": "Mark a Stress to move up to Close range in a straight line and make an attack against all targets within Melee range of the line. Targets you succeed against take d8+1 physical damage using your Proficiency and are temporarily Vulnerable."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "category": "Striking Serpent",
+      "examples": "Cobra, Rattlesnake, Viper, etc.",
+      "trait": "Finesse",
+      "trait_bonus": 1,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Very Close",
+        "trait": "Finesse",
+        "damage": "d8+4 phy"
+      },
+      "advantages": [
+        "climb",
+        "deceive",
+        "sprint"
+      ],
+      "features": [
+        {
+          "name": "Venomous Strike",
+          "text": "Make an attack against any number of targets within Very Close range. On a success, a target is temporarily Poisoned. A Poisoned creature takes 1d10 direct physical damage each time they act."
+        },
+        {
+          "name": "Warning Hiss",
+          "text": "Mark a Stress to force any number of targets within Melee range to move back to Very Close range."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "category": "Pouncing Predator",
+      "examples": "Cheetah, Lion, Panther, etc.",
+      "trait": "Instinct",
+      "trait_bonus": 1,
+      "evasion_bonus": 3,
+      "attack": {
+        "range": "Melee",
+        "trait": "Instinct",
+        "damage": "d8+6 phy"
+      },
+      "advantages": [
+        "attack",
+        "climb",
+        "sneak"
+      ],
+      "features": [
+        {
+          "name": "Fleet",
+          "text": "Spend a Hope to move up to Far range without rolling."
+        },
+        {
+          "name": "Takedown",
+          "text": "Mark a Stress to move into Melee range of a target and make an attack roll against them. On a success, you gain a +2 bonus to your Proficiency for this attack and the target must mark a Stress."
+        }
+      ]
+    },
+    {
+      "tier": 2,
+      "category": "Winged Beast",
+      "examples": "Hawk, Owl, Raven, etc.",
+      "trait": "Finesse",
+      "trait_bonus": 1,
+      "evasion_bonus": 3,
+      "attack": {
+        "range": "Melee",
+        "trait": "Finesse",
+        "damage": "d4+2 phy"
+      },
+      "advantages": [
+        "deceive",
+        "locate",
+        "scare"
+      ],
+      "features": [
+        {
+          "name": "Bird's-Eye View",
+          "text": "You can fly at will. Once per rest while you are airborne, you can ask the GM a question about the scene below you without needing to roll. The first time a character makes a roll to act on this information, they gain advantage on the roll."
+        },
+        {
+          "name": "Hollow Bones",
+          "text": "You gain a -2 penalty to your damage thresholds."
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "category": "Great Predator",
+      "examples": "Dire Wolf, Velociraptor, Sabertooth Tiger, etc.",
+      "trait": "Strength",
+      "trait_bonus": 2,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d12+8 phy"
+      },
+      "advantages": [
+        "attack",
+        "sneak",
+        "sprint"
+      ],
+      "features": [
+        {
+          "name": "Carrier",
+          "text": "You can carry up to two willing allies with you when you move."
+        },
+        {
+          "name": "Vicious Maul",
+          "text": "When you succeed on an attack against a target, you can spend a Hope to make them temporarily Vulnerable and gain a +1 bonus to your Proficiency for this attack."
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "category": "Mighty Lizard",
+      "examples": "Alligator, Crocodile, Gila Monster, etc.",
+      "trait": "Instinct",
+      "trait_bonus": 2,
+      "evasion_bonus": 1,
+      "attack": {
+        "range": "Melee",
+        "trait": "Instinct",
+        "damage": "d10+7 phy"
+      },
+      "advantages": [
+        "attack",
+        "sneak",
+        "track"
+      ],
+      "features": [
+        {
+          "name": "Physical Defense",
+          "text": "You gain a +3 bonus to your damage thresholds."
+        },
+        {
+          "name": "Snapping Strike",
+          "text": "When you succeed on an attack against a target within Melee range, you can spend a Hope to clamp that opponent in your jaws, making them temporarily Restrained and Vulnerable."
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "category": "Great Winged Beast",
+      "examples": "Giant Eagle, Falcon, etc.",
+      "trait": "Finesse",
+      "trait_bonus": 2,
+      "evasion_bonus": 3,
+      "attack": {
+        "range": "Melee",
+        "trait": "Finesse",
+        "damage": "d8+6 phy"
+      },
+      "advantages": [
+        "deceive",
+        "distract",
+        "locate"
+      ],
+      "features": [
+        {
+          "name": "Bird's-Eye View",
+          "text": "You can fly at will. Once per rest while you are airborne, you can ask the GM a question about the scene below you without needing to roll. The first time a character makes a roll to act on this information, they gain advantage on the roll."
+        },
+        {
+          "name": "Carrier",
+          "text": "You can carry up to two willing allies with you when you move."
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "category": "Aquatic Predator",
+      "examples": "Dolphin, Orca, Shark, etc.",
+      "trait": "Agility",
+      "trait_bonus": 2,
+      "evasion_bonus": 4,
+      "attack": {
+        "range": "Melee",
+        "trait": "Agility",
+        "damage": "d10+6 phy"
+      },
+      "advantages": [
+        "attack",
+        "swim",
+        "track"
+      ],
+      "features": [
+        {
+          "name": "Aquatic",
+          "text": "You can breathe and move naturally underwater."
+        },
+        {
+          "name": "Vicious Maul",
+          "text": "When you succeed on an attack against a target, you can spend a Hope to make them Vulnerable and gain a +1 bonus to your Proficiency for this attack."
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "category": "Legendary Beast",
+      "examples": "Upgraded Tier 1 Options",
+      "trait": null,
+      "trait_bonus": null,
+      "evasion_bonus": null,
+      "attack": null,
+      "advantages": [],
+      "features": [
+        {
+          "name": "Evolved",
+          "text": "Pick a Tier 1 Beastform option and become a larger, more powerful version of that creature. While you're in this form, you retain all traits and features from the original form and gain the following bonuses: a +6 bonus to damage rolls; a +1 bonus to the trait used by this form; a +2 bonus to Evasion."
+        }
+      ]
+    },
+    {
+      "tier": 3,
+      "category": "Legendary Hybrid",
+      "examples": "Griffon, Sphinx, etc.",
+      "trait": "Strength",
+      "trait_bonus": 2,
+      "evasion_bonus": 3,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d10+8 phy"
+      },
+      "advantages": [],
+      "features": [
+        {
+          "name": "Hybrid Features",
+          "text": "To transform into this creature, mark an additional Stress. Choose any two Beastform options from Tiers 1-2. Choose a total of four advantages and two features from those options."
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "category": "Massive Behemoth",
+      "examples": "Elephant, Mammoth, Rhinoceros, etc.",
+      "trait": "Strength",
+      "trait_bonus": 3,
+      "evasion_bonus": 1,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d12+12 phy"
+      },
+      "advantages": [
+        "locate",
+        "protect",
+        "scare",
+        "sprint"
+      ],
+      "features": [
+        {
+          "name": "Carrier",
+          "text": "You can carry up to four willing allies with you when you move."
+        },
+        {
+          "name": "Demolish",
+          "text": "Spend a Hope to move up to Far range in a straight line and make an attack against all targets within Melee range of the line. Targets you succeed against take d8+10 physical damage using your Proficiency and are temporarily Vulnerable."
+        },
+        {
+          "name": "Undaunted",
+          "text": "You gain a +2 bonus to all your damage thresholds."
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "category": "Terrible Lizard",
+      "examples": "Brachiosaurus, Tyrannosaurus, etc.",
+      "trait": "Strength",
+      "trait_bonus": 3,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d12+10 phy"
+      },
+      "advantages": [
+        "attack",
+        "deceive",
+        "scare",
+        "track"
+      ],
+      "features": [
+        {
+          "name": "Devastating Strikes",
+          "text": "When you deal Severe damage to a target within Melee range, you can mark a Stress to force them to mark an additional Hit Point."
+        },
+        {
+          "name": "Massive Stride",
+          "text": "You can move up to Far range without rolling. You ignore rough terrain (at the GM's discretion) due to your size."
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "category": "Mythic Aerial Hunter",
+      "examples": "Dragon, Pterodactyl, Roc, Wyvern, etc.",
+      "trait": "Finesse",
+      "trait_bonus": 3,
+      "evasion_bonus": 4,
+      "attack": {
+        "range": "Melee",
+        "trait": "Finesse",
+        "damage": "d10+11 phy"
+      },
+      "advantages": [
+        "attack",
+        "deceive",
+        "locate",
+        "navigate"
+      ],
+      "features": [
+        {
+          "name": "Carrier",
+          "text": "You can carry up to three willing allies with you when you move."
+        },
+        {
+          "name": "Deadly Raptor",
+          "text": "You can fly at will and move up to Far range as part of your action. When you move in a straight line into Melee range of a target from at least Close range and make an attack against that target in the same action, you can reroll all damage dice that rolled a result lower than your Proficiency."
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "category": "Epic Aquatic Beast",
+      "examples": "Giant Squid, Whale, etc.",
+      "trait": "Agility",
+      "trait_bonus": 3,
+      "evasion_bonus": 3,
+      "attack": {
+        "range": "Melee",
+        "trait": "Agility",
+        "damage": "d10+10 phy"
+      },
+      "advantages": [
+        "locate",
+        "protect",
+        "scare",
+        "track"
+      ],
+      "features": [
+        {
+          "name": "Ocean Master",
+          "text": "You can breathe and move naturally underwater. When you succeed on an attack against a target within Melee range, you can temporarily Restrain them."
+        },
+        {
+          "name": "Unyielding",
+          "text": "When you would mark an Armor Slot, roll a d6. On a result of 5 or higher, reduce the severity by one threshold without marking an Armor Slot."
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "category": "Mythic Beast",
+      "examples": "Upgraded Tier 1 or Tier 2 Options",
+      "trait": null,
+      "trait_bonus": null,
+      "evasion_bonus": null,
+      "attack": null,
+      "advantages": [],
+      "features": [
+        {
+          "name": "Evolved",
+          "text": "Pick a Tier 1 or Tier 2 Beastform option and become a larger, more powerful version of that creature. While you're in this form, you retain all traits and features from the original form and gain the following bonuses: a +9 bonus to damage rolls; a +2 bonus to the trait used by this form; a +3 bonus to Evasion; your damage die increases by one size (d6 becomes d8, d8 becomes d10, etc.)."
+        }
+      ]
+    },
+    {
+      "tier": 4,
+      "category": "Mythic Hybrid",
+      "examples": "Chimera, Cockatrice, Manticore, etc.",
+      "trait": "Strength",
+      "trait_bonus": 3,
+      "evasion_bonus": 2,
+      "attack": {
+        "range": "Melee",
+        "trait": "Strength",
+        "damage": "d12+10 phy"
+      },
+      "advantages": [],
+      "features": [
+        {
+          "name": "Hybrid Features",
+          "text": "To transform into this creature, mark 2 additional Stress. Choose any three Beastform options from Tiers 1-3. Choose a total of five advantages and three features from those options."
+        }
+      ]
+    }
+  ],
+  "loot": [
+    {
+      "roll": 1,
+      "name": "Premium Bedroll",
+      "description": "During downtime, you automatically clear a Stress."
+    },
+    {
+      "roll": 2,
+      "name": "Piper Whistle",
+      "description": "This handcrafted whistle has a distinctive sound. When you blow this whistle, its piercing tone can be heard within a 1-mile radius."
+    },
+    {
+      "roll": 3,
+      "name": "Charging Quiver",
+      "description": "When you succeed on an attack with an arrow stored in this quiver, gain a bonus to the damage roll equal to your current tier."
+    },
+    {
+      "roll": 4,
+      "name": "Alistair's Torch",
+      "description": "You can light this magic torch at will. The flame's light fills a much larger space than it should, enough to illuminate a cave bright as day."
+    },
+    {
+      "roll": 5,
+      "name": "Speaking Orbs",
+      "description": "This pair of orbs allows any creatures holding them to communicate with each other across any distance."
+    },
+    {
+      "roll": 6,
+      "name": "Manacles",
+      "description": "This pair of locking cuffs comes with a key."
+    },
+    {
+      "roll": 7,
+      "name": "Arcane Cloak",
+      "description": "A creature with a Spellcast trait wearing this cloak can adjust its color, texture, and size at will."
+    },
+    {
+      "roll": 8,
+      "name": "Woven Net",
+      "description": "You can make a Finesse Roll using this net to trap a small creature. A trapped target can break free with a successful Attack Roll (16)."
+    },
+    {
+      "roll": 9,
+      "name": "Fire Jar",
+      "description": "You can pour out the strange liquid contents of this jar to instantly produce fire. The contents regenerate when you take a long rest."
+    },
+    {
+      "roll": 10,
+      "name": "Suspended Rod",
+      "description": "This flat rod is inscribed with runes. When you activate the rod, it is immediately suspended in place. Until the rod is deactivated, it can't move, doesn't abide by the rules of gravity, and remains in place."
+    },
+    {
+      "roll": 11,
+      "name": "Glamour Stone",
+      "description": "Activate this pebble-sized stone to memorize the appearance of someone you can see. Spend a Hope to magically recreate this guise on yourself as an illusion."
+    },
+    {
+      "roll": 12,
+      "name": "Empty Chest",
+      "description": "This magical chest appears empty. When you speak a specific trigger word or action and open the chest, you can see the items stored within it."
+    },
+    {
+      "roll": 13,
+      "name": "Companion Case",
+      "description": "This case can fit a small animal companion. While the companion is inside, the animal and case are immune to all damage and harmful effects."
+    },
+    {
+      "roll": 14,
+      "name": "Piercing Arrows",
+      "description": "Three times per rest when you succeed on an attack with one of these arrows, you can add your Proficiency to the damage roll."
+    },
+    {
+      "roll": 15,
+      "name": "Valorstone",
+      "description": "You can attach this stone to armor that doesn't already have a feature. The armor gains the following feature. Resilient: Before you mark your last Armor Slot, roll a d6. On a result of 6, reduce the severity by one threshold without marking an Armor Slot."
+    },
+    {
+      "roll": 16,
+      "name": "Skeleton Key",
+      "description": "When you use this key to open a locked door, you gain advantage on the Finesse Roll."
+    },
+    {
+      "roll": 17,
+      "name": "Arcane Prism",
+      "description": "Position this prism in a location of your choosing and activate it. All allies within Close range of it gain a +1 bonus to their Spellcast Rolls. While activated, the prism can't be moved. Once the prism is deactivated, it can't be activated again until your next long rest."
+    },
+    {
+      "roll": 18,
+      "name": "Minor Stamina Potion Recipe",
+      "description": "As a downtime move, you can use the bone of a creature to craft a Minor Stamina Potion."
+    },
+    {
+      "roll": 19,
+      "name": "Minor Health Potion Recipe",
+      "description": "As a downtime move, you can use a vial of blood to craft a Minor Health Potion."
+    },
+    {
+      "roll": 20,
+      "name": "Homing Compasses",
+      "description": "These two compasses point toward each other no matter how far apart they are."
+    },
+    {
+      "roll": 21,
+      "name": "Corrector Sprite",
+      "description": "This tiny sprite sits in the curve of your ear canal and whispers helpful advice during combat. Once per short rest, you can gain advantage on an attack roll."
+    },
+    {
+      "roll": 22,
+      "name": "Gecko Gloves",
+      "description": "You can climb up vertical surfaces and across ceilings."
+    },
+    {
+      "roll": 23,
+      "name": "Lorekeeper",
+      "description": "You can store the name and details of up to three hostile creatures inside this book. You gain a +1 bonus to action rolls against those creatures."
+    },
+    {
+      "roll": 24,
+      "name": "Vial of Darksmoke Recipe",
+      "description": "As a downtime move, you can mark a Stress to craft a Vial of Darksmoke."
+    },
+    {
+      "roll": 25,
+      "name": "Bloodstone",
+      "description": "You can attach this stone to a weapon that doesn't already have a feature. The weapon gains the following feature. Brutal: When you roll the maximum value on a damage die, roll an additional damage die."
+    },
+    {
+      "roll": 26,
+      "name": "Greatstone",
+      "description": "You can attach this stone to a weapon that doesn't already have a feature. The weapon gains the following feature. Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "roll": 27,
+      "name": "Glider",
+      "description": "While falling, you can mark a Stress to deploy this small parachute and glide safely to the ground."
+    },
+    {
+      "roll": 28,
+      "name": "Ring of Silence",
+      "description": "Spend a Hope to activate this ring. Your footsteps are silent until your next rest."
+    },
+    {
+      "roll": 29,
+      "name": "Calming Pendant",
+      "description": "When you would mark your last Stress, roll a d6. On a result of 5 or higher, don't mark it."
+    },
+    {
+      "roll": 30,
+      "name": "Dual Flask",
+      "description": "This flask can hold two different liquids. You can swap between them by flipping a small switch on the flask's side."
+    },
+    {
+      "roll": 31,
+      "name": "Bag of Ficklesand",
+      "description": "You can convince this small bag of sand to be much heavier or lighter with a successful Presence Roll (10). Additionally, on a successful Finesse Roll (10), you can blow a bit of sand into a target's face to make them temporarily Vulnerable."
+    },
+    {
+      "roll": 32,
+      "name": "Ring of Resistance",
+      "description": "Once per long rest, you can activate this ring after a successful attack against you to halve the damage."
+    },
+    {
+      "roll": 33,
+      "name": "Phoenix Feather",
+      "description": "If you have at least one Phoenix Feather on you when you fall unconscious, you gain a +1 bonus to the roll you make to determine whether you gain a scar."
+    },
+    {
+      "roll": 34,
+      "name": "Box of Many Goods",
+      "description": "Once per long rest, you can open this small box and roll a d12. On a result of 1-6, it's empty. On a result of 7-10, it contains one random common consumable. On a result of 11-12, it contains two random common consumables."
+    },
+    {
+      "roll": 35,
+      "name": "Airblade Charm",
+      "description": "You can attach this charm to a weapon with a Melee range. Three times per rest, you can activate the charm and attack a target within Close range."
+    },
+    {
+      "roll": 36,
+      "name": "Portal Seed",
+      "description": "You can plant this seed in the ground to grow a portal in that spot. The portal is ready to use in 24 hours. You can use this portal to travel to any other location where you planted a portal seed. A portal can be destroyed by dealing any amount of magic damage to it."
+    },
+    {
+      "roll": 37,
+      "name": "Paragon's Chain",
+      "description": "As a downtime move, you can meditate on an ideal or principle you hold dear and focus your will into this chain. Once per long rest, you can spend a Hope to roll a d20 as your Hope Die for rolls that directly align with that principle."
+    },
+    {
+      "roll": 38,
+      "name": "Elusive Amulet",
+      "description": "Once per long rest, you can activate this amulet to become Hidden until you move. While Hidden in this way, you remain unseen even if an adversary moves to where they would normally see you."
+    },
+    {
+      "roll": 39,
+      "name": "Hopekeeper Locket",
+      "description": "During a long rest, if you have 6 Hope, you can spend a Hope to imbue this locket with your bountiful resolve. When you have 0 Hope, you can use the locket to immediately gain a Hope. The locket must be re-imbued before it can be used this way again."
+    },
+    {
+      "roll": 40,
+      "name": "Infinite Bag",
+      "description": "When you store items in this bag, they are kept in a pocket dimension that never runs out of space. You can retrieve an item at any time."
+    },
+    {
+      "roll": 41,
+      "name": "Stride Relic",
+      "description": "You gain a +1 bonus to your Agility. You can only carry one relic."
+    },
+    {
+      "roll": 42,
+      "name": "Bolster Relic",
+      "description": "You gain a +1 bonus to your Strength. You can only carry one relic."
+    },
+    {
+      "roll": 43,
+      "name": "Control Relic",
+      "description": "You gain a +1 bonus to your Finesse. You can only carry one relic."
+    },
+    {
+      "roll": 44,
+      "name": "Attune Relic",
+      "description": "You gain a +1 bonus to your Instinct. You can only carry one relic."
+    },
+    {
+      "roll": 45,
+      "name": "Charm Relic",
+      "description": "You gain a +1 bonus to your Presence. You can only carry one relic."
+    },
+    {
+      "roll": 46,
+      "name": "Enlighten Relic",
+      "description": "You gain a +1 bonus to your Knowledge. You can only carry one relic."
+    },
+    {
+      "roll": 47,
+      "name": "Honing Relic",
+      "description": "You gain a +1 bonus to an Experience of your choice. You can only carry one relic."
+    },
+    {
+      "roll": 48,
+      "name": "Flickerfly Pendant",
+      "description": "While you carry this pendant, your weapons with a Melee range that deal physical damage have a gossamer sheen and can attack targets within Very Close range."
+    },
+    {
+      "roll": 49,
+      "name": "Lakestrider Boots",
+      "description": "You can walk on the surface of water as if it were soft ground."
+    },
+    {
+      "roll": 50,
+      "name": "Clay Companion",
+      "description": "When you sculpt this ball of clay into a clay animal companion, it behaves as that animal. For example, a clay spider can spin clay webs, while a clay bird can fly. The clay companion retains memory and identity across different shapes, but they can adopt new mannerisms with each form."
+    },
+    {
+      "roll": 51,
+      "name": "Mythic Dust Recipe",
+      "description": "As a downtime move, you can use a handful of fine gold dust to craft Mythic Dust."
+    },
+    {
+      "roll": 52,
+      "name": "Shard of Memory",
+      "description": "Once per long rest, you can spend 2 Hope to recall a domain card from your vault instead of paying its Recall Cost."
+    },
+    {
+      "roll": 53,
+      "name": "Gem of Alacrity",
+      "description": "You can attach this gem to a weapon, allowing you to use your Agility when making an attack with that weapon."
+    },
+    {
+      "roll": 54,
+      "name": "Gem of Might",
+      "description": "You can attach this gem to a weapon, allowing you to use your Strength when making an attack with that weapon."
+    },
+    {
+      "roll": 55,
+      "name": "Gem of Precision",
+      "description": "You can attach this gem to a weapon, allowing you to use your Finesse when making an attack with that weapon."
+    },
+    {
+      "roll": 56,
+      "name": "Gem of Insight",
+      "description": "You can attach this gem to a weapon, allowing you to use your Instinct when making an attack with that weapon."
+    },
+    {
+      "roll": 57,
+      "name": "Gem of Audacity",
+      "description": "You can attach this gem to a weapon, allowing you to use your Presence when making an attack with that weapon."
+    },
+    {
+      "roll": 58,
+      "name": "Gem of Sagacity",
+      "description": "You can attach this gem to a weapon, allowing you to use your Knowledge when making an attack with that weapon."
+    },
+    {
+      "roll": 59,
+      "name": "Ring of Unbreakable Resolve",
+      "description": "Once per session, when the GM spends a Fear, you can spend 4 Hope to cancel the effects of that spent Fear."
+    },
+    {
+      "roll": 60,
+      "name": "Belt of Unity",
+      "description": "Once per session, you can spend 5 Hope to lead a Tag Team Roll with three PCs instead of two."
+    }
+  ],
+  "consumables": [
+    {
+      "roll": 1,
+      "name": "Stride Potion",
+      "description": "You gain a +1 bonus to your next Agility Roll."
+    },
+    {
+      "roll": 2,
+      "name": "Bolster Potion",
+      "description": "You gain a +1 bonus to your next Strength Roll."
+    },
+    {
+      "roll": 3,
+      "name": "Control Potion",
+      "description": "You gain a +1 bonus to your next Finesse Roll."
+    },
+    {
+      "roll": 4,
+      "name": "Attune Potion",
+      "description": "You gain a +1 bonus to your next Instinct Roll."
+    },
+    {
+      "roll": 5,
+      "name": "Charm Potion",
+      "description": "You gain a +1 bonus to your next Presence Roll."
+    },
+    {
+      "roll": 6,
+      "name": "Enlighten Potion",
+      "description": "You gain a +1 bonus to your next Knowledge Roll."
+    },
+    {
+      "roll": 7,
+      "name": "Minor Health Potion",
+      "description": "Clear 1d4 HP."
+    },
+    {
+      "roll": 8,
+      "name": "Minor Stamina Potion",
+      "description": "Clear 1d4 Stress."
+    },
+    {
+      "roll": 9,
+      "name": "Grindletooth Venom",
+      "description": "You can apply this venom to a weapon that deals physical damage to add a d6 to your next damage roll with that weapon."
+    },
+    {
+      "roll": 10,
+      "name": "Varik Leaves",
+      "description": "You can eat these paired leaves to immediately gain 2 Hope."
+    },
+    {
+      "roll": 11,
+      "name": "Vial of Moondrip",
+      "description": "When you drink the contents of this vial, you can see in total darkness until your next rest."
+    },
+    {
+      "roll": 12,
+      "name": "Unstable Arcane Shard",
+      "description": "You can make a Finesse Roll to throw this shard at a group of adversaries within Far range. Targets you succeed against take 1d20 magic damage."
+    },
+    {
+      "roll": 13,
+      "name": "Potion of Stability",
+      "description": "You can drink this potion to choose one additional downtime move."
+    },
+    {
+      "roll": 14,
+      "name": "Improved Grindletooth Venom",
+      "description": "You can apply this venom to a weapon that deals physical damage to add a d8 to your next damage roll with that weapon."
+    },
+    {
+      "roll": 15,
+      "name": "Morphing Clay",
+      "description": "You can spend a Hope to use this clay, altering your face enough to make you unrecognizable until your next rest."
+    },
+    {
+      "roll": 16,
+      "name": "Vial of Darksmoke",
+      "description": "When an adversary attacks you, use this vial and roll a number of d6s equal to your Agility. Add the highest result to your Evasion against the attack."
+    },
+    {
+      "roll": 17,
+      "name": "Jumping Root",
+      "description": "Eat this root to leap up to Far range once without needing to roll."
+    },
+    {
+      "roll": 18,
+      "name": "Snap Powder",
+      "description": "Mark a Stress and clear a HP."
+    },
+    {
+      "roll": 19,
+      "name": "Health Potion",
+      "description": "Clear 1d4+1 HP."
+    },
+    {
+      "roll": 20,
+      "name": "Stamina Potion",
+      "description": "Clear 1d4+1 Stress."
+    },
+    {
+      "roll": 21,
+      "name": "Armor Stitcher",
+      "description": "You can use this stitcher to spend any number of Hope and clear that many Armor Slots."
+    },
+    {
+      "roll": 22,
+      "name": "Gill Salve",
+      "description": "You can apply this salve to your neck to breathe underwater for a number of minutes equal to your level."
+    },
+    {
+      "roll": 23,
+      "name": "Replication Parchment",
+      "description": "By touching this piece of parchment to another, you can perfectly copy the second parchment's contents. Once used, this parchment becomes mundane paper."
+    },
+    {
+      "roll": 24,
+      "name": "Improved Arcane Shard",
+      "description": "You can make a Finesse Roll to throw this shard at a group of adversaries within Far range. Targets you succeed against take 2d20 magic damage."
+    },
+    {
+      "roll": 25,
+      "name": "Major Stride Potion",
+      "description": "You gain a +1 bonus to your Agility until your next rest."
+    },
+    {
+      "roll": 26,
+      "name": "Major Bolster Potion",
+      "description": "You gain a +1 bonus to your Strength until your next rest."
+    },
+    {
+      "roll": 27,
+      "name": "Major Control Potion",
+      "description": "You gain a +1 bonus to your Finesse until your next rest."
+    },
+    {
+      "roll": 28,
+      "name": "Major Attune Potion",
+      "description": "You gain a +1 bonus to your Instinct until your next rest."
+    },
+    {
+      "roll": 29,
+      "name": "Major Charm Potion",
+      "description": "You gain a +1 bonus to your Presence until your next rest."
+    },
+    {
+      "roll": 30,
+      "name": "Major Enlighten Potion",
+      "description": "You gain a +1 bonus to your Knowledge until your next rest."
+    },
+    {
+      "roll": 31,
+      "name": "Blood of the Yorgi",
+      "description": "You can drink this blood to disappear from where you are and immediately reappear at a point you can see within Very Far range."
+    },
+    {
+      "roll": 32,
+      "name": "Homet's Secret Potion",
+      "description": "After drinking this potion, the next successful attack you make critically succeeds."
+    },
+    {
+      "roll": 33,
+      "name": "Redthorn Saliva",
+      "description": "You can apply this saliva to a weapon that deals physical damage to add a d12 to your next damage roll with that weapon."
+    },
+    {
+      "roll": 34,
+      "name": "Channelstone",
+      "description": "You can use this stone to take a spell or grimoire from your vault, use it once, and return it to your vault."
+    },
+    {
+      "roll": 35,
+      "name": "Mythic Dust",
+      "description": "You can apply this dust to a weapon that deals magic damage to add a d12 to your next damage roll with that weapon."
+    },
+    {
+      "roll": 36,
+      "name": "Acidpaste",
+      "description": "This paste eats away walls and other surfaces in bright flashes."
+    },
+    {
+      "roll": 37,
+      "name": "Hopehold Flare",
+      "description": "When you use this flare, allies within Close range roll a d6 when they spend a Hope. On a result of 6, they gain the effect of that Hope without spending it. The flare lasts until the end of the scene."
+    },
+    {
+      "roll": 38,
+      "name": "Major Arcane Shard",
+      "description": "You can make a Finesse Roll to throw this shard at a group of adversaries within Far range. Targets you succeed against take 4d20 magic damage."
+    },
+    {
+      "roll": 39,
+      "name": "Featherbone",
+      "description": "You can use this bone to control your falling speed for a number of minutes equal to your level."
+    },
+    {
+      "roll": 40,
+      "name": "Circle of the Void",
+      "description": "Mark a Stress to create a void that extends up to Far range. No magic can be cast inside the void, and creatures within the void are immune to magic damage."
+    },
+    {
+      "roll": 41,
+      "name": "Sun Tree Sap",
+      "description": "Consume this sap to roll a d6. On a result of 5-6, clear 2 HP. On a result of 2-4, clear 3 Stress. On a result of 1, see through the veil of death and return changed, gaining one scar."
+    },
+    {
+      "roll": 42,
+      "name": "Dripfang Poison",
+      "description": "A creature who consumes this poison takes 8d10 direct magic damage."
+    },
+    {
+      "roll": 43,
+      "name": "Major Health Potion",
+      "description": "Clear 1d4+2 HP."
+    },
+    {
+      "roll": 44,
+      "name": "Major Stamina Potion",
+      "description": "Clear 1d4+2 Stress."
+    },
+    {
+      "roll": 45,
+      "name": "Ogre Musk",
+      "description": "You can use this musk to prevent anyone from tracking you by mundane or magical means until your next rest."
+    },
+    {
+      "roll": 46,
+      "name": "Wingsprout",
+      "description": "You gain magic wings that allow you to fly for a number of minutes equal to your level."
+    },
+    {
+      "roll": 47,
+      "name": "Jar of Lost Voices",
+      "description": "You can open this jar to release a deafening echo of voices for a number of minutes equal to your Instinct. Creatures within Far range unprepared for the sound take 6d8 magic damage."
+    },
+    {
+      "roll": 48,
+      "name": "Dragonbloom Tea",
+      "description": "You can drink this tea to unleash a fiery breath attack. Make an Instinct Roll against all adversaries in front of you within Close range. Targets you succeed against take d20 physical damage using your Proficiency."
+    },
+    {
+      "roll": 49,
+      "name": "Bridge Seed",
+      "description": "Thick vines grow from your location to a point of your choice within Far range, allowing you to climb up or across them. The vines dissipate on your next short rest."
+    },
+    {
+      "roll": 50,
+      "name": "Sleeping Sap",
+      "description": "You can drink this potion to fall asleep for a full night's rest. You clear all Stress upon waking."
+    },
+    {
+      "roll": 51,
+      "name": "Feast of Xuria",
+      "description": "You can eat this meal to clear all HP and Stress and gain 1d4 Hope."
+    },
+    {
+      "roll": 52,
+      "name": "Bonding Honey",
+      "description": "This honey can be used to glue two objects together permanently."
+    },
+    {
+      "roll": 53,
+      "name": "Shrinking Potion",
+      "description": "You can drink this potion to halve your size until you choose to drop this form or your next rest. While in this form, you have a +2 bonus to Agility and a -1 penalty to your Proficiency."
+    },
+    {
+      "roll": 54,
+      "name": "Growing Potion",
+      "description": "You can drink this potion to double your size until you choose to drop this form or your next rest. While in this form, you have a +2 bonus to Strength and a +1 bonus to your Proficiency."
+    },
+    {
+      "roll": 55,
+      "name": "Knowledge Stone",
+      "description": "If you die while holding this stone, an ally can take a card from your loadout to place in their loadout or vault. After they take this knowledge, the stone crumbles."
+    },
+    {
+      "roll": 56,
+      "name": "Sweet Moss",
+      "description": "You can consume this moss during a rest to clear 1d10 HP or 1d10 Stress."
+    },
+    {
+      "roll": 57,
+      "name": "Blinding Orb",
+      "description": "You can activate this orb to create a flash of bright light. All targets within Close range become Vulnerable until they mark HP."
+    },
+    {
+      "roll": 58,
+      "name": "Death Tea",
+      "description": "After you drink this tea, you instantly kill your target when you critically succeed on an attack. If you don't critically succeed on an attack before your next long rest, you die."
+    },
+    {
+      "roll": 59,
+      "name": "Mirror of Marigold",
+      "description": "When you take damage, you can spend a Hope to negate that damage, after which the mirror shatters."
+    },
+    {
+      "roll": 60,
+      "name": "Stardrop",
+      "description": "You can use this stardrop to summon a hailstorm of comets that deals 8d20 physical damage to all targets within Very Far range."
+    }
   ]
 }

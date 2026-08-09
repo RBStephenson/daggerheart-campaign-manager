@@ -83,6 +83,30 @@ export interface SrdCombatWheelchair {
   feature: string | null;
 }
 
+export interface SrdBeastformAttack {
+  range: string;
+  trait: string;
+  damage: string;
+}
+
+export interface SrdBeastform {
+  tier: number;
+  category: string;
+  examples: string;
+  trait: string | null;
+  trait_bonus: number | null;
+  evasion_bonus: number | null;
+  attack: SrdBeastformAttack | null;
+  advantages: string[];
+  features: SrdFeature[];
+}
+
+export interface SrdTableEntry {
+  roll: number;
+  name: string;
+  description: string;
+}
+
 export interface SrdCharacterCreationData {
   version: string;
   traits: string[];
@@ -97,6 +121,9 @@ export interface SrdCharacterCreationData {
   secondary_weapons: SrdSecondaryWeapon[];
   armor: SrdArmor[];
   combat_wheelchair: SrdCombatWheelchair[];
+  beastform_options: SrdBeastform[];
+  loot: SrdTableEntry[];
+  consumables: SrdTableEntry[];
 }
 
 let cached: Promise<SrdCharacterCreationData> | null = null;

@@ -39,3 +39,6 @@ def test_returns_dataset_when_enabled(as_user, db: Session) -> None:
     assert len(data["armor"]) == 34
     assert len([a for a in data["armor"] if a["tier"] == 1]) == 4
     assert len(data["combat_wheelchair"]) == 12
+    assert len(data["beastform_options"]) == 24
+    assert len(data["loot"]) == 60
+    assert len(data["consumables"]) == 60
