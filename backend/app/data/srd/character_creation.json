@@ -1201,271 +1201,6 @@
       ]
     }
   ],
-  "weapons_tier1": [
-    {
-      "name": "Broadsword",
-      "trait": "Agility",
-      "range": "Melee",
-      "damage": "d8 phy",
-      "burden": "One-Handed",
-      "is_magic": false,
-      "feature": "Reliable: +1 to attack rolls"
-    },
-    {
-      "name": "Longsword",
-      "trait": "Agility",
-      "range": "Melee",
-      "damage": "d10+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Battleaxe",
-      "trait": "Strength",
-      "range": "Melee",
-      "damage": "d10+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Greatsword",
-      "trait": "Strength",
-      "range": "Melee",
-      "damage": "d10+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": "Massive: -1 to Evasion; on a successful attack, roll an additional damage die and discard the lowest result."
-    },
-    {
-      "name": "Mace",
-      "trait": "Strength",
-      "range": "Melee",
-      "damage": "d8+1 phy",
-      "burden": "One-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Warhammer",
-      "trait": "Strength",
-      "range": "Melee",
-      "damage": "d12+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": "Heavy: -1 to Evasion"
-    },
-    {
-      "name": "Dagger",
-      "trait": "Finesse",
-      "range": "Melee",
-      "damage": "d8+1 phy",
-      "burden": "One-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Quarterstaff",
-      "trait": "Instinct",
-      "range": "Melee",
-      "damage": "d10+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Cutlass",
-      "trait": "Presence",
-      "range": "Melee",
-      "damage": "d8+1 phy",
-      "burden": "One-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Rapier",
-      "trait": "Presence",
-      "range": "Melee",
-      "damage": "d8 phy",
-      "burden": "One-Handed",
-      "is_magic": false,
-      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
-    },
-    {
-      "name": "Halberd",
-      "trait": "Strength",
-      "range": "Very Close",
-      "damage": "d10+2 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": "Cumbersome: -1 to Finesse"
-    },
-    {
-      "name": "Spear",
-      "trait": "Finesse",
-      "range": "Very Close",
-      "damage": "d8+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Shortbow",
-      "trait": "Agility",
-      "range": "Far",
-      "damage": "d6+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Crossbow",
-      "trait": "Finesse",
-      "range": "Far",
-      "damage": "d6+1 phy",
-      "burden": "One-Handed",
-      "is_magic": false,
-      "feature": null
-    },
-    {
-      "name": "Longbow",
-      "trait": "Agility",
-      "range": "Very Far",
-      "damage": "d8+3 phy",
-      "burden": "Two-Handed",
-      "is_magic": false,
-      "feature": "Cumbersome: -1 to Finesse"
-    },
-    {
-      "name": "Arcane Gauntlets",
-      "trait": "Strength",
-      "range": "Melee",
-      "damage": "d10+3 mag",
-      "burden": "Two-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Hallowed Axe",
-      "trait": "Strength",
-      "range": "Melee",
-      "damage": "d8+1 mag",
-      "burden": "One-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Glowing Rings",
-      "trait": "Agility",
-      "range": "Very Close",
-      "damage": "d10+2 mag",
-      "burden": "Two-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Hand Runes",
-      "trait": "Instinct",
-      "range": "Very Close",
-      "damage": "d10 mag",
-      "burden": "One-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Returning Blade",
-      "trait": "Finesse",
-      "range": "Close",
-      "damage": "d8 mag",
-      "burden": "One-Handed",
-      "is_magic": true,
-      "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."
-    },
-    {
-      "name": "Shortstaff",
-      "trait": "Instinct",
-      "range": "Close",
-      "damage": "d8+1 mag",
-      "burden": "One-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Dualstaff",
-      "trait": "Instinct",
-      "range": "Far",
-      "damage": "d6+3 mag",
-      "burden": "Two-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Scepter",
-      "trait": "Presence",
-      "range": "Far",
-      "damage": "d6 mag",
-      "burden": "Two-Handed",
-      "is_magic": true,
-      "feature": "Versatile: This weapon can also be used with these statistics-Presence, Melee, d8."
-    },
-    {
-      "name": "Wand",
-      "trait": "Knowledge",
-      "range": "Far",
-      "damage": "d6+1 mag",
-      "burden": "One-Handed",
-      "is_magic": true,
-      "feature": null
-    },
-    {
-      "name": "Greatstaff",
-      "trait": "Knowledge",
-      "range": "Very Far",
-      "damage": "d6 mag",
-      "burden": "Two-Handed",
-      "is_magic": true,
-      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
-    }
-  ],
-  "armor_tier1": [
-    {
-      "name": "Gambeson Armor",
-      "base_thresholds": [
-        5,
-        11
-      ],
-      "base_score": 3,
-      "feature": "Flexible: +1 to Evasion"
-    },
-    {
-      "name": "Leather Armor",
-      "base_thresholds": [
-        6,
-        13
-      ],
-      "base_score": 3,
-      "feature": null
-    },
-    {
-      "name": "Chainmail Armor",
-      "base_thresholds": [
-        7,
-        15
-      ],
-      "base_score": 4,
-      "feature": "Heavy: -1 to Evasion"
-    },
-    {
-      "name": "Full Plate Armor",
-      "base_thresholds": [
-        8,
-        17
-      ],
-      "base_score": 4,
-      "feature": "Very Heavy: -2 to Evasion; -1 to Agility"
-    }
-  ],
   "mixed_ancestry": {
     "name": "Mixed Ancestry",
     "text": "If your character is a descendant of multiple ancestries, work with your GM to choose two ancestry features from the ancestries in your lineage: the first feature must come from one ancestry and the second from another (you can't take both first-listed or both second-listed features). Write your character's chosen heritage name (a hybridized term, the single ancestry you identify with most, or an invented term) in the Heritage field. Your character's heritage might include more than two ancestries, but you still only choose features from two — represent the rest through appearance or backstory."
@@ -2982,6 +2717,2345 @@
       "type": "ability",
       "recall_cost": 1,
       "text": "When you would mark an Armor Slot, roll a number of d6s equal to your Proficiency. If any roll a 6, reduce the severity by one threshold without marking an Armor Slot."
+    }
+  ],
+  "primary_weapons": [
+    {
+      "tier": 1,
+      "name": "Broadsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Broadsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+3 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Broadsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+6 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Broadsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+9 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 1,
+      "name": "Longsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d10+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Longsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d10+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Longsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d10+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Longsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d10+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Battleaxe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Battleaxe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Battleaxe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Battleaxe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Greatsword",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Massive: -1 to Evasion; on a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Greatsword",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Massive: -1 to Evasion; on a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Greatsword",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Massive: -1 to Evasion; on a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Greatsword",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Massive: -1 to Evasion; on a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 1,
+      "name": "Mace",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+1 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Mace",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+4 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Mace",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+7 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Mace",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+10 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Warhammer",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Warhammer",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Warhammer",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Warhammer",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 1,
+      "name": "Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+1 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+4 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+7 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+10 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Quarterstaff",
+      "trait": "Instinct",
+      "range": "Melee",
+      "damage": "d10+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Quarterstaff",
+      "trait": "Instinct",
+      "range": "Melee",
+      "damage": "d10+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Quarterstaff",
+      "trait": "Instinct",
+      "range": "Melee",
+      "damage": "d10+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Quarterstaff",
+      "trait": "Instinct",
+      "range": "Melee",
+      "damage": "d10+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Cutlass",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+1 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Cutlass",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+4 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Cutlass",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+7 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Cutlass",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+10 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Rapier",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Rapier",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+3 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Rapier",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+6 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Rapier",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d8+9 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 1,
+      "name": "Halberd",
+      "trait": "Strength",
+      "range": "Very Close",
+      "damage": "d10+2 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Halberd",
+      "trait": "Strength",
+      "range": "Very Close",
+      "damage": "d10+5 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Halberd",
+      "trait": "Strength",
+      "range": "Very Close",
+      "damage": "d10+8 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Halberd",
+      "trait": "Strength",
+      "range": "Very Close",
+      "damage": "d10+11 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 1,
+      "name": "Spear",
+      "trait": "Finesse",
+      "range": "Very Close",
+      "damage": "d8+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Spear",
+      "trait": "Finesse",
+      "range": "Very Close",
+      "damage": "d8+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Spear",
+      "trait": "Finesse",
+      "range": "Very Close",
+      "damage": "d8+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Spear",
+      "trait": "Finesse",
+      "range": "Very Close",
+      "damage": "d8+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Shortbow",
+      "trait": "Agility",
+      "range": "Far",
+      "damage": "d6+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Shortbow",
+      "trait": "Agility",
+      "range": "Far",
+      "damage": "d6+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Shortbow",
+      "trait": "Agility",
+      "range": "Far",
+      "damage": "d6+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Shortbow",
+      "trait": "Agility",
+      "range": "Far",
+      "damage": "d6+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+1 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+7 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+10 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Longbow",
+      "trait": "Agility",
+      "range": "Very Far",
+      "damage": "d8+3 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Longbow",
+      "trait": "Agility",
+      "range": "Very Far",
+      "damage": "d8+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Longbow",
+      "trait": "Agility",
+      "range": "Very Far",
+      "damage": "d8+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Longbow",
+      "trait": "Agility",
+      "range": "Very Far",
+      "damage": "d8+12 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Cumbersome: -1 to Finesse"
+    },
+    {
+      "tier": 2,
+      "name": "Gilded Falchion",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+4 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 2,
+      "name": "Knuckle Blades",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Brutal: When you roll the maximum value on a damage die, roll an additional damage die."
+    },
+    {
+      "tier": 2,
+      "name": "Urok Broadsword",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+3 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Deadly: When you deal Severe damage, the target must mark an additional HP."
+    },
+    {
+      "tier": 2,
+      "name": "Bladed Whip",
+      "trait": "Agility",
+      "range": "Very Close",
+      "damage": "d8+3 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 2,
+      "name": "Steelforged Halberd",
+      "trait": "Strength",
+      "range": "Very Close",
+      "damage": "d8+4 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Scary: On a successful attack, the target must mark a Stress."
+    },
+    {
+      "tier": 2,
+      "name": "War Scythe",
+      "trait": "Finesse",
+      "range": "Very Close",
+      "damage": "d8+5 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 2,
+      "name": "Blunderbuss",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d8+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Reloading: After you make an attack, roll a d6. On a result of 1, you must mark a Stress to reload this weapon before you can fire it again."
+    },
+    {
+      "tier": 2,
+      "name": "Greatbow",
+      "trait": "Strength",
+      "range": "Far",
+      "damage": "d6+6 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 2,
+      "name": "Finehair Bow",
+      "trait": "Agility",
+      "range": "Very Far",
+      "damage": "d6+5 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 3,
+      "name": "Flickerfly Blade",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+5 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Sharpwing: Gain a bonus to your damage rolls equal to your Agility."
+    },
+    {
+      "tier": 3,
+      "name": "Bravesword",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+7 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Brave: -1 to Evasion; +3 to Severe damage threshold"
+    },
+    {
+      "tier": 3,
+      "name": "Hammer of Wrath",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+7 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Devastating: Before you make an attack roll, you can mark a Stress to use a d20 as your damage die."
+    },
+    {
+      "tier": 3,
+      "name": "Labrys Axe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+7 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Protective: +1 to Armor Score"
+    },
+    {
+      "tier": 3,
+      "name": "Meridian Cutlass",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d10+5 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Dueling: When there are no other creatures within Close range of the target, gain advantage on your attack roll against them."
+    },
+    {
+      "tier": 3,
+      "name": "Retractable Saber",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d10+7 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Retractable: The blade can be hidden in the hilt to avoid detection."
+    },
+    {
+      "tier": 3,
+      "name": "Double Flail",
+      "trait": "Agility",
+      "range": "Very Close",
+      "damage": "d10+8 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 3,
+      "name": "Talon Blades",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d10+7 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Brutal: When you roll the maximum value on a damage die, roll an additional damage die."
+    },
+    {
+      "tier": 3,
+      "name": "Black Powder Revolver",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+8 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Reloading: After you make an attack, roll a d6. On a result of 1, you must mark a Stress to reload this weapon before you can fire it again."
+    },
+    {
+      "tier": 3,
+      "name": "Spiked Bow",
+      "trait": "Agility",
+      "range": "Very Far",
+      "damage": "d6+7 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Versatile: This weapon can also be used with these statistics—Agility, Melee, d10+5."
+    },
+    {
+      "tier": 4,
+      "name": "Dual-Ended Sword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d10+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 4,
+      "name": "Impact Gauntlet",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+11 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Concussive: On a successful attack, you can spend a Hope to knock the target back to Far range."
+    },
+    {
+      "tier": 4,
+      "name": "Sledge Axe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+13 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Destructive: -1 to Agility; on a successful attack, all adversaries within Very Close range must mark a Stress."
+    },
+    {
+      "tier": 4,
+      "name": "Curved Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+9 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Serrated: When you roll a 1 on a damage die, it deals 8 damage instead."
+    },
+    {
+      "tier": 4,
+      "name": "Extended Polearm",
+      "trait": "Finesse",
+      "range": "Very Close",
+      "damage": "d8+10 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Long: This weapon's attack targets all adversaries in a line within range."
+    },
+    {
+      "tier": 4,
+      "name": "Swinging Ropeblade",
+      "trait": "Presence",
+      "range": "Close",
+      "damage": "d8+9 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Grappling: On a successful attack, you can spend a Hope to Restrain the target or pull them into Melee range with you."
+    },
+    {
+      "tier": 4,
+      "name": "Ricochet Axes",
+      "trait": "Agility",
+      "range": "Far",
+      "damage": "d6+11 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Bouncing: Mark 1 or more Stress to hit that many targets in range of the attack."
+    },
+    {
+      "tier": 4,
+      "name": "Aantari Bow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+11 phy",
+      "burden": "Two-Handed",
+      "is_magic": false,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 4,
+      "name": "Hand Cannon",
+      "trait": "Finesse",
+      "range": "Very Far",
+      "damage": "d6+12 phy",
+      "burden": "One-Handed",
+      "is_magic": false,
+      "feature": "Reloading: After you make an attack, roll a d6. On a 1, you must mark a Stress to reload this weapon before you can fire it again."
+    },
+    {
+      "tier": 1,
+      "name": "Arcane Gauntlets",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+3 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Arcane Gauntlets",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Arcane Gauntlets",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Arcane Gauntlets",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+12 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Hallowed Axe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+1 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Hallowed Axe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Hallowed Axe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+7 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Hallowed Axe",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d8+10 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Glowing Rings",
+      "trait": "Agility",
+      "range": "Very Close",
+      "damage": "d10+2 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Glowing Rings",
+      "trait": "Agility",
+      "range": "Very Close",
+      "damage": "d10+5 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Glowing Rings",
+      "trait": "Agility",
+      "range": "Very Close",
+      "damage": "d10+8 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Glowing Rings",
+      "trait": "Agility",
+      "range": "Very Close",
+      "damage": "d10+11 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Hand Runes",
+      "trait": "Instinct",
+      "range": "Very Close",
+      "damage": "d10 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Hand Runes",
+      "trait": "Instinct",
+      "range": "Very Close",
+      "damage": "d10+3 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Hand Runes",
+      "trait": "Instinct",
+      "range": "Very Close",
+      "damage": "d10+6 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Hand Runes",
+      "trait": "Instinct",
+      "range": "Very Close",
+      "damage": "d10+9 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Returning Blade",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d8 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Returning Blade",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d8+3 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Returning Blade",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d8+6 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Returning Blade",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d8+9 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."
+    },
+    {
+      "tier": 1,
+      "name": "Shortstaff",
+      "trait": "Instinct",
+      "range": "Close",
+      "damage": "d8+1 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Shortstaff",
+      "trait": "Instinct",
+      "range": "Close",
+      "damage": "d8+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Shortstaff",
+      "trait": "Instinct",
+      "range": "Close",
+      "damage": "d8+7 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Shortstaff",
+      "trait": "Instinct",
+      "range": "Close",
+      "damage": "d8+10 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Wand",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d6+1 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Wand",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d6+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Wand",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d6+7 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Wand",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d6+10 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Greatstaff",
+      "trait": "Knowledge",
+      "range": "Very Far",
+      "damage": "d6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Greatstaff",
+      "trait": "Knowledge",
+      "range": "Very Far",
+      "damage": "d6+3 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Greatstaff",
+      "trait": "Knowledge",
+      "range": "Very Far",
+      "damage": "d6+6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Greatstaff",
+      "trait": "Knowledge",
+      "range": "Very Far",
+      "damage": "d6+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 1,
+      "name": "Dualstaff",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d6+3 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Dualstaff",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d6+6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Dualstaff",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d6+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Dualstaff",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d8+12 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Scepter",
+      "trait": "Presence",
+      "range": "Far",
+      "damage": "d6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Versatile: This weapon can also be used with these statistics—Presence, Melee, d8."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Scepter",
+      "trait": "Presence",
+      "range": "Far",
+      "damage": "d6+3 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Versatile: This weapon can also be used with these statistics—Presence, Melee, d8+3."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Scepter",
+      "trait": "Presence",
+      "range": "Far",
+      "damage": "d6+6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Versatile: This weapon can also be used with these statistics—Presence, Melee, d8+4."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Scepter",
+      "trait": "Presence",
+      "range": "Far",
+      "damage": "d6+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Versatile: This weapon can also be used with these statistics—Presence, Melee, d8+6."
+    },
+    {
+      "tier": 2,
+      "name": "Ego Blade",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d12+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Pompous: You must have a Presence of 0 or lower to use this weapon."
+    },
+    {
+      "tier": 2,
+      "name": "Casting Sword",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+4 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Versatile: This weapon can also be used with these statistics—Knowledge, Far, d6+3."
+    },
+    {
+      "tier": 2,
+      "name": "Devouring Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Scary: On a successful attack, the target must mark a Stress."
+    },
+    {
+      "tier": 2,
+      "name": "Hammer of Exota",
+      "trait": "Instinct",
+      "range": "Melee",
+      "damage": "d8+6 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Eruptive: On a successful attack against a target within Melee range, all other adversaries within Very Close range must succeed on a reaction roll (14) or take half damage."
+    },
+    {
+      "tier": 2,
+      "name": "Yutari Bloodbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+4 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Brutal: When you roll the maximum value on a damage die, roll an additional damage die."
+    },
+    {
+      "tier": 2,
+      "name": "Elder Bow",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d6+4 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 2,
+      "name": "Scepter of Elias",
+      "trait": "Presence",
+      "range": "Far",
+      "damage": "d6+3 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Invigorating: On a successful attack, roll a d4. On a result of 4, clear a Stress."
+    },
+    {
+      "tier": 2,
+      "name": "Wand of Enthrallment",
+      "trait": "Presence",
+      "range": "Far",
+      "damage": "d6+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Persuasive: Before you make a Presence Roll, you can mark a Stress to gain a +2 bonus to the result."
+    },
+    {
+      "tier": 2,
+      "name": "Keeper's Staff",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d6+4 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 3,
+      "name": "Axe of Fortunis",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+8 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Lucky: On a failed attack, you can mark a Stress to reroll your attack."
+    },
+    {
+      "tier": 3,
+      "name": "Blessed Anlace",
+      "trait": "Instinct",
+      "range": "Melee",
+      "damage": "d10+6 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Healing: During downtime, automatically clear a Hit Point."
+    },
+    {
+      "tier": 3,
+      "name": "Ghostblade",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d10+7 phy or mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Otherworldly: On a successful attack, you can deal physical or magic damage."
+    },
+    {
+      "tier": 3,
+      "name": "Runes of Ruination",
+      "trait": "Knowledge",
+      "range": "Very Close",
+      "damage": "d20+4 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Painful: Each time you make a successful attack, you must mark a Stress."
+    },
+    {
+      "tier": 3,
+      "name": "Widogast Pendant",
+      "trait": "Knowledge",
+      "range": "Close",
+      "damage": "d10+5 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Timebending: You choose the target of your attack after making your attack roll."
+    },
+    {
+      "tier": 3,
+      "name": "Gilded Bow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+7 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Self-Correcting: When you roll a 1 on a damage die, it deals 6 damage instead."
+    },
+    {
+      "tier": 3,
+      "name": "Firestaff",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d6+7 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Burning: When you roll a 6 on a damage die, the target must mark a Stress."
+    },
+    {
+      "tier": 3,
+      "name": "Mage Orb",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d6+7 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 3,
+      "name": "Ilmari's Rifle",
+      "trait": "Finesse",
+      "range": "Very Far",
+      "damage": "d6+6 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Reloading: After you make an attack, roll a d6. On a result of 1, you must mark a Stress to reload this weapon before you can fire it again."
+    },
+    {
+      "tier": 4,
+      "name": "Sword of Light & Flame",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d10+11 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Hot: This weapon cuts through solid material."
+    },
+    {
+      "tier": 4,
+      "name": "Siphoning Gauntlets",
+      "trait": "Presence",
+      "range": "Melee",
+      "damage": "d10+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Lifestealing: On a successful attack, roll a d6. On a result of 6, clear a Hit Point or clear a Stress."
+    },
+    {
+      "tier": 4,
+      "name": "Midas Scythe",
+      "trait": "Knowledge",
+      "range": "Melee",
+      "damage": "d10+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Greedy: Spend a handful of gold to gain a +1 bonus to your Proficiency on a damage roll."
+    },
+    {
+      "tier": 4,
+      "name": "Floating Bladeshards",
+      "trait": "Instinct",
+      "range": "Close",
+      "damage": "d8+9 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Powerful: On a successful attack, roll an additional damage die and discard the lowest result."
+    },
+    {
+      "tier": 4,
+      "name": "Bloodstaff",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d20+7 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Painful: Each time you make a successful attack, you must mark a Stress."
+    },
+    {
+      "tier": 4,
+      "name": "Thistlebow",
+      "trait": "Instinct",
+      "range": "Far",
+      "damage": "d6+13 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 4,
+      "name": "Wand of Essek",
+      "trait": "Knowledge",
+      "range": "Far",
+      "damage": "d8+13 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Timebending: You can choose the target of your attack after making your attack roll."
+    },
+    {
+      "tier": 4,
+      "name": "Magus Revolver",
+      "trait": "Finesse",
+      "range": "Very Far",
+      "damage": "d6+13 mag",
+      "burden": "One-Handed",
+      "is_magic": true,
+      "feature": "Reloading: After you make an attack, roll a d6. On a result of 1, you must mark a Stress to reload this weapon before you can fire it again."
+    },
+    {
+      "tier": 4,
+      "name": "Fusion Gloves",
+      "trait": "Knowledge",
+      "range": "Very Far",
+      "damage": "d6+9 mag",
+      "burden": "Two-Handed",
+      "is_magic": true,
+      "feature": "Bonded: Gain a bonus to your damage rolls equal to your level."
+    }
+  ],
+  "secondary_weapons": [
+    {
+      "tier": 1,
+      "name": "Shortsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +2 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Shortsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+2 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +3 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Shortsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+4 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +4 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Shortsword",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+6 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +5 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 1,
+      "name": "Round Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d4 phy",
+      "burden": "One-Handed",
+      "feature": "Protective: +1 to Armor Score"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Round Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d4+2 phy",
+      "burden": "One-Handed",
+      "feature": "Protective: +2 to Armor Score"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Round Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d4+4 phy",
+      "burden": "One-Handed",
+      "feature": "Protective: +3 to Armor Score"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Round Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d4+6 phy",
+      "burden": "One-Handed",
+      "feature": "Protective: +4 to Armor Score"
+    },
+    {
+      "tier": 1,
+      "name": "Tower Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d6 phy",
+      "burden": "One-Handed",
+      "feature": "Barrier: +2 to Armor Score; -1 to Evasion"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Tower Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d6+2 phy",
+      "burden": "One-Handed",
+      "feature": "Barrier: +3 to Armor Score; -1 to Evasion"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Tower Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "feature": "Barrier: +4 to Armor Score; -1 to Evasion"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Tower Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d6+6 phy",
+      "burden": "One-Handed",
+      "feature": "Barrier: +5 to Armor Score; -1 to Evasion"
+    },
+    {
+      "tier": 1,
+      "name": "Small Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +2 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Small Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+2 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +3 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Small Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+4 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +4 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Small Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d8+6 phy",
+      "burden": "One-Handed",
+      "feature": "Paired: +5 to primary weapon damage to targets within Melee range"
+    },
+    {
+      "tier": 1,
+      "name": "Whip",
+      "trait": "Presence",
+      "range": "Very Close",
+      "damage": "d6 phy",
+      "burden": "One-Handed",
+      "feature": "Startling: Mark a Stress to crack the whip and force all adversaries within Melee range back to Close range."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Whip",
+      "trait": "Presence",
+      "range": "Very Close",
+      "damage": "d6+2 phy",
+      "burden": "One-Handed",
+      "feature": "Startling: Mark a Stress to crack the whip and force all adversaries within Melee range back to Close range."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Whip",
+      "trait": "Presence",
+      "range": "Very Close",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "feature": "Startling: Mark a Stress to crack the whip and force all adversaries within Melee range back to Close range."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Whip",
+      "trait": "Presence",
+      "range": "Very Close",
+      "damage": "d6+6 phy",
+      "burden": "One-Handed",
+      "feature": "Startling: Mark a Stress to crack the whip and force all adversaries within Melee range back to Close range."
+    },
+    {
+      "tier": 1,
+      "name": "Grappler",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d6 phy",
+      "burden": "One-Handed",
+      "feature": "Hooked: On a successful attack, you can pull the target into Melee range."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Grappler",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d6+2 phy",
+      "burden": "One-Handed",
+      "feature": "Hooked: On a successful attack, you can pull the target into Melee range."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Grappler",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "feature": "Hooked: On a successful attack, you can pull the target into Melee range."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Grappler",
+      "trait": "Finesse",
+      "range": "Close",
+      "damage": "d6+6 phy",
+      "burden": "One-Handed",
+      "feature": "Hooked: On a successful attack, you can pull the target into Melee range."
+    },
+    {
+      "tier": 1,
+      "name": "Hand Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+1 phy",
+      "burden": "One-Handed",
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Hand Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+3 phy",
+      "burden": "One-Handed",
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Hand Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+5 phy",
+      "burden": "One-Handed",
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Hand Crossbow",
+      "trait": "Finesse",
+      "range": "Far",
+      "damage": "d6+7 phy",
+      "burden": "One-Handed",
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Spiked Shield",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d6+2 phy",
+      "burden": "One-Handed",
+      "feature": "Double Duty: +1 to Armor Score; +1 to primary weapon damage within Melee range"
+    },
+    {
+      "tier": 2,
+      "name": "Parrying Dagger",
+      "trait": "Finesse",
+      "range": "Melee",
+      "damage": "d6+2 phy",
+      "burden": "One-Handed",
+      "feature": "Parry: When you are attacked, roll this weapon's damage dice. If any of the attacker's damage dice rolled the same value as your dice, the matching results are discarded from the attacker's damage dice before the damage you take is totaled."
+    },
+    {
+      "tier": 2,
+      "name": "Returning Axe",
+      "trait": "Agility",
+      "range": "Close",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "feature": "Returning: When this weapon is thrown within its range, it appears in your hand immediately after the attack."
+    },
+    {
+      "tier": 3,
+      "name": "Buckler",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d4+4 phy",
+      "burden": "One-Handed",
+      "feature": "Deflecting: When you are attacked, you can mark an Armor Slot to gain a bonus to your Evasion equal to your available Armor Score against the attack."
+    },
+    {
+      "tier": 3,
+      "name": "Powered Gauntlet",
+      "trait": "Knowledge",
+      "range": "Close",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "feature": "Charged: Mark a Stress to gain a +1 bonus to your Proficiency on a primary weapon attack."
+    },
+    {
+      "tier": 3,
+      "name": "Hand Sling",
+      "trait": "Finesse",
+      "range": "Very Far",
+      "damage": "d6+4 phy",
+      "burden": "One-Handed",
+      "feature": "Versatile: This weapon can also be used with these statistics—Finesse, Close, d8+4."
+    },
+    {
+      "tier": 4,
+      "name": "Braveshield",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d4+6 phy",
+      "burden": "One-Handed",
+      "feature": "Sheltering: When you mark an Armor Slot, it reduces damage for you and all allies within Melee range of you who took the same damage."
+    },
+    {
+      "tier": 4,
+      "name": "Knuckle Claws",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d6+8 phy",
+      "burden": "One-Handed",
+      "feature": "Doubled Up: When you make an attack with your primary weapon, you can deal damage to another target within Melee range."
+    },
+    {
+      "tier": 4,
+      "name": "Primer Shard",
+      "trait": "Instinct",
+      "range": "Very Close",
+      "damage": "d4 phy",
+      "burden": "One-Handed",
+      "feature": "Locked On: On a successful attack, your next attack against the same target with your primary weapon automatically succeeds."
+    }
+  ],
+  "armor": [
+    {
+      "tier": 1,
+      "name": "Gambeson Armor",
+      "base_thresholds": [
+        5,
+        11
+      ],
+      "base_score": 3,
+      "feature": "Flexible: +1 to Evasion"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Gambeson Armor",
+      "base_thresholds": [
+        7,
+        16
+      ],
+      "base_score": 4,
+      "feature": "Flexible: +1 to Evasion"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Gambeson Armor",
+      "base_thresholds": [
+        9,
+        23
+      ],
+      "base_score": 5,
+      "feature": "Flexible: +1 to Evasion"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Gambeson Armor",
+      "base_thresholds": [
+        11,
+        32
+      ],
+      "base_score": 6,
+      "feature": "Flexible: +1 to Evasion"
+    },
+    {
+      "tier": 1,
+      "name": "Leather Armor",
+      "base_thresholds": [
+        6,
+        13
+      ],
+      "base_score": 3,
+      "feature": null
+    },
+    {
+      "tier": 2,
+      "name": "Improved Leather Armor",
+      "base_thresholds": [
+        9,
+        20
+      ],
+      "base_score": 4,
+      "feature": null
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Leather Armor",
+      "base_thresholds": [
+        11,
+        27
+      ],
+      "base_score": 5,
+      "feature": null
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Leather Armor",
+      "base_thresholds": [
+        13,
+        36
+      ],
+      "base_score": 6,
+      "feature": null
+    },
+    {
+      "tier": 1,
+      "name": "Chainmail Armor",
+      "base_thresholds": [
+        7,
+        15
+      ],
+      "base_score": 4,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Chainmail Armor",
+      "base_thresholds": [
+        11,
+        24
+      ],
+      "base_score": 5,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Chainmail Armor",
+      "base_thresholds": [
+        13,
+        31
+      ],
+      "base_score": 6,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Chainmail Armor",
+      "base_thresholds": [
+        15,
+        40
+      ],
+      "base_score": 7,
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 1,
+      "name": "Full Plate Armor",
+      "base_thresholds": [
+        8,
+        17
+      ],
+      "base_score": 4,
+      "feature": "Very Heavy: -2 to Evasion; -1 to Agility"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Full Plate Armor",
+      "base_thresholds": [
+        13,
+        28
+      ],
+      "base_score": 5,
+      "feature": "Very Heavy: -2 to Evasion; -1 to Agility"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Full Plate Armor",
+      "base_thresholds": [
+        15,
+        35
+      ],
+      "base_score": 6,
+      "feature": "Very Heavy: -2 to Evasion; -1 to Agility"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Full Plate Armor",
+      "base_thresholds": [
+        17,
+        44
+      ],
+      "base_score": 7,
+      "feature": "Very Heavy: -2 to Evasion; -1 to Agility"
+    },
+    {
+      "tier": 2,
+      "name": "Elundrian Chain Armor",
+      "base_thresholds": [
+        9,
+        21
+      ],
+      "base_score": 4,
+      "feature": "Warded: You reduce incoming magic damage by your Armor Score before applying it to your damage thresholds."
+    },
+    {
+      "tier": 2,
+      "name": "Harrowbone Armor",
+      "base_thresholds": [
+        9,
+        21
+      ],
+      "base_score": 4,
+      "feature": "Resilient: Before you mark your last Armor Slot, roll a d6. On a result of 6, reduce the severity by one threshold without marking an Armor Slot."
+    },
+    {
+      "tier": 2,
+      "name": "Irontree Breastplate Armor",
+      "base_thresholds": [
+        9,
+        20
+      ],
+      "base_score": 4,
+      "feature": "Reinforced: When you mark your last Armor Slot, increase your damage thresholds by +2 until you clear at least 1 Armor Slot."
+    },
+    {
+      "tier": 2,
+      "name": "Runetan Floating Armor",
+      "base_thresholds": [
+        9,
+        20
+      ],
+      "base_score": 4,
+      "feature": "Shifting: When you are targeted for an attack, you can mark an Armor Slot to give the attack roll against you disadvantage."
+    },
+    {
+      "tier": 2,
+      "name": "Tyris Soft Armor",
+      "base_thresholds": [
+        8,
+        18
+      ],
+      "base_score": 5,
+      "feature": "Quiet: You gain a +2 bonus to rolls you make to move silently."
+    },
+    {
+      "tier": 2,
+      "name": "Rosewild Armor",
+      "base_thresholds": [
+        11,
+        23
+      ],
+      "base_score": 5,
+      "feature": "Hopeful: When you would spend a Hope, you can mark an Armor Slot instead."
+    },
+    {
+      "tier": 3,
+      "name": "Bellamoi Fine Armor",
+      "base_thresholds": [
+        11,
+        27
+      ],
+      "base_score": 5,
+      "feature": "Gilded: +1 to Presence"
+    },
+    {
+      "tier": 3,
+      "name": "Dragonscale Armor",
+      "base_thresholds": [
+        11,
+        27
+      ],
+      "base_score": 5,
+      "feature": "Impenetrable: Once per short rest, when you would mark your last Hit Point, you can instead mark a Stress."
+    },
+    {
+      "tier": 3,
+      "name": "Spiked Plate Armor",
+      "base_thresholds": [
+        10,
+        25
+      ],
+      "base_score": 5,
+      "feature": "Sharp: On a successful attack against a target within Melee range, add a d4 to the damage roll."
+    },
+    {
+      "tier": 3,
+      "name": "Bladefare Armor",
+      "base_thresholds": [
+        16,
+        39
+      ],
+      "base_score": 6,
+      "feature": "Physical: You can't mark an Armor Slot to reduce magic damage."
+    },
+    {
+      "tier": 3,
+      "name": "Monett's Cloak",
+      "base_thresholds": [
+        16,
+        39
+      ],
+      "base_score": 6,
+      "feature": "Magic: You can't mark an Armor Slot to reduce physical damage."
+    },
+    {
+      "tier": 3,
+      "name": "Runes of Fortification",
+      "base_thresholds": [
+        17,
+        43
+      ],
+      "base_score": 6,
+      "feature": "Painful: Each time you mark an Armor Slot, you must mark a Stress."
+    },
+    {
+      "tier": 4,
+      "name": "Dunamis Silkchain",
+      "base_thresholds": [
+        13,
+        36
+      ],
+      "base_score": 7,
+      "feature": "Timeslowing: Mark an Armor Slot to roll a d4 and add its result as a bonus to your Evasion against an incoming attack."
+    },
+    {
+      "tier": 4,
+      "name": "Channeling Armor",
+      "base_thresholds": [
+        13,
+        36
+      ],
+      "base_score": 5,
+      "feature": "Channeling: +1 to Spellcast Rolls"
+    },
+    {
+      "tier": 4,
+      "name": "Emberwoven Armor",
+      "base_thresholds": [
+        13,
+        36
+      ],
+      "base_score": 6,
+      "feature": "Burning: When an adversary attacks you within Melee range, they mark a Stress."
+    },
+    {
+      "tier": 4,
+      "name": "Full Fortified Armor",
+      "base_thresholds": [
+        15,
+        40
+      ],
+      "base_score": 4,
+      "feature": "Fortified: When you mark an Armor Slot, you reduce the severity of an attack by two thresholds instead of one."
+    },
+    {
+      "tier": 4,
+      "name": "Veritas Opal Armor",
+      "base_thresholds": [
+        13,
+        36
+      ],
+      "base_score": 6,
+      "feature": "Truthseeking: This armor glows when another creature within Close range tells a lie."
+    },
+    {
+      "tier": 4,
+      "name": "Savior Chainmail",
+      "base_thresholds": [
+        18,
+        48
+      ],
+      "base_score": 8,
+      "feature": "Difficult: -1 to all character traits and Evasion"
+    }
+  ],
+  "combat_wheelchair": [
+    {
+      "tier": 1,
+      "name": "Light-Frame Wheelchair",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8 phy",
+      "burden": "One-Handed",
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 2,
+      "name": "Improved Light-Frame Wheelchair",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+3 phy",
+      "burden": "One-Handed",
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Light-Frame Wheelchair",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+6 phy",
+      "burden": "One-Handed",
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Light-Frame Wheelchair",
+      "trait": "Agility",
+      "range": "Melee",
+      "damage": "d8+9 phy",
+      "burden": "One-Handed",
+      "feature": "Quick: When you make an attack, you can mark a Stress to target another creature within range."
+    },
+    {
+      "tier": 1,
+      "name": "Heavy-Frame Wheelchair",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+3 phy",
+      "burden": "Two-Handed",
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Heavy-Frame Wheelchair",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+6 phy",
+      "burden": "Two-Handed",
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Heavy-Frame Wheelchair",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+9 phy",
+      "burden": "Two-Handed",
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Heavy-Frame Wheelchair",
+      "trait": "Strength",
+      "range": "Melee",
+      "damage": "d12+12 phy",
+      "burden": "Two-Handed",
+      "feature": "Heavy: -1 to Evasion"
+    },
+    {
+      "tier": 1,
+      "name": "Arcane-Frame Wheelchair",
+      "trait": "Spellcast",
+      "range": "Far",
+      "damage": "d6 mag",
+      "burden": "One-Handed",
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 2,
+      "name": "Improved Arcane-Frame Wheelchair",
+      "trait": "Spellcast",
+      "range": "Far",
+      "damage": "d6+3 mag",
+      "burden": "One-Handed",
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 3,
+      "name": "Advanced Arcane-Frame Wheelchair",
+      "trait": "Spellcast",
+      "range": "Far",
+      "damage": "d6+6 mag",
+      "burden": "One-Handed",
+      "feature": "Reliable: +1 to attack rolls"
+    },
+    {
+      "tier": 4,
+      "name": "Legendary Arcane-Frame Wheelchair",
+      "trait": "Spellcast",
+      "range": "Far",
+      "damage": "d6+9 mag",
+      "burden": "One-Handed",
+      "feature": "Reliable: +1 to attack rolls"
     }
   ]
 }

@@ -149,8 +149,10 @@ describe('PlayerPage', () => {
       communities: [],
       domains: [],
       domain_cards: [],
-      weapons_tier1: [],
-      armor_tier1: [],
+      primary_weapons: [],
+      secondary_weapons: [],
+      armor: [],
+      combat_wheelchair: [],
     });
     mocked.listMyCampaigns.mockResolvedValue([campaign]);
     mocked.listMyCharacters.mockResolvedValue([]);

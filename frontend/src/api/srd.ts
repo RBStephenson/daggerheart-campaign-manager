@@ -44,7 +44,8 @@ export interface SrdDomainCard {
   text: string;
 }
 
-export interface SrdWeapon {
+export interface SrdPrimaryWeapon {
+  tier: number;
   name: string;
   trait: string;
   range: string;
@@ -54,10 +55,31 @@ export interface SrdWeapon {
   feature: string | null;
 }
 
+export interface SrdSecondaryWeapon {
+  tier: number;
+  name: string;
+  trait: string;
+  range: string;
+  damage: string;
+  burden: 'One-Handed';
+  feature: string | null;
+}
+
 export interface SrdArmor {
+  tier: number;
   name: string;
   base_thresholds: [number, number];
   base_score: number;
+  feature: string | null;
+}
+
+export interface SrdCombatWheelchair {
+  tier: number;
+  name: string;
+  trait: string;
+  range: string;
+  damage: string;
+  burden: 'One-Handed' | 'Two-Handed';
   feature: string | null;
 }
 
@@ -71,8 +93,10 @@ export interface SrdCharacterCreationData {
   communities: SrdCommunity[];
   domains: SrdDomain[];
   domain_cards: SrdDomainCard[];
-  weapons_tier1: SrdWeapon[];
-  armor_tier1: SrdArmor[];
+  primary_weapons: SrdPrimaryWeapon[];
+  secondary_weapons: SrdSecondaryWeapon[];
+  armor: SrdArmor[];
+  combat_wheelchair: SrdCombatWheelchair[];
 }
 
 let cached: Promise<SrdCharacterCreationData> | null = null;
