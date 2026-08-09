@@ -3,6 +3,7 @@ import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import {
+  checkDowntimeAvailable,
   createCharacter,
   deleteCharacter,
   getNote,
@@ -38,6 +39,7 @@ export default function PlayerPage() {
   // (nothing in the body means nothing gets validated or set) so it's safe
   // to use as the probe itself.
   const [characterSheetAvailable, setCharacterSheetAvailable] = useState(false);
+  const [downtimeAvailable, setDowntimeAvailable] = useState(false);
 
   const [noteCampaignId, setNoteCampaignId] = useState<number | null>(null);
   const [noteBody, setNoteBody] = useState('');
@@ -89,6 +91,14 @@ export default function PlayerPage() {
         if (err instanceof ApiError && err.status === 404) setCharacterSheetAvailable(false);
       });
   }, [characters]);
+
+  useEffect(() => {
+    checkDowntimeAvailable()
+      .then(() => setDowntimeAvailable(true))
+      .catch((err: unknown) => {
+        if (err instanceof ApiError && err.status === 404) setDowntimeAvailable(false);
+      });
+  }, []);
 
   useEffect(() => {
     if (noteCampaignId === null) return;
@@ -296,6 +306,7 @@ export default function PlayerPage() {
                   <CharacterSheetPanel
                     character={c}
                     armorByName={armorByName}
+                    downtimeAvailable={downtimeAvailable}
                     onUpdated={handleCharacterStateUpdated}
                   />
                 )}

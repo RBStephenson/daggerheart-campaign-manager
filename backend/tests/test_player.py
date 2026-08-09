@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -432,5 +433,166 @@ def test_state_rejects_unknown_field(as_user, db: Session) -> None:
 
     resp = client.patch(
         f"/api/player/characters/{character.id}/state", json={"level": 5}
+    )
+    assert resp.status_code == 422
+
+
+def test_downtime_available_disabled_flag_returns_404(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled")
+    client = as_user("player")
+    resp = client.get("/api/player/downtime")
+    assert resp.status_code == 404
+
+
+def test_downtime_available_true_when_enabled(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "downtime_enabled")
+    client = as_user("player")
+    resp = client.get("/api/player/downtime")
+    assert resp.status_code == 200
+    assert resp.json() == {"available": True}
+
+
+def test_rest_disabled_flag_returns_404(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled")
+    client, character = make_sheeted_character(as_user, db)
+    resp = client.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "short", "move": "prepare"},
+    )
+    assert resp.status_code == 404
+
+
+def test_rest_short_tend_wounds_rolls_and_clears(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "character_sheet_enabled", "downtime_enabled")
+    client, character = make_sheeted_character(as_user, db)  # Bard hp_max=5
+    client.patch(f"/api/player/characters/{character.id}/state", json={"hp_marked": 5})
+
+    with patch("app.schemas.character_rest.random.randint", return_value=2):
+        resp = client.post(
+            f"/api/player/characters/{character.id}/rest",
+            json={"rest_type": "short", "move": "tend_wounds"},
+        )
+    assert resp.status_code == 200
+    body = resp.json()
+    # roll 2 + Tier 1 = 3 cleared, capped at the 5 that were marked.
+    assert body["result"] == {
+        "field": "hp_marked",
+        "roll": 2,
+        "tier": 1,
+        "amount": 3,
+        "new_value": 2,
+    }
+    assert body["character"]["hp_marked"] == 2
+
+
+def test_rest_short_clears_no_more_than_marked(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "character_sheet_enabled", "downtime_enabled")
+    client, character = make_sheeted_character(as_user, db)
+    client.patch(f"/api/player/characters/{character.id}/state", json={"stress_marked": 1})
+
+    with patch("app.schemas.character_rest.random.randint", return_value=4):
+        resp = client.post(
+            f"/api/player/characters/{character.id}/rest",
+            json={"rest_type": "short", "move": "clear_stress"},
+        )
+    body = resp.json()["result"]
+    # Roll 4 + Tier 1 = 5, but only 1 Stress was marked — clear can't go negative.
+    assert body["amount"] == 1
+    assert body["new_value"] == 0
+
+
+def test_rest_long_fully_clears(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "character_sheet_enabled", "downtime_enabled")
+    client, character = make_sheeted_character(as_user, db)
+    client.patch(
+        f"/api/player/characters/{character.id}/state",
+        json={"hp_marked": 5, "armor_slots_marked": 3},
+    )
+
+    resp = client.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "long", "move": "tend_wounds"},
+    )
+    body = resp.json()
+    assert body["result"] == {
+        "field": "hp_marked",
+        "roll": None,
+        "tier": None,
+        "amount": 5,
+        "new_value": 0,
+    }
+
+    resp = client.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "long", "move": "repair_armor"},
+    )
+    assert resp.json()["result"]["new_value"] == 0
+    assert resp.json()["character"]["armor_slots_marked"] == 0
+
+
+def test_rest_prepare_grants_hope_capped_at_six(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "character_sheet_enabled", "downtime_enabled")
+    client, character = make_sheeted_character(as_user, db)  # hope starts at 2
+
+    resp = client.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "short", "move": "prepare"},
+    )
+    assert resp.json()["character"]["hope"] == 3
+
+    client.patch(f"/api/player/characters/{character.id}/state", json={"hope": 6})
+    resp = client.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "long", "move": "prepare"},
+    )
+    assert resp.json()["result"] == {
+        "field": "hope",
+        "roll": None,
+        "tier": None,
+        "amount": 1,
+        "new_value": 6,
+    }
+
+
+def test_rest_requires_a_completed_sheet(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "downtime_enabled")
+    gm = make_user(db, username="gm-rest", role="gm")
+    campaign = make_campaign(db, gm_id=gm.id, name="No-Sheet Rest Campaign")
+    client = as_user("player", username="dana")
+    player = db.query(User).filter_by(username="dana").one()
+    make_membership(db, campaign_id=campaign.id, player_id=player.id)
+    resp = client.post(
+        "/api/player/characters",
+        json={"campaign_id": campaign.id, "name": "Blank Sheet"},
+    )
+    character_id = resp.json()["id"]
+
+    rest_resp = client.post(
+        f"/api/player/characters/{character_id}/rest",
+        json={"rest_type": "short", "move": "prepare"},
+    )
+    assert rest_resp.status_code == 422
+    assert "completed sheet" in rest_resp.json()["detail"]
+
+
+def test_rest_ownership_isolation(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "character_sheet_enabled", "downtime_enabled")
+    _, character = make_sheeted_character(as_user, db, username="erin")
+
+    frank = as_user("player", username="frank")
+    resp = frank.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "short", "move": "prepare"},
+    )
+    assert resp.status_code == 404
+
+
+def test_rest_rejects_unknown_move(as_user, db: Session) -> None:
+    enable(db, "player_area_enabled", "character_sheet_enabled", "downtime_enabled")
+    client, character = make_sheeted_character(as_user, db)
+
+    resp = client.post(
+        f"/api/player/characters/{character.id}/rest",
+        json={"rest_type": "short", "move": "feast"},
     )
     assert resp.status_code == 422

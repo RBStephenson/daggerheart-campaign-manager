@@ -38,6 +38,22 @@ export interface Note {
   updated_at: string;
 }
 
+export type RestType = 'short' | 'long';
+export type RestMove = 'tend_wounds' | 'clear_stress' | 'repair_armor' | 'prepare';
+
+export interface RestResult {
+  field: 'hp_marked' | 'stress_marked' | 'armor_slots_marked' | 'hope';
+  roll: number | null;
+  tier: number | null;
+  amount: number;
+  new_value: number;
+}
+
+export interface RestResponse {
+  character: Character;
+  result: RestResult;
+}
+
 export function listMyCampaigns(): Promise<MemberCampaign[]> {
   return apiGet('/api/player/campaigns');
 }
@@ -74,6 +90,18 @@ export function deleteCharacter(id: number): Promise<void> {
 
 export function updateCharacterState(id: number, state: CharacterState): Promise<Character> {
   return apiPatch(`/api/player/characters/${id}/state`, state);
+}
+
+export function restCharacter(
+  id: number,
+  rest_type: RestType,
+  move: RestMove,
+): Promise<RestResponse> {
+  return apiPost(`/api/player/characters/${id}/rest`, { rest_type, move });
+}
+
+export function checkDowntimeAvailable(): Promise<{ available: boolean }> {
+  return apiGet('/api/player/downtime');
 }
 
 export function getNote(campaignId: number): Promise<Note> {

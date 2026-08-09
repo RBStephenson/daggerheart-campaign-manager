@@ -134,3 +134,15 @@ def subclass_names(class_name: str) -> frozenset[str]:
     if cls is None:
         return frozenset()
     return frozenset(s["name"] for s in cls["subclasses"])
+
+
+def tier_for_level(level: int) -> int:
+    """SRD tier for a character level: Tier 1 is level 1, Tier 2 is 2-4,
+    Tier 3 is 5-7, Tier 4 is 8-10."""
+    if level <= 1:
+        return 1
+    if level <= 4:
+        return 2
+    if level <= 7:
+        return 3
+    return 4

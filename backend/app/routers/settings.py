@@ -30,6 +30,7 @@ DEFAULTS: dict[str, Any] = {
     "library_enabled": False,
     "session_planning_enabled": False,
     "character_sheet_enabled": False,
+    "downtime_enabled": False,
 }
 
 

@@ -1,6 +1,34 @@
-import { useMemo } from 'react';
-import { updateCharacterState, type Character } from '../../api/player';
+import { useState, useMemo } from 'react';
+import {
+  restCharacter,
+  updateCharacterState,
+  type Character,
+  type RestMove,
+  type RestResult,
+  type RestType,
+} from '../../api/player';
 import type { SrdArmor } from '../../api/srd';
+
+const REST_MOVES: { move: RestMove; label: string }[] = [
+  { move: 'tend_wounds', label: 'Tend to Wounds' },
+  { move: 'clear_stress', label: 'Clear Stress' },
+  { move: 'repair_armor', label: 'Repair Armor' },
+  { move: 'prepare', label: 'Prepare' },
+];
+
+function describeResult(result: RestResult): string {
+  const noun =
+    result.field === 'hp_marked'
+      ? 'HP'
+      : result.field === 'stress_marked'
+        ? 'Stress'
+        : result.field === 'armor_slots_marked'
+          ? 'Armor Slot'
+          : 'Hope';
+  if (result.field === 'hope') return `Gained ${result.amount} Hope.`;
+  if (result.roll === null) return `Cleared all ${result.amount} marked ${noun}.`;
+  return `Rolled ${result.roll} + Tier ${result.tier} — cleared ${result.amount} ${noun}.`;
+}
 
 interface ParsedSheet {
   hp_max: number;
@@ -69,14 +97,19 @@ function TrackerRow({ label, value, max, onChange }: TrackerRowProps) {
 interface CharacterSheetPanelProps {
   character: Character;
   armorByName: Record<string, SrdArmor>;
+  downtimeAvailable: boolean;
   onUpdated: (updated: Character) => void;
 }
 
 export default function CharacterSheetPanel({
   character,
   armorByName,
+  downtimeAvailable,
   onUpdated,
 }: CharacterSheetPanelProps) {
+  const [restType, setRestType] = useState<RestType>('short');
+  const [restBusy, setRestBusy] = useState(false);
+  const [restMessage, setRestMessage] = useState<string | null>(null);
   const sheet = useMemo(() => parseSheet(character.extra), [character.extra]);
   if (!sheet) return null;
 
@@ -85,6 +118,18 @@ export default function CharacterSheetPanel({
   async function patch(field: 'hp_marked' | 'stress_marked' | 'hope' | 'armor_slots_marked', value: number) {
     const updated = await updateCharacterState(character.id, { [field]: value });
     onUpdated(updated);
+  }
+
+  async function rest(move: RestMove) {
+    setRestBusy(true);
+    setRestMessage(null);
+    try {
+      const { character: updated, result } = await restCharacter(character.id, restType, move);
+      onUpdated(updated);
+      setRestMessage(describeResult(result));
+    } finally {
+      setRestBusy(false);
+    }
   }
 
   return (
@@ -114,6 +159,36 @@ export default function CharacterSheetPanel({
           max={armorScore}
           onChange={(v) => void patch('armor_slots_marked', v)}
         />
+      )}
+      {downtimeAvailable && (
+        <div className="mt-2 flex flex-col gap-1.5 border-t border-hairline/10 pt-2">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-parchment/70">Rest</span>
+            <select
+              aria-label="Rest type"
+              value={restType}
+              onChange={(e) => setRestType(e.target.value as RestType)}
+              className="rounded border border-hairline/20 bg-input-dark px-2 py-1 text-xs text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
+              <option value="short">Short Rest</option>
+              <option value="long">Long Rest</option>
+            </select>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {REST_MOVES.map(({ move, label }) => (
+              <button
+                key={move}
+                type="button"
+                disabled={restBusy}
+                onClick={() => void rest(move)}
+                className="rounded border border-hairline/20 px-2 py-1 text-xs text-parchment/70 hover:bg-white/5 disabled:opacity-30"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {restMessage && <p className="text-xs text-parchment/60">{restMessage}</p>}
+        </div>
       )}
     </div>
   );
