@@ -1,0 +1,33 @@
+# Isolated stack for Playwright E2E tests — never touches live dev data.
+#
+# Runs alongside the live stack (different ports, different Compose project,
+# different DB volume) so `docker compose up` for normal dev use is
+# unaffected. Unlike Budget Inator's E2E stack, DHCM's frontend already
+# proxies /api and /ws through Vite to the backend (see vite.config.ts), so
+# the browser only ever talks to one origin — no separate reverse-proxy
+# container is needed here.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.e2e.yml -p dhcm-e2e up -d
+#   npm run test:e2e --prefix frontend
+#   docker compose -p dhcm-e2e down -v   # -v drops the throwaway DB volume
+services:
+  backend:
+    ports: !override
+      - "127.0.0.1:8092:8000"
+    volumes: !override
+      - ./backend:/app
+      - e2e_data:/data
+    environment:
+      DHCM_DATABASE_URL: sqlite:////data/e2e.sqlite3
+      DHCM_GM_USERNAME: e2e-gm
+      DHCM_GM_PASSWORD: e2e-only-password
+
+  frontend:
+    ports: !override
+      - "127.0.0.1:5183:5173"
+    environment:
+      VITE_API_PROXY_TARGET: http://backend:8000
+
+volumes:
+  e2e_data:

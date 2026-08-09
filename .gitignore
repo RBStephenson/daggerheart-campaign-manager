@@ -13,6 +13,12 @@ node_modules/
 frontend/dist/
 *.tsbuildinfo
 
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+
 # App data
 *.sqlite3
 *.db
