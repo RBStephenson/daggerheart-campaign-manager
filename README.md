@@ -39,6 +39,26 @@ npm install
 npm run lint && npm run typecheck && npm test
 ```
 
+### End-to-end tests (Playwright)
+
+E2E specs run against an isolated Docker stack (`docker-compose.e2e.yml`),
+never the live dev stack — separate ports, separate Compose project, a
+throwaway DB volume seeded with its own bootstrapped GM account
+(`e2e-gm` / `e2e-only-password`). The frontend's existing Vite proxy for
+`/api` and `/ws` means the browser only ever talks to one origin, so no
+extra reverse-proxy container is needed.
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.e2e.yml -p dhcm-e2e up -d --build
+npm run test:e2e --prefix frontend
+docker compose -p dhcm-e2e down -v   # -v drops the throwaway DB volume
+```
+
+Specs live in `frontend/e2e/`, numbered (`NN-name.spec.ts`) since the suite
+runs fully serial against one shared DB for the run — Playwright executes
+files in alphabetical order, so the number makes required run order
+explicit instead of accidental.
+
 ## Settings & feature flags
 
 Settings live in the `app_settings` key/value table (JSON values — adding a
