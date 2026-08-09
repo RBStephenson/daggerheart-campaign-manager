@@ -1,8 +1,20 @@
 import { apiGet } from './client';
 
+export interface SrdFeature {
+  name: string;
+  text: string;
+}
+
+export interface SrdHopeFeature extends SrdFeature {
+  cost: number;
+}
+
 export interface SrdSubclass {
   name: string;
   spellcast_trait: string | null;
+  foundation_features?: SrdFeature[];
+  specialization_features?: SrdFeature[];
+  mastery_features?: SrdFeature[];
 }
 
 export interface SrdClass {
@@ -12,11 +24,10 @@ export interface SrdClass {
   starting_hp: number;
   class_items: string[];
   subclasses: SrdSubclass[];
-}
-
-export interface SrdFeature {
-  name: string;
-  text: string;
+  hope_feature?: SrdHopeFeature;
+  class_features?: SrdFeature[];
+  background_questions?: string[];
+  connection_questions?: string[];
 }
 
 export interface SrdAncestry {

@@ -1,11 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createCharacter } from '../../api/player';
-import { getCharacterCreationData, type SrdCharacterCreationData } from '../../api/srd';
+import { getCharacterCreationData, type SrdCharacterCreationData, type SrdFeature } from '../../api/srd';
 
 interface CharacterWizardProps {
   campaignId: number;
   onCreated: () => void;
   onCancel: () => void;
+}
+
+/** Read-only reference panel for a class/subclass/ancestry/community's
+ * feature text — the wizard's dropdowns can only show names, so every step
+ * that picks from SRD content shows the picked entry's rules text here. */
+function FeatureReference({ features }: { features: SrdFeature[] | undefined }) {
+  if (!features || features.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1.5 rounded-md border border-hairline/15 bg-white/[0.03] p-3 text-xs">
+      {features.map((f) => (
+        <p key={f.name} className="text-parchment/70">
+          <strong className="text-parchment/90">{f.name}:</strong> {f.text}
+        </p>
+      ))}
+    </div>
+  );
 }
 
 type Traits = Record<string, number | null>;
@@ -68,6 +84,21 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
     [data, className],
   );
 
+  const selectedSubclass = useMemo(
+    () => selectedClass?.subclasses.find((s) => s.name === subclass) ?? null,
+    [selectedClass, subclass],
+  );
+
+  const selectedAncestry = useMemo(
+    () => data?.ancestries.find((a) => a.name === ancestry) ?? null,
+    [data, ancestry],
+  );
+
+  const selectedCommunity = useMemo(
+    () => data?.communities.find((c) => c.name === community) ?? null,
+    [data, community],
+  );
+
   const tier1PrimaryWeapons = useMemo(
     () => data?.primary_weapons.filter((w) => w.tier === 1) ?? [],
     [data],
@@ -80,12 +111,32 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
     [tier1PrimaryWeapons, primaryWeapon],
   );
 
+  const secondary = useMemo(
+    () => tier1PrimaryWeapons.find((w) => w.name === secondaryWeapon) ?? null,
+    [tier1PrimaryWeapons, secondaryWeapon],
+  );
+
+  const selectedArmor = useMemo(
+    () => tier1Armor.find((a) => a.name === armor) ?? null,
+    [tier1Armor, armor],
+  );
+
   const candidateDomainCards = useMemo(
     () =>
       data?.domain_cards.filter(
         (c) => c.level === 1 && selectedClass?.domains.includes(c.domain),
       ) ?? [],
     [data, selectedClass],
+  );
+
+  const selectedCard1 = useMemo(
+    () => candidateDomainCards.find((c) => `${c.domain}::${c.name}` === domainCard1) ?? null,
+    [candidateDomainCards, domainCard1],
+  );
+
+  const selectedCard2 = useMemo(
+    () => candidateDomainCards.find((c) => `${c.domain}::${c.name}` === domainCard2) ?? null,
+    [candidateDomainCards, domainCard2],
   );
 
   if (loadError) return <p className="text-danger-text">{loadError}</p>;
@@ -206,21 +257,38 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             </select>
           </label>
           {selectedClass && (
-            <label className="flex flex-col gap-1 text-sm text-parchment/70">
-              Subclass
-              <select
-                value={subclass}
-                onChange={(e) => setSubclass(e.target.value)}
-                className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-              >
-                <option value="">Choose a subclass…</option>
-                {selectedClass.subclasses.map((s) => (
-                  <option key={s.name} value={s.name}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <>
+              <FeatureReference
+                features={[
+                  ...(selectedClass.class_features ?? []),
+                  ...(selectedClass.hope_feature
+                    ? [
+                        {
+                          name: `${selectedClass.hope_feature.name} (${selectedClass.hope_feature.cost} Hope)`,
+                          text: selectedClass.hope_feature.text,
+                        },
+                      ]
+                    : []),
+                ]}
+              />
+              <label className="flex flex-col gap-1 text-sm text-parchment/70">
+                Subclass
+                <select
+                  value={subclass}
+                  onChange={(e) => setSubclass(e.target.value)}
+                  className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                >
+                  <option value="">Choose a subclass…</option>
+                  {selectedClass.subclasses.map((s) => (
+                    <option key={s.name} value={s.name}>
+                      {s.name}
+                      {s.spellcast_trait ? ` — Spellcast: ${s.spellcast_trait}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <FeatureReference features={selectedSubclass?.foundation_features} />
+            </>
           )}
         </div>
       )}
@@ -242,6 +310,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               ))}
             </select>
           </label>
+          <FeatureReference features={selectedAncestry?.features} />
           <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Community
             <select
@@ -256,7 +325,13 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
                 </option>
               ))}
             </select>
+            {selectedCommunity && (
+              <p className="text-xs text-parchment/50">
+                Often: {selectedCommunity.adjectives.join(', ')}
+              </p>
+            )}
           </label>
+          <FeatureReference features={selectedCommunity ? [selectedCommunity.feature] : undefined} />
         </div>
       )}
 
@@ -318,6 +393,9 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               ))}
             </select>
           </label>
+          {primary?.feature && (
+            <p className="text-xs text-parchment/50">{primary.name}: {primary.feature}</p>
+          )}
           {primary?.burden === 'One-Handed' && (
             <label className="flex flex-col gap-1 text-sm text-parchment/70">
               Secondary Weapon (optional)
@@ -337,6 +415,9 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               </select>
             </label>
           )}
+          {secondary?.feature && (
+            <p className="text-xs text-parchment/50">{secondary.name}: {secondary.feature}</p>
+          )}
           <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Armor
             <select
@@ -352,6 +433,11 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               ))}
             </select>
           </label>
+          {selectedArmor?.feature && (
+            <p className="text-xs text-parchment/50">
+              {selectedArmor.name}: {selectedArmor.feature}
+            </p>
+          )}
         </div>
       )}
 
@@ -386,10 +472,16 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             <option value="">Choose a card…</option>
             {candidateDomainCards.map((c) => (
               <option key={`${c.domain}::${c.name}`} value={`${c.domain}::${c.name}`}>
-                {c.domain} — {c.name}
+                {c.domain} — {c.name} ({c.type}, recall {c.recall_cost})
               </option>
             ))}
           </select>
+          {selectedCard1 && (
+            <p className="text-xs text-parchment/50">
+              <strong className="text-parchment/70">{selectedCard1.name}:</strong>{' '}
+              {selectedCard1.text}
+            </p>
+          )}
           <select
             value={domainCard2}
             onChange={(e) => setDomainCard2(e.target.value)}
@@ -400,10 +492,16 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               .filter((c) => `${c.domain}::${c.name}` !== domainCard1)
               .map((c) => (
                 <option key={`${c.domain}::${c.name}`} value={`${c.domain}::${c.name}`}>
-                  {c.domain} — {c.name}
+                  {c.domain} — {c.name} ({c.type}, recall {c.recall_cost})
                 </option>
               ))}
           </select>
+          {selectedCard2 && (
+            <p className="text-xs text-parchment/50">
+              <strong className="text-parchment/70">{selectedCard2.name}:</strong>{' '}
+              {selectedCard2.text}
+            </p>
+          )}
         </div>
       )}
 
@@ -411,16 +509,30 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
         <div className="flex flex-col gap-3">
           <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Background
+            {selectedClass?.background_questions && (
+              <ul className="mb-1 list-disc pl-4 text-xs text-parchment/50">
+                {selectedClass.background_questions.map((q) => (
+                  <li key={q}>{q}</li>
+                ))}
+              </ul>
+            )}
             <textarea
               value={background}
               onChange={(e) => setBackground(e.target.value)}
               rows={4}
-              placeholder="Answer a background question, or leave blank to discover it through play."
+              placeholder="Answer one of the questions above, your own, or leave blank to discover it through play."
               className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-parchment/70">
             Connections (one per line)
+            {selectedClass?.connection_questions && (
+              <ul className="mb-1 list-disc pl-4 text-xs text-parchment/50">
+                {selectedClass.connection_questions.map((q) => (
+                  <li key={q}>{q}</li>
+                ))}
+              </ul>
+            )}
             <textarea
               value={connections}
               onChange={(e) => setConnections(e.target.value)}

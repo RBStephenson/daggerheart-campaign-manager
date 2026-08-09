@@ -96,6 +96,16 @@
           "name": "Rally",
           "text": "Once per session, describe how you rally the party and give yourself and each of your allies a Rally Die. At level 1, your Rally Die is a d6. A PC can spend their Rally Die to roll it, adding the result to their action roll, reaction roll, damage roll, or to clear a number of Stress equal to the result. At the end of each session, clear all unspent Rally Dice. At level 5, your Rally Die increases to a d8."
         }
+      ],
+      "background_questions": [
+        "Who from your community taught you to have such confidence in yourself?",
+        "You were in love once. Who did you adore, and how did they hurt you?",
+        "You've always looked up to another bard. Who are they, and why do you idolize them?"
+      ],
+      "connection_questions": [
+        "What made you realize we were going to be such good friends?",
+        "What do I do that annoys you?",
+        "Why do you grab my hand at night?"
       ]
     },
     {
@@ -178,6 +188,16 @@
           "name": "Wildtouch",
           "text": "You can perform harmless, subtle effects that involve nature—such as causing a flower to rapidly grow, summoning a slight gust of wind, or starting a campfire—at will."
         }
+      ],
+      "background_questions": [
+        "Why was the community you grew up in so reliant on nature and its creatures?",
+        "Who was the first wild animal you bonded with? Why did your bond end?",
+        "Who has been trying to hunt you down? What do they want from you?"
+      ],
+      "connection_questions": [
+        "What did you confide in me that makes me leap into danger for you every time?",
+        "What animal do I say you remind me of?",
+        "What affectionate nickname have you given me?"
       ]
     },
     {
@@ -264,6 +284,16 @@
           "name": "Unstoppable",
           "text": "Once per long rest, you can become Unstoppable. You gain an Unstoppable Die. At level 1, your Unstoppable Die is a d4. Place it on your character sheet in the space provided, starting with the 1 value facing up. After you make a damage roll that deals 1 or more Hit Points to a target, increase the Unstoppable Die value by one. When the die's value would exceed its maximum value or when the scene ends, remove the die and drop out of Unstoppable. At level 5, your Unstoppable Die increases to a d6. While Unstoppable, you gain the following benefits: You reduce the severity of physical damage by one threshold (Severe to Major, Major to Minor, Minor to None). You add the current value of the Unstoppable Die to your damage roll. You can't be Restrained or Vulnerable."
         }
+      ],
+      "background_questions": [
+        "Who from your community did you fail to protect, and why do you still think of them?",
+        "You've been tasked with protecting something important and delivering it somewhere dangerous. What is it, and where does it need to go?",
+        "You consider an aspect of yourself to be a weakness. What is it, and how has it affected you?"
+      ],
+      "connection_questions": [
+        "How did I save your life the first time we met?",
+        "What small gift did you give me that you notice I always carry with me?",
+        "What lie have you told me about yourself that I absolutely believe?"
       ]
     },
     {
@@ -346,6 +376,16 @@
           "name": "Ranger's Focus",
           "text": "Spend a Hope and make an attack against a target. On a success, deal your attack's normal damage and temporarily make the attack's target your Focus. Until this feature ends or you make a different creature your Focus, you gain the following benefits against your Focus: You know precisely what direction they are in. When you deal damage to them, they must mark a Stress. When you fail an attack against them, you can end your Ranger's Focus feature to reroll your Duality Dice."
         }
+      ],
+      "background_questions": [
+        "A terrible creature hurt your community, and you've vowed to hunt them down. What are they, and what unique trail or sign do they leave behind?",
+        "Your first kill almost killed you, too. What was it, and what part of you was never the same after that event?",
+        "You've traveled many dangerous lands, but what is the one place you refuse to go?"
+      ],
+      "connection_questions": [
+        "What friendly competition do we have?",
+        "Why do you act differently when we're alone than when others are around?",
+        "What threat have you asked me to watch for, and why are you worried about it?"
       ]
     },
     {
@@ -428,6 +468,16 @@
           "name": "Sneak Attack",
           "text": "When you succeed on an attack while Cloaked or while an ally is within Melee range of your target, add a number of d6s equal to your tier to your damage roll. Level 1 -> Tier 1; Levels 2-4 -> Tier 2; Levels 5-7 -> Tier 3; Levels 8-10 -> Tier 4."
         }
+      ],
+      "background_questions": [
+        "What did you get caught doing that got you exiled from your home community?",
+        "You used to have a different life, but you've tried to leave it behind. Who from your past is still chasing you?",
+        "Who from your past were you most sad to say goodbye to?"
+      ],
+      "connection_questions": [
+        "What did I recently convince you to do that got us both in trouble?",
+        "What have I discovered about your past that I hold secret from the others?",
+        "Who do you know from my past, and how have they influenced your feelings about me?"
       ]
     },
     {
@@ -506,6 +556,16 @@
           "name": "Prayer Dice",
           "text": "At the beginning of each session, roll a number of d4s equal to your subclass's Spellcast trait and place them on your character sheet in the space provided. These are your Prayer Dice. You can spend any number of Prayer Dice to aid yourself or an ally within Far range. You can use a spent die's value to reduce incoming damage, add to a roll's result after the roll is made, or gain Hope equal to the result. At the end of each session, clear all unspent Prayer Dice."
         }
+      ],
+      "background_questions": [
+        "Which god did you devote yourself to? What incredible feat did they perform for you in a moment of desperation?",
+        "How did your appearance change after taking your oath?",
+        "In what strange or unique way do you communicate with your god?"
+      ],
+      "connection_questions": [
+        "What promise did you make me agree to, should you die on the battlefield?",
+        "Why do you ask me so many questions about my god?",
+        "You've told me to protect one member of our party above all others, even yourself. Who are they and why?"
       ]
     },
     {
@@ -584,6 +644,16 @@
           "name": "Channel Raw Power",
           "text": "Once per long rest, you can place a domain card from your loadout into your vault and choose to either: Gain Hope equal to the level of the card. Enhance a spell that deals damage, gaining a bonus to your damage roll equal to twice the level of the card."
         }
+      ],
+      "background_questions": [
+        "What did you do that made the people in your community wary of you?",
+        "What mentor taught you to control your untamed magic, and why are they no longer able to guide you?",
+        "You have a deep fear you hide from everyone. What is it, and why does it scare you?"
+      ],
+      "connection_questions": [
+        "Why do you trust me so deeply?",
+        "What did I do that makes you cautious around me?",
+        "Why do we keep our shared past a secret?"
       ]
     },
     {
@@ -662,6 +732,16 @@
           "name": "Combat Training",
           "text": "You ignore burden when equipping weapons. When you deal physical damage, you gain a bonus to your damage roll equal to your level."
         }
+      ],
+      "background_questions": [
+        "Who taught you to fight, and why did they stay behind when you left home?",
+        "Somebody defeated you in battle years ago and left you to die. Who was it, and how did they betray you?",
+        "What legendary place have you always wanted to visit, and why is it so special?"
+      ],
+      "connection_questions": [
+        "We knew each other long before this party came together. How?",
+        "What mundane task do you usually help me with off the battlefield?",
+        "What fear am I helping you overcome?"
       ]
     },
     {
@@ -760,6 +840,16 @@
           "name": "Strange Patterns",
           "text": "Choose a number between 1 and 12. When you roll that number on a Duality Die, gain a Hope or clear a Stress. You can change this number when you take a long rest."
         }
+      ],
+      "background_questions": [
+        "What responsibilities did your community once count on you for? How did you let them down?",
+        "You've spent your life searching for a book or object of great significance. What is it, and why is it so important to you?",
+        "You have a powerful rival. Who are they, and why are you so determined to defeat them?"
+      ],
+      "connection_questions": [
+        "What favor have I asked of you that you're not sure you can fulfill?",
+        "What weird hobby or strange fascination do we both share?",
+        "What secret about yourself have you entrusted only to me?"
       ]
     }
   ],

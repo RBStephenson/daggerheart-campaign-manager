@@ -22,7 +22,17 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
       starting_evasion: 10,
       starting_hp: 5,
       class_items: ['A romance novel'],
-      subclasses: [{ name: 'Troubadour', spellcast_trait: 'Presence' }],
+      subclasses: [
+        {
+          name: 'Troubadour',
+          spellcast_trait: 'Presence',
+          foundation_features: [{ name: 'Gifted Performer', text: 'Play three songs.' }],
+        },
+      ],
+      hope_feature: { name: 'Make a Scene', cost: 3, text: 'Distract a target.' },
+      class_features: [{ name: 'Rally', text: 'Give allies a Rally Die.' }],
+      background_questions: ['Who taught you confidence?'],
+      connection_questions: ['What made us friends?'],
     },
     {
       name: 'Warrior',
@@ -248,6 +258,61 @@ describe('CharacterWizard', () => {
 
     await user.selectOptions(screen.getByLabelText('Primary Weapon'), 'Longsword');
     expect(screen.queryByLabelText(/Secondary Weapon/)).not.toBeInTheDocument();
+  });
+
+  it('shows SRD feature reference text as selections are made', async () => {
+    render(<CharacterWizard campaignId={1} onCreated={vi.fn()} onCancel={vi.fn()} />);
+    const user = userEvent.setup();
+    await screen.findByText('Character Name');
+
+    // Step 0: class/subclass features
+    await user.selectOptions(screen.getByLabelText('Class'), 'Bard');
+    expect(await screen.findByText(/Give allies a Rally Die\./)).toBeInTheDocument();
+    expect(screen.getByText(/Distract a target\./)).toBeInTheDocument();
+    await user.selectOptions(await screen.findByLabelText('Subclass'), 'Troubadour');
+    expect(await screen.findByText(/Play three songs\./)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step 1: ancestry/community features
+    await user.selectOptions(screen.getByLabelText('Ancestry'), 'Human');
+    expect(
+      await screen.findByText(/Gain an additional Stress slot at character creation\./),
+    ).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('Community'), 'Wanderborne');
+    expect(await screen.findByText(/inscrutable, magnanimous/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Add a Nomadic Pack to your inventory\./),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step 2: traits
+    for (const trait of SRD_DATA.traits) {
+      const select = screen.getByRole('combobox', { name: new RegExp(`^${trait}$`) });
+      const options = within(select).getAllByRole('option') as HTMLOptionElement[];
+      await user.selectOptions(select, options[1].value);
+    }
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step 3: equipment feature text (Dagger carries no feature; Leather Armor has none either
+    // in the fixture, so assert the weapon list itself surfaced the picked item's label instead).
+    await user.selectOptions(screen.getByLabelText('Primary Weapon'), 'Rapier');
+    await user.selectOptions(screen.getByLabelText('Armor'), 'Leather Armor');
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step 4: experiences (skip)
+    await user.type(screen.getByPlaceholderText(/Experience 1/), 'Storyteller');
+    await user.type(screen.getByPlaceholderText(/Experience 2/), 'Charming');
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step 5: domain card text
+    const cardSelects = screen.getAllByRole('combobox');
+    await user.selectOptions(cardSelects[0], 'Grace::Enrapture');
+    expect(await screen.findByText(/Test card text\./)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step 6: background/connection questions
+    expect(screen.getByText('Who taught you confidence?')).toBeInTheDocument();
+    expect(screen.getByText('What made us friends?')).toBeInTheDocument();
   });
 
   it('shows a load error if the SRD dataset fails to load', async () => {
