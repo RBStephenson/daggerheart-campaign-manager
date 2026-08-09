@@ -168,6 +168,10 @@ describe('CharacterWizard', () => {
       community: 'Wanderborne',
       level: 1,
       extra: '{}',
+      hp_marked: 0,
+      stress_marked: 0,
+      hope: 2,
+      armor_slots_marked: 0,
       created_at: '2026-01-01T00:00:00Z',
     });
     const user = await completeWizard();

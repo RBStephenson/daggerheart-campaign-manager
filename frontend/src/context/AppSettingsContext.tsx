@@ -27,6 +27,7 @@ export const DEFAULTS: AppSettings = {
   character_creation_enabled: false,
   library_enabled: false,
   session_planning_enabled: false,
+  character_sheet_enabled: false,
 };
 
 interface AppSettingsContextValue {

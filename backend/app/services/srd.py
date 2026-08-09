@@ -63,6 +63,12 @@ def armor_names() -> frozenset[str]:
 
 
 @lru_cache(maxsize=1)
+def armor_by_name() -> dict[str, dict[str, Any]]:
+    """All armor (every tier) keyed by name — names are unique across tiers."""
+    return {a["name"]: a for a in armor()}
+
+
+@lru_cache(maxsize=1)
 def ancestries_by_name() -> dict[str, dict[str, Any]]:
     return {a["name"]: a for a in get_dataset()["ancestries"]}
 

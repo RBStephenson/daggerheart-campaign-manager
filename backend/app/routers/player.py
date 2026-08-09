@@ -13,6 +13,7 @@ from app.deps import require_role
 from app.models import Campaign, CampaignMembership, CampaignNote, Character, User
 from app.routers.settings import get_settings
 from app.schemas.character_sheet import validate_extra
+from app.schemas.character_state import CharacterStateUpdate, validate_state_update
 from app.schemas.player import (
     CharacterCreate,
     CharacterOut,
@@ -25,6 +26,11 @@ from app.schemas.player import (
 
 def _require_player_area_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
     if not get_settings(db).get("player_area_enabled", False):
+        raise HTTPException(status_code=404)
+
+
+def _require_character_sheet_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
+    if not get_settings(db).get("character_sheet_enabled", False):
         raise HTTPException(status_code=404)
 
 
@@ -124,6 +130,35 @@ def update_character(
     if "extra" in updates:
         _validate_extra_or_422(updates["extra"])
     for field, value in updates.items():
+        setattr(character, field, value)
+    db.commit()
+    db.refresh(character)
+    return character
+
+
+@router.patch(
+    "/characters/{character_id}/state",
+    response_model=CharacterOut,
+    dependencies=[Depends(_require_character_sheet_enabled)],
+)
+def update_character_state(
+    character_id: int,
+    body: CharacterStateUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    player: Annotated[User, Depends(require_role("player"))],
+) -> Character:
+    """Mark/clear HP, Stress, Hope, and Armor Slots during play.
+
+    Distinct from `PUT /characters/{id}`, which replaces the immutable
+    creation-time sheet — this only ever touches mutable play state, bounds-
+    checked against that sheet (see `app.schemas.character_state`).
+    """
+    character = _get_owned_character(character_id, db, player)
+    try:
+        validate_state_update(character.extra, body)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    for field, value in body.model_dump(exclude_unset=True).items():
         setattr(character, field, value)
     db.commit()
     db.refresh(character)

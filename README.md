@@ -179,6 +179,27 @@ player — upserted on save.
 | `DELETE /api/player/characters/{id}` | Delete a character |
 | `GET /api/player/campaigns/{id}/note` | Get the player's own note for a campaign |
 | `PUT /api/player/campaigns/{id}/note` | Save (upsert) the player's own note |
+| `PATCH /api/player/characters/{id}/state` | Mark/clear HP, Stress, Hope, Armor Slots (see below) |
+
+### Character sheet mechanics (play state)
+
+Behind the `character_sheet_enabled` feature flag (default off, toggle on
+`/host/settings`), layered on top of `player_area_enabled`. `Character.extra`
+(when populated) is an immutable Level 1 creation snapshot — see
+"Character creation" below. `hp_marked`/`stress_marked`/`hope`/
+`armor_slots_marked` are separate mutable columns for state that changes
+during play, bounds-checked against that snapshot (`hp_max`, `stress_max`,
+the equipped armor's Armor Score, and a fixed 0–6 for Hope) rather than
+against `CharacterSheet`'s fixed Level 1 creation invariants — a player can
+mark HP up to `hp_max` at any time, not just exactly the creation value.
+`PATCH .../state` is a partial update (only the fields present are
+validated and applied) and 422s if the character has no completed sheet to
+validate against.
+
+Not yet built: loadout-vs-vault domain card tracking. A Level 1 character
+only ever has 2 domain cards against a 5-card loadout max, so the mechanic
+has no practical effect until a future leveling feature lets a character
+accumulate more than 5 — revisit then.
 
 ## Host: data management
 

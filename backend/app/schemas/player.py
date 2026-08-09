@@ -36,6 +36,10 @@ class CharacterOut(BaseModel):
     community: str
     level: int
     extra: str
+    hp_marked: int
+    stress_marked: int
+    hope: int
+    armor_slots_marked: int
     created_at: datetime
 
 

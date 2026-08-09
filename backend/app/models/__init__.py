@@ -109,6 +109,13 @@ class Character(Base):
     Core Daggerheart fields are columns; anything else lives in `extra`
     as a JSON-encoded string so the schema doesn't need to chase every
     rule-book detail.
+
+    `extra` (when populated) is an immutable creation-time CharacterSheet
+    snapshot — hp_max, stress_max, equipment, domain cards, etc. The
+    hp_marked/stress_marked/hope/armor_slots_marked columns below are
+    mutable play state that changes during a session and is validated
+    against that snapshot (see `app.schemas.character_state`), not
+    against the fixed Level 1 creation invariants in `CharacterSheet`.
     """
 
     __tablename__ = "characters"
@@ -122,6 +129,10 @@ class Character(Base):
     community: Mapped[str] = mapped_column(String(100), nullable=False, default="")
     level: Mapped[int] = mapped_column(nullable=False, default=1)
     extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    hp_marked: Mapped[int] = mapped_column(nullable=False, default=0)
+    stress_marked: Mapped[int] = mapped_column(nullable=False, default=0)
+    hope: Mapped[int] = mapped_column(nullable=False, default=2)
+    armor_slots_marked: Mapped[int] = mapped_column(nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
