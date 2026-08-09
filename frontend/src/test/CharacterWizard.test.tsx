@@ -58,10 +58,10 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
     { name: 'Blade', classes: ['Warrior'] },
     { name: 'Bone', classes: ['Warrior'] },
   ],
-  domain_cards_l1: [
-    { domain: 'Grace', name: 'Enrapture', type: 'spell', recall_cost: 0 },
-    { domain: 'Codex', name: 'Book of Ava', type: 'grimoire', recall_cost: 2 },
-    { domain: 'Blade', name: 'Whirlwind', type: 'ability', recall_cost: 0 },
+  domain_cards: [
+    { domain: 'Grace', level: 1, name: 'Enrapture', type: 'spell', recall_cost: 0, text: 'Test card text.' },
+    { domain: 'Codex', level: 1, name: 'Book of Ava', type: 'grimoire', recall_cost: 2, text: 'Test card text.' },
+    { domain: 'Blade', level: 1, name: 'Whirlwind', type: 'ability', recall_cost: 0, text: 'Test card text.' },
   ],
   weapons_tier1: [
     {

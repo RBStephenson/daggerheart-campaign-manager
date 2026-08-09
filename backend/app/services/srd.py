@@ -66,9 +66,16 @@ def trait_array() -> tuple[int, ...]:
 
 
 @lru_cache(maxsize=1)
+def domain_cards() -> tuple[dict[str, Any], ...]:
+    """All domain cards (all 9 domains, levels 1-10)."""
+    return tuple(get_dataset()["domain_cards"])
+
+
+@lru_cache(maxsize=1)
 def domain_cards_l1_by_key() -> dict[tuple[str, str], dict[str, Any]]:
-    """Level-1 domain cards keyed by (domain, name)."""
-    return {(c["domain"], c["name"]): c for c in get_dataset()["domain_cards_l1"]}
+    """Level-1 domain cards keyed by (domain, name) — the only level a new
+    character can choose from at creation."""
+    return {(c["domain"], c["name"]): c for c in domain_cards() if c["level"] == 1}
 
 
 def subclass_names(class_name: str) -> frozenset[str]:

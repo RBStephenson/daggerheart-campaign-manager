@@ -31,4 +31,5 @@ def test_returns_dataset_when_enabled(as_user, db: Session) -> None:
     data = resp.json()
     assert len(data["classes"]) == 9
     assert data["trait_array"] == [2, 1, 1, 0, 0, -1]
-    assert len(data["domain_cards_l1"]) == 27
+    assert len(data["domain_cards"]) == 189
+    assert len([c for c in data["domain_cards"] if c["level"] == 1]) == 27
