@@ -238,3 +238,13 @@ def test_consumables_table_covers_rolls_1_through_60() -> None:
     assert sorted(e["roll"] for e in entries) == list(range(1, 61))
     for entry in entries:
         assert entry["name"] and entry["description"]
+
+
+def test_every_class_has_background_and_connection_questions() -> None:
+    for name, cls in srd.classes_by_name().items():
+        bg = cls.get("background_questions", [])
+        conn = cls.get("connection_questions", [])
+        assert len(bg) == 3, f"{name}: expected 3 background_questions, found {len(bg)}"
+        assert len(conn) == 3, f"{name}: expected 3 connection_questions, found {len(conn)}"
+        for q in bg + conn:
+            assert q.strip(), f"{name} has an empty question"
