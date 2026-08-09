@@ -36,13 +36,23 @@ def armor_names() -> frozenset[str]:
 
 
 @lru_cache(maxsize=1)
+def ancestries_by_name() -> dict[str, dict[str, Any]]:
+    return {a["name"]: a for a in get_dataset()["ancestries"]}
+
+
+@lru_cache(maxsize=1)
 def ancestry_names() -> frozenset[str]:
-    return frozenset(get_dataset()["ancestries"])
+    return frozenset(ancestries_by_name())
+
+
+@lru_cache(maxsize=1)
+def communities_by_name() -> dict[str, dict[str, Any]]:
+    return {c["name"]: c for c in get_dataset()["communities"]}
 
 
 @lru_cache(maxsize=1)
 def community_names() -> frozenset[str]:
-    return frozenset(get_dataset()["communities"])
+    return frozenset(communities_by_name())
 
 
 @lru_cache(maxsize=1)

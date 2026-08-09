@@ -33,8 +33,25 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
       subclasses: [{ name: 'Call of the Brave', spellcast_trait: null }],
     },
   ],
-  ancestries: ['Human'],
-  communities: ['Wanderborne'],
+  ancestries: [
+    {
+      name: 'Human',
+      features: [
+        { name: 'High Stamina', text: 'Gain an additional Stress slot at character creation.' },
+        { name: 'Adaptability', text: 'When you fail a roll that utilized one of your Experiences, you can mark a Stress to reroll.' },
+      ],
+    },
+  ],
+  communities: [
+    {
+      name: 'Wanderborne',
+      adjectives: ['inscrutable', 'magnanimous', 'mirthful', 'reliable', 'savvy', 'unorthodox'],
+      feature: {
+        name: 'Nomadic Pack',
+        text: "Add a Nomadic Pack to your inventory. Once per session, you can spend a Hope to reach into this pack and pull out a mundane item that's useful to your situation.",
+      },
+    },
+  ],
   domains: [
     { name: 'Grace', classes: ['Bard'] },
     { name: 'Codex', classes: ['Bard'] },
