@@ -153,6 +153,9 @@ describe('PlayerPage', () => {
       secondary_weapons: [],
       armor: [],
       combat_wheelchair: [],
+      beastform_options: [],
+      loot: [],
+      consumables: [],
     });
     mocked.listMyCampaigns.mockResolvedValue([campaign]);
     mocked.listMyCharacters.mockResolvedValue([]);

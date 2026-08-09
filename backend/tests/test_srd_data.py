@@ -209,3 +209,32 @@ def test_combat_wheelchair_covers_three_frames_all_tiers() -> None:
     for tier in (1, 2, 3, 4):
         count = len([e for e in entries if e["tier"] == tier])
         assert count == 3, f"tier {tier}: expected 3 wheelchair frames, found {count}"
+
+
+def test_beastform_options_cover_all_tiers() -> None:
+    options = srd.beastform_options()
+    assert len(options) == 24, f"expected 24 beastform options, found {len(options)}"
+    for tier in (1, 2, 3, 4):
+        count = len([o for o in options if o["tier"] == tier])
+        assert count == 6, f"tier {tier}: expected 6 beastform options, found {count}"
+    for opt in options:
+        assert opt["category"] and opt["examples"]
+        assert len(opt["features"]) >= 1, f"{opt['category']} has no features"
+        for feat in opt["features"]:
+            assert feat["name"] and feat["text"]
+
+
+def test_loot_table_covers_rolls_1_through_60() -> None:
+    entries = srd.loot()
+    assert len(entries) == 60
+    assert sorted(e["roll"] for e in entries) == list(range(1, 61))
+    for entry in entries:
+        assert entry["name"] and entry["description"]
+
+
+def test_consumables_table_covers_rolls_1_through_60() -> None:
+    entries = srd.consumables()
+    assert len(entries) == 60
+    assert sorted(e["roll"] for e in entries) == list(range(1, 61))
+    for entry in entries:
+        assert entry["name"] and entry["description"]
