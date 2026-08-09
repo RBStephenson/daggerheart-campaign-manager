@@ -14,6 +14,22 @@ export interface SrdClass {
   subclasses: SrdSubclass[];
 }
 
+export interface SrdFeature {
+  name: string;
+  text: string;
+}
+
+export interface SrdAncestry {
+  name: string;
+  features: SrdFeature[];
+}
+
+export interface SrdCommunity {
+  name: string;
+  adjectives: string[];
+  feature: SrdFeature;
+}
+
 export interface SrdDomain {
   name: string;
   classes: string[];
@@ -49,8 +65,8 @@ export interface SrdCharacterCreationData {
   trait_array: number[];
   starting: { level: number; stress: number; hope: number; proficiency: number };
   classes: SrdClass[];
-  ancestries: string[];
-  communities: string[];
+  ancestries: SrdAncestry[];
+  communities: SrdCommunity[];
   domains: SrdDomain[];
   domain_cards_l1: SrdDomainCard[];
   weapons_tier1: SrdWeapon[];

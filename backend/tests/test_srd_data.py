@@ -9,6 +9,17 @@ character sheet.
 
 from app.services import srd
 
+EXPECTED_ANCESTRIES = {
+    "Clank", "Drakona", "Dwarf", "Elf", "Faerie", "Faun", "Firbolg", "Fungril",
+    "Galapa", "Giant", "Goblin", "Halfling", "Human", "Infernis", "Katari",
+    "Orc", "Ribbet", "Simiah",
+}
+
+EXPECTED_COMMUNITIES = {
+    "Highborne", "Loreborne", "Orderborne", "Ridgeborne", "Seaborne",
+    "Slyborne", "Underborne", "Wanderborne", "Wildborne",
+}
+
 # (class, {subclass: (foundation, specialization, mastery)}) counts, transcribed
 # directly from the SRD's per-class subclass sections.
 EXPECTED_SUBCLASS_FEATURE_COUNTS = {
@@ -91,3 +102,30 @@ def test_subclass_feature_counts_match_srd() -> None:
                     assert feat["name"] and feat["text"], (
                         f"{class_name}/{sub_name} has an incomplete {tier} entry"
                     )
+
+
+def test_all_eighteen_ancestries_have_two_features() -> None:
+    ancestries = srd.ancestries_by_name()
+    assert set(ancestries) == EXPECTED_ANCESTRIES
+    for name, ancestry in ancestries.items():
+        features = ancestry.get("features", [])
+        assert len(features) == 2, f"{name}: expected 2 ancestry features, found {len(features)}"
+        for feat in features:
+            assert feat["name"] and feat["text"], f"{name} has an incomplete ancestry feature"
+
+
+def test_mixed_ancestry_rules_present() -> None:
+    mixed = srd.get_dataset().get("mixed_ancestry")
+    assert mixed is not None
+    assert mixed["name"] and mixed["text"]
+
+
+def test_all_nine_communities_have_a_feature_and_six_adjectives() -> None:
+    communities = srd.communities_by_name()
+    assert set(communities) == EXPECTED_COMMUNITIES
+    for name, community in communities.items():
+        adjectives = community.get("adjectives", [])
+        assert len(adjectives) == 6, f"{name}: expected 6 adjectives, found {len(adjectives)}"
+        feature = community.get("feature")
+        assert feature is not None, f"{name} is missing its community feature"
+        assert feature["name"] and feature["text"], f"{name}'s community feature is incomplete"

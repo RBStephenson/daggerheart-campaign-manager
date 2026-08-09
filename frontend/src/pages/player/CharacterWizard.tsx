@@ -226,8 +226,8 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             >
               <option value="">Choose an ancestry…</option>
               {data.ancestries.map((a) => (
-                <option key={a} value={a}>
-                  {a}
+                <option key={a.name} value={a.name}>
+                  {a.name}
                 </option>
               ))}
             </select>
@@ -241,8 +241,8 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
             >
               <option value="">Choose a community…</option>
               {data.communities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+                <option key={c.name} value={c.name}>
+                  {c.name}
                 </option>
               ))}
             </select>
