@@ -10,6 +10,8 @@ services:
       DHCM_DATABASE_URL: sqlite:////data/dhcm.sqlite3
       DHCM_GM_USERNAME: ${DHCM_GM_USERNAME:-}
       DHCM_GM_PASSWORD: ${DHCM_GM_PASSWORD:-}
+      DHCM_PLAYER_USERNAME: ${DHCM_PLAYER_USERNAME:-}
+      DHCM_PLAYER_PASSWORD: ${DHCM_PLAYER_PASSWORD:-}
       DHCM_SECRET_KEY: ${DHCM_SECRET_KEY:-}
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 

@@ -56,9 +56,40 @@ def _bootstrap_gm_user() -> None:
         db.close()
 
 
+def _bootstrap_player_user() -> None:
+    """Create a test player account from env vars if that username doesn't
+    exist yet. Unlike the GM bootstrap (singleton — skip if any GM exists),
+    this checks for the specific username, since real players are created
+    via the invite/register flow and shouldn't collide with this test one."""
+    username = os.environ.get("DHCM_PLAYER_USERNAME")
+    password = os.environ.get("DHCM_PLAYER_PASSWORD")
+    if not username or not password:
+        logger.warning(
+            "DHCM_PLAYER_USERNAME / DHCM_PLAYER_PASSWORD not set — "
+            "skipping player account bootstrap"
+        )
+        return
+    db = SessionLocal()
+    try:
+        if db.scalar(select(User).where(User.username == username)) is not None:
+            return
+        db.add(
+            User(
+                username=username,
+                password_hash=hash_password(password),
+                role="player",
+                created_at=datetime.now(UTC),
+            )
+        )
+        db.commit()
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     _bootstrap_gm_user()
+    _bootstrap_player_user()
     yield
 
 
