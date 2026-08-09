@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete } from './client';
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from './client';
 
 export interface MemberCampaign {
   id: number;
@@ -18,7 +18,18 @@ export interface Character {
   community: string;
   level: number;
   extra: string;
+  hp_marked: number;
+  stress_marked: number;
+  hope: number;
+  armor_slots_marked: number;
   created_at: string;
+}
+
+export interface CharacterState {
+  hp_marked?: number;
+  stress_marked?: number;
+  hope?: number;
+  armor_slots_marked?: number;
 }
 
 export interface Note {
@@ -59,6 +70,10 @@ export function updateCharacter(
 
 export function deleteCharacter(id: number): Promise<void> {
   return apiDelete(`/api/player/characters/${id}`);
+}
+
+export function updateCharacterState(id: number, state: CharacterState): Promise<Character> {
+  return apiPatch(`/api/player/characters/${id}/state`, state);
 }
 
 export function getNote(campaignId: number): Promise<Note> {

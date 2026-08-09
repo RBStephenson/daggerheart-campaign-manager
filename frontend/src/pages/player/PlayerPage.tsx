@@ -9,10 +9,12 @@ import {
   listMyCampaigns,
   listMyCharacters,
   saveNote,
+  updateCharacterState,
   type Character,
   type MemberCampaign,
 } from '../../api/player';
-import { getCharacterCreationData } from '../../api/srd';
+import { getCharacterCreationData, type SrdArmor } from '../../api/srd';
+import CharacterSheetPanel from './CharacterSheetPanel';
 import CharacterWizard from './CharacterWizard';
 
 const cardClass = 'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -30,6 +32,12 @@ export default function PlayerPage() {
   // AppSettingsContext — probe the SRD endpoint itself and treat a 404 (flag
   // off) the same way every other player-area feature is gated: invisible.
   const [characterCreationAvailable, setCharacterCreationAvailable] = useState(false);
+  const [armorByName, setArmorByName] = useState<Record<string, SrdArmor>>({});
+  // Same probing pattern, but there's no dedicated GET to probe for this
+  // flag — PATCHing a character's state with an empty body is a true no-op
+  // (nothing in the body means nothing gets validated or set) so it's safe
+  // to use as the probe itself.
+  const [characterSheetAvailable, setCharacterSheetAvailable] = useState(false);
 
   const [noteCampaignId, setNoteCampaignId] = useState<number | null>(null);
   const [noteBody, setNoteBody] = useState('');
@@ -65,9 +73,22 @@ export default function PlayerPage() {
 
   useEffect(() => {
     getCharacterCreationData()
-      .then(() => setCharacterCreationAvailable(true))
+      .then((data) => {
+        setCharacterCreationAvailable(true);
+        setArmorByName(Object.fromEntries(data.armor.map((a) => [a.name, a])));
+      })
       .catch(() => setCharacterCreationAvailable(false));
   }, []);
+
+  useEffect(() => {
+    const withSheet = characters.find((c) => c.extra && c.extra !== '{}');
+    if (!withSheet) return;
+    updateCharacterState(withSheet.id, {})
+      .then(() => setCharacterSheetAvailable(true))
+      .catch((err: unknown) => {
+        if (err instanceof ApiError && err.status === 404) setCharacterSheetAvailable(false);
+      });
+  }, [characters]);
 
   useEffect(() => {
     if (noteCampaignId === null) return;
@@ -99,6 +120,10 @@ export default function PlayerPage() {
   async function handleDeleteCharacter(id: number) {
     await deleteCharacter(id);
     await refresh();
+  }
+
+  function handleCharacterStateUpdated(updated: Character) {
+    setCharacters((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   }
 
   async function handleSaveNote() {
@@ -249,22 +274,31 @@ export default function PlayerPage() {
         ) : (
           <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {characters.map((c) => (
-              <div key={c.id} className={`flex items-start justify-between gap-4 ${cardClass}`}>
-                <div className="min-w-0">
-                  <p className="break-words font-display text-base text-parchment">{c.name}</p>
-                  <p className="break-words text-sm text-parchment/50">
-                    {[c.char_class, c.ancestry, c.community].filter(Boolean).join(' · ') ||
-                      'No details yet'}{' '}
-                    · Level {c.level} · {campaignName(c.campaign_id)}
-                  </p>
+              <div key={c.id} className={cardClass}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="break-words font-display text-base text-parchment">{c.name}</p>
+                    <p className="break-words text-sm text-parchment/50">
+                      {[c.char_class, c.ancestry, c.community].filter(Boolean).join(' · ') ||
+                        'No details yet'}{' '}
+                      · Level {c.level} · {campaignName(c.campaign_id)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteCharacter(c.id)}
+                    className="shrink-0 rounded-md border border-hairline/20 px-3 py-2 text-sm text-parchment/70 hover:bg-white/5 hover:text-parchment"
+                  >
+                    Delete
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void handleDeleteCharacter(c.id)}
-                  className="shrink-0 rounded-md border border-hairline/20 px-3 py-2 text-sm text-parchment/70 hover:bg-white/5 hover:text-parchment"
-                >
-                  Delete
-                </button>
+                {characterSheetAvailable && (
+                  <CharacterSheetPanel
+                    character={c}
+                    armorByName={armorByName}
+                    onUpdated={handleCharacterStateUpdated}
+                  />
+                )}
               </div>
             ))}
           </div>

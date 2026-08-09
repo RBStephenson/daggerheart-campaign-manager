@@ -29,7 +29,40 @@ const character = {
   community: 'Highborne',
   level: 1,
   extra: '{}',
+  hp_marked: 0,
+  stress_marked: 0,
+  hope: 2,
+  armor_slots_marked: 0,
   created_at: '2026-01-01T00:00:00Z',
+};
+
+const sheetedCharacter = {
+  ...character,
+  id: 2,
+  extra: JSON.stringify({
+    hp_max: 6,
+    stress_max: 6,
+    equipment: { primary_weapon: 'Broadsword', armor: 'Leather Armor' },
+  }),
+};
+
+const srdWithArmor = {
+  version: 'test',
+  traits: [],
+  trait_array: [],
+  starting: { level: 1, stress: 6, hope: 2, proficiency: 1 },
+  classes: [],
+  ancestries: [],
+  communities: [],
+  domains: [],
+  domain_cards: [],
+  primary_weapons: [],
+  secondary_weapons: [],
+  armor: [{ tier: 1, name: 'Leather Armor', base_thresholds: [6, 13] as [number, number], base_score: 3, feature: null }],
+  combat_wheelchair: [],
+  beastform_options: [],
+  loot: [],
+  consumables: [],
 };
 
 describe('PlayerPage', () => {
@@ -164,5 +197,39 @@ describe('PlayerPage', () => {
     render(<PlayerPage />);
     await screen.findByRole('button', { name: 'Create Character (Guided)' });
     expect(screen.queryByPlaceholderText('Character name')).not.toBeInTheDocument();
+  });
+
+  it('marks HP on a sheeted character when character sheet tracking is enabled', async () => {
+    mockedSrd.mockResolvedValue(srdWithArmor);
+    mocked.listMyCampaigns.mockResolvedValue([campaign]);
+    mocked.listMyCharacters.mockResolvedValue([sheetedCharacter]);
+    mocked.getNote.mockResolvedValue({ campaign_id: 1, body: '', updated_at: '2026-01-01T00:00:00Z' });
+    mocked.updateCharacterState.mockResolvedValue({ ...sheetedCharacter, hp_marked: 1 });
+
+    render(<PlayerPage />);
+    await screen.findByText('Kael');
+
+    // The probe call (empty body) resolving is what reveals the tracker UI.
+    await waitFor(() => expect(mocked.updateCharacterState).toHaveBeenCalledWith(2, {}));
+    const markHp = await screen.findByRole('button', { name: 'Mark a HP' });
+    await userEvent.click(markHp);
+
+    await waitFor(() =>
+      expect(mocked.updateCharacterState).toHaveBeenCalledWith(2, { hp_marked: 1 }),
+    );
+    expect(await screen.findByText('1 / 6')).toBeInTheDocument();
+  });
+
+  it('hides the tracker UI when character sheet tracking is disabled (state PATCH 404s)', async () => {
+    mockedSrd.mockResolvedValue(srdWithArmor);
+    mocked.listMyCampaigns.mockResolvedValue([campaign]);
+    mocked.listMyCharacters.mockResolvedValue([sheetedCharacter]);
+    mocked.getNote.mockResolvedValue({ campaign_id: 1, body: '', updated_at: '2026-01-01T00:00:00Z' });
+    mocked.updateCharacterState.mockRejectedValue(new ApiError(404, 'not found'));
+
+    render(<PlayerPage />);
+    await screen.findByText('Kael');
+    await waitFor(() => expect(mocked.updateCharacterState).toHaveBeenCalledWith(2, {}));
+    expect(screen.queryByRole('button', { name: 'Mark a HP' })).not.toBeInTheDocument();
   });
 });

@@ -35,6 +35,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Session planning',
     description: "Draft a session's planned content ahead of play and attach Library entities.",
   },
+  character_sheet_enabled: {
+    label: 'Character sheet',
+    description: 'Mark/clear HP, Stress, Hope, and Armor Slots on a character during play.',
+  },
 };
 
 export default function HostSettingsPage() {
