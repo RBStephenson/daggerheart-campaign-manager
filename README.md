@@ -222,6 +222,10 @@ Scope: structured mechanical data + names. Full feature-card prose (subclass /
 ancestry / domain-card rules text) and the dedicated secondary-weapon table are
 deferred to a later ticket.
 
+This dataset is derived from the Daggerheart SRD, used as Public Game Content
+under the Darrington Press Community Gaming License — see
+[`NOTICE.md`](./NOTICE.md) for attribution and license terms.
+
 **Frontend**: `CharacterWizard` (`frontend/src/pages/player/CharacterWizard.tsx`)
 walks the 9 SRD steps (class+subclass, heritage, trait-array assignment, derived
 stats, equipment, experiences, domain cards, background/connections, review) and
