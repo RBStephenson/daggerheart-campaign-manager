@@ -29,7 +29,7 @@ class CharacterStateUpdate(BaseModel):
     armor_slots_marked: int | None = Field(default=None, ge=0)
 
 
-def _armor_score(sheet: CharacterSheet) -> int:
+def armor_score(sheet: CharacterSheet) -> int:
     armor = srd.armor_by_name().get(sheet.equipment.armor)
     if armor is None:
         # Sheet passed CharacterSheet validation, so this can't happen —
@@ -55,6 +55,6 @@ def validate_state_update(extra: str, update: CharacterStateUpdate) -> None:
     if update.stress_marked is not None and update.stress_marked > sheet.stress_max:
         raise ValueError(f"stress_marked can't exceed stress_max ({sheet.stress_max})")
     if update.armor_slots_marked is not None:
-        score = _armor_score(sheet)
+        score = armor_score(sheet)
         if update.armor_slots_marked > score:
             raise ValueError(f"armor_slots_marked can't exceed Armor Score ({score})")

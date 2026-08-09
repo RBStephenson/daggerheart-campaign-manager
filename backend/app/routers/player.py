@@ -12,6 +12,7 @@ from app.db import get_db
 from app.deps import require_role
 from app.models import Campaign, CampaignMembership, CampaignNote, Character, User
 from app.routers.settings import get_settings
+from app.schemas.character_rest import RestRequest, apply_rest
 from app.schemas.character_sheet import validate_extra
 from app.schemas.character_state import CharacterStateUpdate, validate_state_update
 from app.schemas.player import (
@@ -21,6 +22,7 @@ from app.schemas.player import (
     MemberCampaignOut,
     NoteOut,
     NoteUpdate,
+    RestResponse,
 )
 
 
@@ -31,6 +33,11 @@ def _require_player_area_enabled(db: Annotated[Session, Depends(get_db)]) -> Non
 
 def _require_character_sheet_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
     if not get_settings(db).get("character_sheet_enabled", False):
+        raise HTTPException(status_code=404)
+
+
+def _require_downtime_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
+    if not get_settings(db).get("downtime_enabled", False):
         raise HTTPException(status_code=404)
 
 
@@ -163,6 +170,53 @@ def update_character_state(
     db.commit()
     db.refresh(character)
     return character
+
+
+@router.get(
+    "/downtime",
+    dependencies=[Depends(_require_downtime_enabled)],
+)
+def downtime_available(
+    _player: Annotated[User, Depends(require_role("player"))],
+) -> dict[str, bool]:
+    """True no-op flag probe — the rest endpoint itself always mutates real
+    state (or is a state-dependent no-op), so it can't safely double as its
+    own availability check the way the empty-body state PATCH does."""
+    return {"available": True}
+
+
+@router.post(
+    "/characters/{character_id}/rest",
+    response_model=RestResponse,
+    dependencies=[Depends(_require_downtime_enabled)],
+)
+def rest_character(
+    character_id: int,
+    body: RestRequest,
+    db: Annotated[Session, Depends(get_db)],
+    player: Annotated[User, Depends(require_role("player"))],
+) -> RestResponse:
+    """Apply one SRD downtime rest move (short or long rest) to a character.
+
+    Self-targeting only — see `app.schemas.character_rest` for the full list
+    of scope trims against the SRD's Downtime section (DHCM-51).
+    """
+    character = _get_owned_character(character_id, db, player)
+    current = {
+        "hp_marked": character.hp_marked,
+        "stress_marked": character.stress_marked,
+        "armor_slots_marked": character.armor_slots_marked,
+        "hope": character.hope,
+    }
+    try:
+        result = apply_rest(character.extra, character.level, current, body)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    setattr(character, result.field, result.new_value)
+    db.commit()
+    db.refresh(character)
+    character_out = CharacterOut.model_validate(character, from_attributes=True)
+    return RestResponse(character=character_out, result=result)
 
 
 @router.delete("/characters/{character_id}", status_code=204)

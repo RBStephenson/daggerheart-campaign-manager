@@ -28,6 +28,7 @@ export const DEFAULTS: AppSettings = {
   library_enabled: false,
   session_planning_enabled: false,
   character_sheet_enabled: false,
+  downtime_enabled: false,
 };
 
 interface AppSettingsContextValue {

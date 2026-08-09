@@ -39,6 +39,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Character sheet',
     description: 'Mark/clear HP, Stress, Hope, and Armor Slots on a character during play.',
   },
+  downtime_enabled: {
+    label: 'Downtime',
+    description: 'Short and long rest downtime moves for players.',
+  },
 };
 
 export default function HostSettingsPage() {

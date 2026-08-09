@@ -68,9 +68,10 @@ const srdWithArmor = {
 describe('PlayerPage', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    // Default: character creation flag off (SRD endpoint 404s), matching the
-    // real backend's 404-when-disabled gate.
+    // Default: character creation and downtime flags off (their probes
+    // 404), matching the real backend's 404-when-disabled gate.
     mockedSrd.mockRejectedValue(new ApiError(404, 'not found'));
+    mocked.checkDowntimeAvailable.mockRejectedValue(new ApiError(404, 'not found'));
   });
 
   it('shows a disabled message when the backend 404s', async () => {
@@ -231,5 +232,42 @@ describe('PlayerPage', () => {
     await screen.findByText('Kael');
     await waitFor(() => expect(mocked.updateCharacterState).toHaveBeenCalledWith(2, {}));
     expect(screen.queryByRole('button', { name: 'Mark a HP' })).not.toBeInTheDocument();
+  });
+
+  it('shows rest controls and applies a move when downtime is enabled', async () => {
+    mockedSrd.mockResolvedValue(srdWithArmor);
+    mocked.listMyCampaigns.mockResolvedValue([campaign]);
+    mocked.listMyCharacters.mockResolvedValue([sheetedCharacter]);
+    mocked.getNote.mockResolvedValue({ campaign_id: 1, body: '', updated_at: '2026-01-01T00:00:00Z' });
+    mocked.updateCharacterState.mockResolvedValue(sheetedCharacter);
+    mocked.checkDowntimeAvailable.mockResolvedValue({ available: true });
+    mocked.restCharacter.mockResolvedValue({
+      character: { ...sheetedCharacter, hp_marked: 2 },
+      result: { field: 'hp_marked', roll: 2, tier: 1, amount: 3, new_value: 2 },
+    });
+
+    render(<PlayerPage />);
+    await screen.findByText('Kael');
+
+    const tendWounds = await screen.findByRole('button', { name: 'Tend to Wounds' });
+    await userEvent.click(tendWounds);
+
+    await waitFor(() =>
+      expect(mocked.restCharacter).toHaveBeenCalledWith(2, 'short', 'tend_wounds'),
+    );
+    expect(await screen.findByText(/Rolled 2 \+ Tier 1/)).toBeInTheDocument();
+  });
+
+  it('hides rest controls when downtime is disabled (availability probe 404s)', async () => {
+    mockedSrd.mockResolvedValue(srdWithArmor);
+    mocked.listMyCampaigns.mockResolvedValue([campaign]);
+    mocked.listMyCharacters.mockResolvedValue([sheetedCharacter]);
+    mocked.getNote.mockResolvedValue({ campaign_id: 1, body: '', updated_at: '2026-01-01T00:00:00Z' });
+    mocked.updateCharacterState.mockResolvedValue(sheetedCharacter);
+
+    render(<PlayerPage />);
+    await screen.findByText('Kael');
+    await waitFor(() => expect(mocked.checkDowntimeAvailable).toHaveBeenCalled());
+    expect(screen.queryByRole('button', { name: 'Tend to Wounds' })).not.toBeInTheDocument();
   });
 });

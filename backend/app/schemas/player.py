@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.character_rest import RestResult
+
 
 class CharacterCreate(BaseModel):
     campaign_id: int
@@ -71,3 +73,8 @@ class NoteOut(BaseModel):
 
 class NoteUpdate(BaseModel):
     body: str = Field(max_length=20000)
+
+
+class RestResponse(BaseModel):
+    character: CharacterOut
+    result: RestResult
