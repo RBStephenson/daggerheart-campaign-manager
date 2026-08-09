@@ -57,9 +57,9 @@ def test_dataset_shapes() -> None:
     assert len(data["communities"]) == 9
     assert len(data["domains"]) == 9
     assert data["trait_array"] == [2, 1, 1, 0, 0, -1]
-    # Every Level 1 domain card references a real domain.
+    # Every domain card references a real domain.
     domain_names = {d["name"] for d in data["domains"]}
-    for card in data["domain_cards_l1"]:
+    for card in data["domain_cards"]:
         assert card["domain"] in domain_names
 
 
@@ -227,8 +227,8 @@ def test_every_class_valid_baseline() -> None:
         data["subclass"] = cls["subclasses"][0]["name"]
         data["evasion"] = cls["starting_evasion"]
         data["hp_max"] = cls["starting_hp"]
-        # Two domain cards from this class's own domains.
-        cards = srd.get_dataset()["domain_cards_l1"]
+        # Two Level 1 domain cards from this class's own domains.
+        cards = [c for c in srd.get_dataset()["domain_cards"] if c["level"] == 1]
         picks = []
         for dom in cls["domains"]:
             card = next(c for c in cards if c["domain"] == dom)

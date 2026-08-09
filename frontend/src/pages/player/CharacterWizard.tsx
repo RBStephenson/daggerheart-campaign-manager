@@ -74,7 +74,10 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
   );
 
   const candidateDomainCards = useMemo(
-    () => data?.domain_cards_l1.filter((c) => selectedClass?.domains.includes(c.domain)) ?? [],
+    () =>
+      data?.domain_cards.filter(
+        (c) => c.level === 1 && selectedClass?.domains.includes(c.domain),
+      ) ?? [],
     [data, selectedClass],
   );
 

@@ -37,9 +37,11 @@ export interface SrdDomain {
 
 export interface SrdDomainCard {
   domain: string;
+  level: number;
   name: string;
   type: 'ability' | 'spell' | 'grimoire';
   recall_cost: number;
+  text: string;
 }
 
 export interface SrdWeapon {
@@ -68,7 +70,7 @@ export interface SrdCharacterCreationData {
   ancestries: SrdAncestry[];
   communities: SrdCommunity[];
   domains: SrdDomain[];
-  domain_cards_l1: SrdDomainCard[];
+  domain_cards: SrdDomainCard[];
   weapons_tier1: SrdWeapon[];
   armor_tier1: SrdArmor[];
 }

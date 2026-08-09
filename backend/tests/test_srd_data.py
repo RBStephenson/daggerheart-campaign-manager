@@ -129,3 +129,37 @@ def test_all_nine_communities_have_a_feature_and_six_adjectives() -> None:
         feature = community.get("feature")
         assert feature is not None, f"{name} is missing its community feature"
         assert feature["name"] and feature["text"], f"{name}'s community feature is incomplete"
+
+
+EXPECTED_DOMAINS = {
+    "Arcana", "Blade", "Bone", "Codex", "Grace", "Midnight", "Sage", "Splendor", "Valor",
+}
+
+
+def test_domain_card_set_matches_srd_totals() -> None:
+    cards = srd.domain_cards()
+    assert len(cards) == 189, f"expected 189 domain cards total, found {len(cards)}"
+
+    by_domain: dict[str, list[dict]] = {}
+    for card in cards:
+        by_domain.setdefault(card["domain"], []).append(card)
+    assert set(by_domain) == EXPECTED_DOMAINS
+
+    for domain, domain_cards in by_domain.items():
+        assert len(domain_cards) == 21, f"{domain}: expected 21 cards, found {len(domain_cards)}"
+        level_counts: dict[int, int] = {}
+        for card in domain_cards:
+            level_counts[card["level"]] = level_counts.get(card["level"], 0) + 1
+            assert card["type"] in ("ability", "spell", "grimoire"), (
+                f"{domain}/{card['name']}: bad type {card['type']!r}"
+            )
+            assert card["name"] and card["text"], f"{domain} card missing name/text: {card}"
+        assert level_counts.get(1) == 3, f"{domain}: expected 3 level-1 cards"
+        for level in range(2, 11):
+            assert level_counts.get(level) == 2, f"{domain} level {level}: expected 2 cards"
+
+
+def test_domain_cards_l1_by_key_only_returns_level_one() -> None:
+    cards = srd.domain_cards_l1_by_key()
+    assert len(cards) == 27
+    assert all(card["level"] == 1 for card in cards.values())

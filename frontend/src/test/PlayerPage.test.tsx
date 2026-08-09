@@ -148,7 +148,7 @@ describe('PlayerPage', () => {
       ancestries: [],
       communities: [],
       domains: [],
-      domain_cards_l1: [],
+      domain_cards: [],
       weapons_tier1: [],
       armor_tier1: [],
     });
