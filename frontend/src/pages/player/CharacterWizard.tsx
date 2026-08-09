@@ -68,9 +68,16 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
     [data, className],
   );
 
+  const tier1PrimaryWeapons = useMemo(
+    () => data?.primary_weapons.filter((w) => w.tier === 1) ?? [],
+    [data],
+  );
+
+  const tier1Armor = useMemo(() => data?.armor.filter((a) => a.tier === 1) ?? [], [data]);
+
   const primary = useMemo(
-    () => data?.weapons_tier1.find((w) => w.name === primaryWeapon) ?? null,
-    [data, primaryWeapon],
+    () => tier1PrimaryWeapons.find((w) => w.name === primaryWeapon) ?? null,
+    [tier1PrimaryWeapons, primaryWeapon],
   );
 
   const candidateDomainCards = useMemo(
@@ -304,7 +311,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose a weapon…</option>
-              {data.weapons_tier1.map((w) => (
+              {tier1PrimaryWeapons.map((w) => (
                 <option key={w.name} value={w.name}>
                   {w.name} — {w.trait}, {w.range}, {w.damage} ({w.burden})
                 </option>
@@ -320,7 +327,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
                 className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
                 <option value="">None</option>
-                {data.weapons_tier1
+                {tier1PrimaryWeapons
                   .filter((w) => w.burden === 'One-Handed' && w.name !== primaryWeapon)
                   .map((w) => (
                     <option key={w.name} value={w.name}>
@@ -338,7 +345,7 @@ export default function CharacterWizard({ campaignId, onCreated, onCancel }: Cha
               className="rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-parchment focus:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <option value="">Choose armor…</option>
-              {data.armor_tier1.map((a) => (
+              {tier1Armor.map((a) => (
                 <option key={a.name} value={a.name}>
                   {a.name} — thresholds {a.base_thresholds.join('/')}, score {a.base_score}
                 </option>

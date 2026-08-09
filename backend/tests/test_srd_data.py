@@ -163,3 +163,49 @@ def test_domain_cards_l1_by_key_only_returns_level_one() -> None:
     cards = srd.domain_cards_l1_by_key()
     assert len(cards) == 27
     assert all(card["level"] == 1 for card in cards.values())
+
+
+def test_primary_weapons_tier1_matches_wizard_expectations() -> None:
+    tier1 = srd.weapons_by_name()
+    assert len(tier1) == 25, f"expected 25 Tier 1 primary weapons, found {len(tier1)}"
+    assert all(w["tier"] == 1 for w in tier1.values())
+
+
+def test_primary_weapons_full_set_covers_all_tiers() -> None:
+    weapons = srd.primary_weapons()
+    assert len(weapons) == 155, f"expected 155 primary weapons, found {len(weapons)}"
+    for tier in (1, 2, 3, 4):
+        count = len([w for w in weapons if w["tier"] == tier])
+        assert count > 0, f"no primary weapons found for tier {tier}"
+        for w in weapons:
+            assert w["name"] and w["trait"] and w["range"] and w["damage"] and w["burden"]
+
+
+def test_secondary_weapons_present() -> None:
+    weapons = srd.secondary_weapons()
+    assert len(weapons) == 37, f"expected 37 secondary weapons, found {len(weapons)}"
+    for w in weapons:
+        assert w["name"] and w["trait"] and w["range"] and w["damage"]
+
+
+def test_armor_tier1_matches_wizard_expectations() -> None:
+    tier1 = srd.armor_names()
+    assert len(tier1) == 4, f"expected 4 Tier 1 armor entries, found {len(tier1)}"
+
+
+def test_armor_full_set_covers_all_tiers() -> None:
+    all_armor = srd.armor()
+    assert len(all_armor) == 34, f"expected 34 armor entries, found {len(all_armor)}"
+    for tier in (1, 2, 3, 4):
+        count = len([a for a in all_armor if a["tier"] == tier])
+        assert count > 0, f"no armor found for tier {tier}"
+        for a in all_armor:
+            assert a["name"] and len(a["base_thresholds"]) == 2 and a["base_score"] > 0
+
+
+def test_combat_wheelchair_covers_three_frames_all_tiers() -> None:
+    entries = srd.combat_wheelchair()
+    assert len(entries) == 12, f"expected 12 wheelchair entries, found {len(entries)}"
+    for tier in (1, 2, 3, 4):
+        count = len([e for e in entries if e["tier"] == tier])
+        assert count == 3, f"tier {tier}: expected 3 wheelchair frames, found {count}"

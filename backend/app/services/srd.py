@@ -26,13 +26,40 @@ def classes_by_name() -> dict[str, dict[str, Any]]:
 
 
 @lru_cache(maxsize=1)
+def primary_weapons() -> tuple[dict[str, Any], ...]:
+    """All primary weapons (tiers 1-4, physical and magic)."""
+    return tuple(get_dataset()["primary_weapons"])
+
+
+@lru_cache(maxsize=1)
+def secondary_weapons() -> tuple[dict[str, Any], ...]:
+    """All secondary weapons (tiers 1-4)."""
+    return tuple(get_dataset()["secondary_weapons"])
+
+
+@lru_cache(maxsize=1)
+def armor() -> tuple[dict[str, Any], ...]:
+    """All armor (tiers 1-4)."""
+    return tuple(get_dataset()["armor"])
+
+
+@lru_cache(maxsize=1)
+def combat_wheelchair() -> tuple[dict[str, Any], ...]:
+    """The Combat Wheelchair ruleset (light/heavy/arcane frames, tiers 1-4)."""
+    return tuple(get_dataset()["combat_wheelchair"])
+
+
+@lru_cache(maxsize=1)
 def weapons_by_name() -> dict[str, dict[str, Any]]:
-    return {w["name"]: w for w in get_dataset()["weapons_tier1"]}
+    """Tier 1 primary weapons only — the only tier available at character
+    creation."""
+    return {w["name"]: w for w in primary_weapons() if w["tier"] == 1}
 
 
 @lru_cache(maxsize=1)
 def armor_names() -> frozenset[str]:
-    return frozenset(a["name"] for a in get_dataset()["armor_tier1"])
+    """Tier 1 armor only — the only tier available at character creation."""
+    return frozenset(a["name"] for a in armor() if a["tier"] == 1)
 
 
 @lru_cache(maxsize=1)

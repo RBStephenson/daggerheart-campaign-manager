@@ -63,8 +63,9 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
     { domain: 'Codex', level: 1, name: 'Book of Ava', type: 'grimoire', recall_cost: 2, text: 'Test card text.' },
     { domain: 'Blade', level: 1, name: 'Whirlwind', type: 'ability', recall_cost: 0, text: 'Test card text.' },
   ],
-  weapons_tier1: [
+  primary_weapons: [
     {
+      tier: 1,
       name: 'Rapier',
       trait: 'Presence',
       range: 'Melee',
@@ -74,6 +75,7 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
       feature: null,
     },
     {
+      tier: 1,
       name: 'Dagger',
       trait: 'Finesse',
       range: 'Melee',
@@ -83,6 +85,7 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
       feature: null,
     },
     {
+      tier: 1,
       name: 'Longsword',
       trait: 'Agility',
       range: 'Melee',
@@ -92,7 +95,9 @@ const SRD_DATA: srdApi.SrdCharacterCreationData = {
       feature: null,
     },
   ],
-  armor_tier1: [{ name: 'Leather Armor', base_thresholds: [6, 13], base_score: 3, feature: null }],
+  secondary_weapons: [],
+  armor: [{ tier: 1, name: 'Leather Armor', base_thresholds: [6, 13], base_score: 3, feature: null }],
+  combat_wheelchair: [],
 };
 
 async function completeWizard() {

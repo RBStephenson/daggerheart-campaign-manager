@@ -33,3 +33,9 @@ def test_returns_dataset_when_enabled(as_user, db: Session) -> None:
     assert data["trait_array"] == [2, 1, 1, 0, 0, -1]
     assert len(data["domain_cards"]) == 189
     assert len([c for c in data["domain_cards"] if c["level"] == 1]) == 27
+    assert len(data["primary_weapons"]) == 155
+    assert len([w for w in data["primary_weapons"] if w["tier"] == 1]) == 25
+    assert len(data["secondary_weapons"]) == 37
+    assert len(data["armor"]) == 34
+    assert len([a for a in data["armor"] if a["tier"] == 1]) == 4
+    assert len(data["combat_wheelchair"]) == 12
