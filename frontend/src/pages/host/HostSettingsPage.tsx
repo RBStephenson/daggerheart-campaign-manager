@@ -43,6 +43,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Downtime',
     description: 'Short and long rest downtime moves for players.',
   },
+  combat_tools_enabled: {
+    label: 'Combat tools',
+    description: "The GM's shared Fear pool, tracked per campaign.",
+  },
 };
 
 export default function HostSettingsPage() {
