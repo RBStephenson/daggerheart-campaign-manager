@@ -45,6 +45,14 @@ export default function GmGuide() {
         </p>
       </HelpSection>
 
+      <HelpSection title="Watching the party" flag="player_area_enabled">
+        <p>
+          On a campaign's card, click <strong>Party</strong> to see every player's characters —
+          name, class, and (once a player has a completed sheet) their current HP, Stress, and
+          Hope. This is read-only; players still mark their own trackers from the Player area.
+        </p>
+      </HelpSection>
+
       <HelpSection title="Session planning" flag="session_planning_enabled">
         <p>
           On a campaign's card, click <strong>Session plans</strong> to draft what you expect to

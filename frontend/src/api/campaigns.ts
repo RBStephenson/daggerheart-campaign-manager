@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from './client';
+import type { Character } from './player';
 
 export interface Campaign {
   id: number;
@@ -111,4 +112,13 @@ export function advanceCountdown(
 
 export function deleteCountdown(campaignId: number, countdownId: number): Promise<void> {
   return apiDelete(`/api/campaigns/${campaignId}/countdowns/${countdownId}`);
+}
+
+export interface PartyMember {
+  player_username: string;
+  character: Character;
+}
+
+export function getParty(campaignId: number): Promise<PartyMember[]> {
+  return apiGet(`/api/campaigns/${campaignId}/party`);
 }

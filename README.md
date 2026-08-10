@@ -159,6 +159,22 @@ room key is `session-{id}` (see [Realtime](#realtime)).
 | `POST /api/campaigns/{id}/members` | Add a player by username (404 if not a `player` account) |
 | `DELETE /api/campaigns/{id}/members/{user_id}` | Remove a player |
 
+### Party view
+
+`GET /api/campaigns/{id}/party` — a read-only list of every campaign member's
+characters (`PartyMemberOut`: `player_username` + the same `CharacterOut` shape
+player.py returns). Before this, the GM had no visibility into player
+characters at all — no endpoint, no UI. `PartyPanel`
+(`frontend/src/pages/gm/PartyPanel.tsx`) is a toggleable panel per campaign
+card, gated on `player_area_enabled` in the UI (the endpoint itself only needs
+`campaigns_enabled`, but there's nothing to show without characters). A member
+can have more than one character — `Character` has no uniqueness constraint on
+`(campaign_id, player_user_id)` — so the list is per-character, not per-member.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/campaigns/{id}/party` | Every member's characters, read-only — gm only |
+
 ## Player: characters, campaigns, notes
 
 Behind the `player_area_enabled` feature flag (default off, toggle on
