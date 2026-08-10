@@ -57,6 +57,9 @@ class Campaign(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     gm_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    # The GM's shared Fear pool (0-12 per the SRD). Campaign-scoped rather
+    # than session-scoped, since Fear explicitly carries over between sessions.
+    fear: Mapped[int] = mapped_column(nullable=False, default=0)
 
 
 class GameSession(Base):

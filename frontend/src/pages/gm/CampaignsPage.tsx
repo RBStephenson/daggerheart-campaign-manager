@@ -2,7 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react';
 import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
+import { useAppSettings } from '../../context/AppSettingsContext';
 import ChatPanel from '../../components/ChatPanel';
+import FearTracker from './FearTracker';
 import InvitePlayerPanel from './InvitePlayerPanel';
 import MembersPanel from './MembersPanel';
 import SessionPlansPanel from './SessionPlansPanel';
@@ -28,6 +30,7 @@ const ghostButtonClass =
   'rounded-md border border-hairline/20 px-3 py-2 text-sm text-parchment/70 transition-colors hover:bg-white/5 hover:text-parchment focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember';
 
 export default function CampaignsPage() {
+  const { settings } = useAppSettings();
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
   const [activeSessions, setActiveSessions] = useState<ActiveSessions>({});
   const [disabled, setDisabled] = useState(false);
@@ -102,6 +105,12 @@ export default function CampaignsPage() {
   async function handleEndSession(campaignId: number, sessionId: number) {
     await endSession(campaignId, sessionId);
     await refresh();
+  }
+
+  function handleFearChange(campaignId: number, fear: number) {
+    setCampaigns((prev) =>
+      prev?.map((c) => (c.id === campaignId ? { ...c, fear } : c)) ?? prev,
+    );
   }
 
   if (disabled) {
@@ -197,9 +206,18 @@ export default function CampaignsPage() {
                           </p>
                         )}
                       </div>
-                      <Badge variant={activeSession ? 'success' : 'neutral'}>
-                        {activeSession ? 'Session active' : 'No active session'}
-                      </Badge>
+                      <div className="flex shrink-0 items-center gap-3">
+                        {settings.combat_tools_enabled && (
+                          <FearTracker
+                            campaignId={campaign.id}
+                            fear={campaign.fear}
+                            onChange={(fear) => handleFearChange(campaign.id, fear)}
+                          />
+                        )}
+                        <Badge variant={activeSession ? 'success' : 'neutral'}>
+                          {activeSession ? 'Session active' : 'No active session'}
+                        </Badge>
+                      </div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {activeSession ? (

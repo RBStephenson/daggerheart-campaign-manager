@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { apiGet, apiPut } from '../api/client';
+import { useAuth } from './AuthContext';
 
 /**
  * All application settings. Mirror of backend DEFAULTS in
@@ -29,6 +30,7 @@ export const DEFAULTS: AppSettings = {
   session_planning_enabled: false,
   character_sheet_enabled: false,
   downtime_enabled: false,
+  combat_tools_enabled: false,
 };
 
 interface AppSettingsContextValue {
@@ -46,11 +48,24 @@ const AppSettingsContext = createContext<AppSettingsContextValue>({
 });
 
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [settings, setSettings] = useState<AppSettings>(DEFAULTS);
   const [loading, setLoading] = useState(true);
 
+  // Refetch whenever the authenticated user changes (login/logout/switch
+  // account), not just once at initial app boot. GET /api/settings requires
+  // a GM session, so a fetch that only ran on mount would 401 on the
+  // pre-login boot request and never retry — every setting would silently
+  // stay at its DEFAULTS value for the rest of the session even after a
+  // real GM logged in, with no client-side hard reload to paper over it.
   useEffect(() => {
+    if (!user) {
+      setSettings(DEFAULTS);
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
+    setLoading(true);
     apiGet<AppSettings>('/api/settings')
       .then((data) => {
         if (!cancelled) setSettings(data);
@@ -64,7 +79,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   const updateSettings = useCallback(async (updates: Partial<AppSettings>) => {
     const data = await apiPut<AppSettings>('/api/settings', updates);

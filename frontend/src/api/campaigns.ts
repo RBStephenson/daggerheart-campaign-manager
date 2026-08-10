@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from './client';
 
 export interface Campaign {
   id: number;
@@ -6,6 +6,7 @@ export interface Campaign {
   description: string;
   gm_user_id: number;
   created_at: string;
+  fear: number;
 }
 
 export interface GameSession {
@@ -66,4 +67,8 @@ export function addMember(campaignId: number, username: string): Promise<Campaig
 
 export function removeMember(campaignId: number, playerUserId: number): Promise<void> {
   return apiDelete(`/api/campaigns/${campaignId}/members/${playerUserId}`);
+}
+
+export function adjustFear(campaignId: number, delta: number): Promise<{ fear: number }> {
+  return apiPatch(`/api/campaigns/${campaignId}/fear`, { delta });
 }

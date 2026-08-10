@@ -23,6 +23,7 @@ class CampaignOut(BaseModel):
     description: str
     gm_user_id: int
     created_at: datetime
+    fear: int
 
 
 class GameSessionOut(BaseModel):

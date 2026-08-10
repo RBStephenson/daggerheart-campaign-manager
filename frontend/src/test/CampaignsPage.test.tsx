@@ -4,10 +4,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/client';
 import * as campaignsApi from '../api/campaigns';
 import * as sessionPlansApi from '../api/sessionPlans';
+import * as appSettings from '../context/AppSettingsContext';
 import CampaignsPage from '../pages/gm/CampaignsPage';
 
 vi.mock('../api/campaigns');
 vi.mock('../api/sessionPlans');
+vi.mock('../context/AppSettingsContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../context/AppSettingsContext')>();
+  return { ...actual, useAppSettings: vi.fn(() => ({ settings: actual.DEFAULTS, loading: false, updateSettings: vi.fn() })) };
+});
 vi.mock('../pages/gm/MembersPanel', () => ({
   default: ({ campaignId }: { campaignId: number }) => (
     <div data-testid="members-panel">{campaignId}</div>
@@ -21,11 +26,17 @@ vi.mock('../components/ChatPanel', () => ({
 }));
 const mocked = vi.mocked(campaignsApi);
 const mockedPlans = vi.mocked(sessionPlansApi);
+const mockedSettings = vi.mocked(appSettings.useAppSettings);
 
 describe('CampaignsPage', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mocked.listSessions.mockResolvedValue([]);
+    mockedSettings.mockReturnValue({
+      settings: appSettings.DEFAULTS,
+      loading: false,
+      updateSettings: vi.fn(),
+    });
   });
 
   it('shows a disabled message when the backend 404s', async () => {
@@ -55,6 +66,7 @@ describe('CampaignsPage', () => {
         name: 'Windmere',
         description: 'A start',
         gm_user_id: 1,
+        fear: 0,
         created_at: '2026-01-01T00:00:00Z',
       },
     ]);
@@ -82,6 +94,7 @@ describe('CampaignsPage', () => {
       name: 'New Campaign',
       description: '',
       gm_user_id: 1,
+      fear: 0,
       created_at: '2026-01-01T00:00:00Z',
     });
 
@@ -103,6 +116,7 @@ describe('CampaignsPage', () => {
         name: 'Windmere',
         description: '',
         gm_user_id: 1,
+        fear: 0,
         created_at: '2026-01-01T00:00:00Z',
       },
     ]);
@@ -129,6 +143,7 @@ describe('CampaignsPage', () => {
         name: 'Windmere',
         description: '',
         gm_user_id: 1,
+        fear: 0,
         created_at: '2026-01-01T00:00:00Z',
       },
     ]);
@@ -149,6 +164,7 @@ describe('CampaignsPage', () => {
         name: 'Windmere',
         description: '',
         gm_user_id: 1,
+        fear: 0,
         created_at: '2026-01-01T00:00:00Z',
       },
     ]);
@@ -159,5 +175,36 @@ describe('CampaignsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Members' }));
     expect(screen.getByTestId('members-panel')).toHaveTextContent('1');
     expect(screen.getByRole('button', { name: 'Hide members' })).toBeInTheDocument();
+  });
+
+  it('hides the Fear tracker when combat_tools_enabled is off', async () => {
+    mocked.listCampaigns.mockResolvedValue([
+      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 3, created_at: '2026-01-01T00:00:00Z' },
+    ]);
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    expect(screen.queryByRole('group', { name: 'Fear pool' })).not.toBeInTheDocument();
+  });
+
+  it('shows and adjusts the Fear tracker when combat_tools_enabled is on', async () => {
+    mockedSettings.mockReturnValue({
+      settings: { ...appSettings.DEFAULTS, combat_tools_enabled: true },
+      loading: false,
+      updateSettings: vi.fn(),
+    });
+    mocked.listCampaigns.mockResolvedValue([
+      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 3, created_at: '2026-01-01T00:00:00Z' },
+    ]);
+    mocked.adjustFear.mockResolvedValue({ fear: 4 });
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    expect(screen.getByRole('group', { name: 'Fear pool' })).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Gain a Fear' }));
+    await waitFor(() => expect(mocked.adjustFear).toHaveBeenCalledWith(1, 1));
+    await waitFor(() => expect(screen.getByText('4')).toBeInTheDocument());
   });
 });
