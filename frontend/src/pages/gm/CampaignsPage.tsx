@@ -3,6 +3,7 @@ import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import ChatPanel from '../../components/ChatPanel';
+import InvitePlayerPanel from './InvitePlayerPanel';
 import MembersPanel from './MembersPanel';
 import SessionPlansPanel from './SessionPlansPanel';
 import {
@@ -128,6 +129,8 @@ export default function CampaignsPage() {
           </button>
         </div>
       )}
+
+      <InvitePlayerPanel />
 
       <form onSubmit={(e) => void handleCreate(e)} className={`mb-6 flex max-w-md flex-col gap-2 ${cardClass}`}>
         <h2 className="mb-1 font-display text-sm tracking-wide text-parchment/80">

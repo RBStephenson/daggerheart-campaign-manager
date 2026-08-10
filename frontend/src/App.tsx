@@ -9,6 +9,7 @@ import HostPage from './pages/host/HostPage';
 import HostSettingsPage from './pages/host/HostSettingsPage';
 import LoginPage from './pages/login/LoginPage';
 import PlayerPage from './pages/player/PlayerPage';
+import RegisterPage from './pages/register/RegisterPage';
 
 export default function App() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
           }
         />
         <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
       </Route>
     </Routes>
   );

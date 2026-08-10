@@ -20,6 +20,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  register: (token: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -27,6 +28,9 @@ const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
   login: async () => {
+    throw new Error('AuthProvider missing');
+  },
+  register: async () => {
     throw new Error('AuthProvider missing');
   },
   logout: async () => {
@@ -60,13 +64,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data);
   }, []);
 
+  const register = useCallback(async (token: string, username: string, password: string) => {
+    const data = await apiPost<AuthUser>('/api/auth/register', { token, username, password });
+    setUser(data);
+  }, []);
+
   const logout = useCallback(async () => {
     await apiPost('/api/auth/logout');
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
