@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useAppSettings } from '../../context/AppSettingsContext';
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
   `border-b-2 px-1 py-2 text-sm font-medium transition-colors ${
@@ -8,6 +9,7 @@ const tabClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 export default function GmPage() {
+  const { settings } = useAppSettings();
   return (
     <section
       aria-label="Gamemaster"
@@ -26,6 +28,11 @@ export default function GmPage() {
           <NavLink to="/gm/library" className={tabClass}>
             Library
           </NavLink>
+          {settings.combat_tools_enabled && (
+            <NavLink to="/gm/bestiary" className={tabClass}>
+              Bestiary
+            </NavLink>
+          )}
         </div>
 
         <Outlet />

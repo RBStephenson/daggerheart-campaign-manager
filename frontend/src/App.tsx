@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import BestiaryPage from './pages/gm/BestiaryPage';
 import CampaignsPage from './pages/gm/CampaignsPage';
 import GmPage from './pages/gm/GmPage';
 import LibraryPage from './pages/gm/LibraryPage';
@@ -37,6 +38,7 @@ export default function App() {
         >
           <Route index element={<CampaignsPage />} />
           <Route path="library" element={<LibraryPage />} />
+          <Route path="bestiary" element={<BestiaryPage />} />
         </Route>
         <Route
           path="player"
