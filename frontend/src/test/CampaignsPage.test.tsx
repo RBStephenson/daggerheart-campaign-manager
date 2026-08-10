@@ -13,6 +13,9 @@ vi.mock('../pages/gm/MembersPanel', () => ({
     <div data-testid="members-panel">{campaignId}</div>
   ),
 }));
+vi.mock('../pages/gm/InvitePlayerPanel', () => ({
+  default: () => <div data-testid="invite-player-panel" />,
+}));
 vi.mock('../components/ChatPanel', () => ({
   default: ({ room }: { room: string }) => <div data-testid="chat-panel">{room}</div>,
 }));
@@ -37,6 +40,12 @@ describe('CampaignsPage', () => {
     mocked.listCampaigns.mockResolvedValue([]);
     render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByText(/No campaigns yet/)).toBeInTheDocument());
+  });
+
+  it('always renders the invite-player panel', async () => {
+    mocked.listCampaigns.mockResolvedValue([]);
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByTestId('invite-player-panel')).toBeInTheDocument());
   });
 
   it('lists campaigns with active session status', async () => {

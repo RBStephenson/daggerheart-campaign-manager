@@ -22,6 +22,13 @@ function mockFetch(currentUser: MockUser) {
           json: () => Promise.resolve({ id: 1, username: 'alice', role: 'gm' }),
         });
       }
+      if (url === '/api/auth/register' && init?.method === 'POST') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ id: 2, username: 'bob', role: 'player' }),
+        });
+      }
       if (url.startsWith('/api/campaigns') || url.startsWith('/api/player')) {
         return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) });
       }
@@ -114,6 +121,28 @@ describe('App', () => {
 
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: 'Gamemaster' })).toBeInTheDocument(),
+    );
+  });
+
+  it('shows an error on /register with no token in the URL', async () => {
+    renderApp('/register', null);
+    await waitFor(() =>
+      expect(screen.getByText(/missing an invite token/i)).toBeInTheDocument(),
+    );
+  });
+
+  it('registers with a valid token and lands in the player area', async () => {
+    renderApp('/register?token=abc123', null);
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Register' })).toBeInTheDocument(),
+    );
+
+    await userEvent.type(screen.getByLabelText('Username'), 'bob');
+    await userEvent.type(screen.getByLabelText('Password'), 'a-real-password');
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Player' })).toBeInTheDocument(),
     );
   });
 });
