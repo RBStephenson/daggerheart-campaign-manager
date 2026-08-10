@@ -18,6 +18,11 @@ vi.mock('../pages/gm/MembersPanel', () => ({
     <div data-testid="members-panel">{campaignId}</div>
   ),
 }));
+vi.mock('../pages/gm/CountdownsPanel', () => ({
+  default: ({ campaignId }: { campaignId: number }) => (
+    <div data-testid="countdowns-panel">{campaignId}</div>
+  ),
+}));
 vi.mock('../pages/gm/InvitePlayerPanel', () => ({
   default: () => <div data-testid="invite-player-panel" />,
 }));
@@ -206,5 +211,33 @@ describe('CampaignsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Gain a Fear' }));
     await waitFor(() => expect(mocked.adjustFear).toHaveBeenCalledWith(1, 1));
     await waitFor(() => expect(screen.getByText('4')).toBeInTheDocument());
+  });
+
+  it('hides the Countdowns button when combat_tools_enabled is off', async () => {
+    mocked.listCampaigns.mockResolvedValue([
+      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
+    ]);
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: 'Countdowns' })).not.toBeInTheDocument();
+  });
+
+  it('toggles the countdowns panel for a campaign when combat_tools_enabled is on', async () => {
+    mockedSettings.mockReturnValue({
+      settings: { ...appSettings.DEFAULTS, combat_tools_enabled: true },
+      loading: false,
+      updateSettings: vi.fn(),
+    });
+    mocked.listCampaigns.mockResolvedValue([
+      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
+    ]);
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Countdowns' }));
+    expect(screen.getByTestId('countdowns-panel')).toHaveTextContent('1');
+    expect(screen.getByRole('button', { name: 'Hide countdowns' })).toBeInTheDocument();
   });
 });

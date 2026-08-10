@@ -139,6 +139,29 @@ class Character(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
+class Countdown(Base):
+    """A GM-tracked countdown, scoped to a campaign.
+
+    Ticks down from `starting_value` to 0 as the table advances it (an
+    action roll for a standard countdown, GM judgment for a dynamic one —
+    the SRD's advancement chart is a GM narrative call, not something the
+    software enforces). `triggered_at` records the most recent time it hit
+    0; `loop` countdowns reset to `starting_value` at that point instead of
+    sitting at 0.
+    """
+
+    __tablename__ = "countdowns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    starting_value: Mapped[int] = mapped_column(nullable=False)
+    current_value: Mapped[int] = mapped_column(nullable=False)
+    loop: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    triggered_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
 class CampaignNote(Base):
     """A player's private notes for a campaign — one per player per campaign."""
 

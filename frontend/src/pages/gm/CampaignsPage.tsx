@@ -4,6 +4,7 @@ import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import { useAppSettings } from '../../context/AppSettingsContext';
 import ChatPanel from '../../components/ChatPanel';
+import CountdownsPanel from './CountdownsPanel';
 import FearTracker from './FearTracker';
 import InvitePlayerPanel from './InvitePlayerPanel';
 import MembersPanel from './MembersPanel';
@@ -39,6 +40,7 @@ export default function CampaignsPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [planningCampaignId, setPlanningCampaignId] = useState<number | null>(null);
   const [membersCampaignId, setMembersCampaignId] = useState<number | null>(null);
+  const [countdownsCampaignId, setCountdownsCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -265,6 +267,19 @@ export default function CampaignsPage() {
                       >
                         {membersCampaignId === campaign.id ? 'Hide members' : 'Members'}
                       </button>
+                      {settings.combat_tools_enabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCountdownsCampaignId(
+                              countdownsCampaignId === campaign.id ? null : campaign.id,
+                            )
+                          }
+                          className={ghostButtonClass}
+                        >
+                          {countdownsCampaignId === campaign.id ? 'Hide countdowns' : 'Countdowns'}
+                        </button>
+                      )}
                     </div>
                     {activeSession && <ChatPanel room={activeSession.room} />}
                     {planningCampaignId === campaign.id && (
@@ -275,6 +290,11 @@ export default function CampaignsPage() {
                     {membersCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
                         <MembersPanel campaignId={campaign.id} />
+                      </div>
+                    )}
+                    {countdownsCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <CountdownsPanel campaignId={campaign.id} />
                       </div>
                     )}
                   </>
