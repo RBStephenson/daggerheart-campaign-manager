@@ -263,3 +263,66 @@ set) is tracked as a separate future epic — this dataset is currently read-onl
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/srd/character-creation` | The SRD character-creation reference dataset (auth required) |
+
+## Bestiary (Daggerheart SRD)
+
+Read-only reference data, gated by `combat_tools_enabled` (default off, toggle on
+`/host/settings`). `backend/app/data/srd/bestiary.json` holds all 129 SRD adversary
+stat blocks and 19 environment stat blocks, transcribed verbatim (see
+[`NOTICE.md`](./NOTICE.md) for SRD attribution).
+
+`BestiaryPage` (`frontend/src/pages/gm/BestiaryPage.tsx`, `/gm/bestiary`) lets the GM
+search and tier-filter both, and expand a card for the full stat block. "Add to
+Library" on an adversary card spawns it as a real Library `Adversary` entity
+(the GM worldbuilding feature behind `library_enabled` — worlds, Continents,
+Regions, Locations, Factions, NPCs, and Adversaries, see
+`backend/app/routers/library.py`) via the existing generic entity-create
+endpoint — no dedicated spawn endpoint exists, the stat block is just serialized
+into that entity's `extra` field. Environments have no Library equivalent yet, so
+they're browse-only.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/bestiary/` | The full adversary + environment dataset — gm only |
+
+## Combat tools: Fear pool & countdowns
+
+Behind the `combat_tools_enabled` feature flag (default off, toggle on
+`/host/settings`). GM-only, scoped to the owning GM (same 404-not-403 pattern as
+campaigns).
+
+**Fear pool** — `fear` is a column on `Campaign` (not `GameSession`), since the SRD
+specifies Fear carries over between sessions rather than resetting. Clamped to
+0–12. `FearTracker` (`frontend/src/pages/gm/FearTracker.tsx`) renders a +/- counter
+on each campaign card in `CampaignsPage`.
+
+**Countdowns** — a new `Countdown` model (migration 0013) scoped to a campaign:
+`starting_value`, `current_value`, and a `loop` flag. Advancing ticks
+`current_value` down by the given delta; when it reaches 0, a loop countdown
+resets to `starting_value` and a non-loop one sticks at 0 (both set
+`triggered_at`). The SRD's dynamic-countdown advancement chart (how many ticks a
+given roll result is worth) is GM judgment, not enforced by the API — the GM
+calls the advance endpoint as many times as the table decides. `CountdownsPanel`
+(`frontend/src/pages/gm/CountdownsPanel.tsx`) is a toggleable panel per campaign
+card, mirroring `MembersPanel`'s CRUD layout.
+
+| Endpoint | Description |
+| --- | --- |
+| `PATCH /api/campaigns/{id}/fear` | `{delta}` → adjust Fear, clamped 0–12 |
+| `GET /api/campaigns/{id}/countdowns` | List a campaign's countdowns |
+| `POST /api/campaigns/{id}/countdowns` | `{name, starting_value, loop}` → create |
+| `PATCH /api/campaigns/{id}/countdowns/{cid}` | `{delta}` → advance (ticks down) |
+| `DELETE /api/campaigns/{id}/countdowns/{cid}` | Remove a countdown |
+
+## Help pages
+
+`/help` (`frontend/src/pages/help/HelpPage.tsx`), linked from the top nav whenever
+a user is logged in. No feature flag — always available, and covers every
+feature regardless of what's currently enabled (each section notes the flag it
+needs). Shows `GmGuide.tsx` or `PlayerGuide.tsx` depending on the logged-in
+user's role; both are static content, structured as collapsible sections
+(`HelpSection.tsx`) in the order a GM or player would actually use the app.
+
+**Update the relevant guide in the same PR whenever a GM- or player-facing
+feature changes** — same doc-currency expectation as this README, just aimed at
+end users instead of developers.

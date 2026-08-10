@@ -5,6 +5,7 @@ import BestiaryPage from './pages/gm/BestiaryPage';
 import CampaignsPage from './pages/gm/CampaignsPage';
 import GmPage from './pages/gm/GmPage';
 import LibraryPage from './pages/gm/LibraryPage';
+import HelpPage from './pages/help/HelpPage';
 import DataManagementPage from './pages/host/DataManagementPage';
 import HostPage from './pages/host/HostPage';
 import HostSettingsPage from './pages/host/HostSettingsPage';
@@ -45,6 +46,14 @@ export default function App() {
           element={
             <ProtectedRoute roles={['player']}>
               <PlayerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="help"
+          element={
+            <ProtectedRoute roles={['gm', 'player']}>
+              <HelpPage />
             </ProtectedRoute>
           }
         />
