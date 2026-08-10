@@ -10,7 +10,15 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import require_role
-from app.models import Campaign, CampaignMembership, CampaignNote, Character, Countdown, User
+from app.models import (
+    Campaign,
+    CampaignMembership,
+    CampaignNote,
+    Character,
+    Countdown,
+    GameSession,
+    User,
+)
 from app.routers.settings import get_settings
 from app.schemas.character_rest import RestRequest, apply_rest
 from app.schemas.character_sheet import validate_extra
@@ -25,6 +33,7 @@ from app.schemas.player import (
     NoteUpdate,
     RestResponse,
 )
+from app.services.realtime import broadcast_to_campaign
 
 
 def _require_combat_tools_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
@@ -84,14 +93,34 @@ def _get_owned_character(character_id: int, db: Session, player: User) -> Charac
 def list_my_campaigns(
     db: Annotated[Session, Depends(get_db)],
     player: Annotated[User, Depends(require_role("player"))],
-) -> list[Campaign]:
-    return list(
+) -> list[MemberCampaignOut]:
+    campaigns = list(
         db.scalars(
             select(Campaign)
             .join(CampaignMembership, CampaignMembership.campaign_id == Campaign.id)
             .where(CampaignMembership.player_user_id == player.id)
         )
     )
+    active_sessions = {
+        session.campaign_id: session
+        for session in db.scalars(
+            select(GameSession).where(
+                GameSession.campaign_id.in_([c.id for c in campaigns]),
+                GameSession.status == "active",
+            )
+        )
+    }
+    return [
+        MemberCampaignOut(
+            id=c.id,
+            name=c.name,
+            description=c.description,
+            gm_user_id=c.gm_user_id,
+            created_at=c.created_at,
+            active_session_room=active_sessions[c.id].room if c.id in active_sessions else None,
+        )
+        for c in campaigns
+    ]
 
 
 @router.get(
@@ -192,7 +221,7 @@ def update_character(
     response_model=CharacterOut,
     dependencies=[Depends(_require_character_sheet_enabled)],
 )
-def update_character_state(
+async def update_character_state(
     character_id: int,
     body: CharacterStateUpdate,
     db: Annotated[Session, Depends(get_db)],
@@ -213,6 +242,12 @@ def update_character_state(
         setattr(character, field, value)
     db.commit()
     db.refresh(character)
+    character_out = CharacterOut.model_validate(character, from_attributes=True)
+    await broadcast_to_campaign(
+        character.campaign_id,
+        db,
+        {"type": "character_state", "payload": character_out.model_dump(mode="json")},
+    )
     return character
 
 
@@ -234,7 +269,7 @@ def downtime_available(
     response_model=RestResponse,
     dependencies=[Depends(_require_downtime_enabled)],
 )
-def rest_character(
+async def rest_character(
     character_id: int,
     body: RestRequest,
     db: Annotated[Session, Depends(get_db)],
@@ -260,6 +295,11 @@ def rest_character(
     db.commit()
     db.refresh(character)
     character_out = CharacterOut.model_validate(character, from_attributes=True)
+    await broadcast_to_campaign(
+        character.campaign_id,
+        db,
+        {"type": "character_state", "payload": character_out.model_dump(mode="json")},
+    )
     return RestResponse(character=character_out, result=result)
 
 

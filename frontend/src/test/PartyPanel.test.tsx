@@ -1,10 +1,19 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as campaignsApi from '../api/campaigns';
+import type { Envelope } from '../hooks/useWebSocket';
 import PartyPanel from '../pages/gm/PartyPanel';
 
 vi.mock('../api/campaigns');
 const mocked = vi.mocked(campaignsApi);
+
+let capturedOnMessage: ((envelope: Envelope) => void) | undefined;
+vi.mock('../hooks/useWebSocket', () => ({
+  useWebSocket: (_room: string | null, opts?: { onMessage?: (e: Envelope) => void }) => {
+    capturedOnMessage = opts?.onMessage;
+    return { status: 'open', send: vi.fn() };
+  },
+}));
 
 const character = {
   id: 1,
@@ -26,6 +35,7 @@ const character = {
 describe('PartyPanel', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    capturedOnMessage = undefined;
   });
 
   it('shows an empty state with no characters', async () => {
@@ -62,5 +72,31 @@ describe('PartyPanel', () => {
     render(<PartyPanel campaignId={1} />);
     await waitFor(() => expect(screen.getByText('Restwell')).toBeInTheDocument());
     expect(screen.getByText('Grimtooth')).toBeInTheDocument();
+  });
+
+  it('updates a character live from a character_state WebSocket message', async () => {
+    mocked.getParty.mockResolvedValue([{ player_username: 'alice', character }]);
+    render(<PartyPanel campaignId={1} room="session-1" />);
+    await waitFor(() => expect(screen.getByText('2 / 5')).toBeInTheDocument());
+
+    capturedOnMessage?.({
+      type: 'character_state',
+      payload: { ...character, hp_marked: 4 },
+    });
+
+    await waitFor(() => expect(screen.getByText('4 / 5')).toBeInTheDocument());
+  });
+
+  it('ignores a character_state message for a character not in this party', async () => {
+    mocked.getParty.mockResolvedValue([{ player_username: 'alice', character }]);
+    render(<PartyPanel campaignId={1} room="session-1" />);
+    await waitFor(() => expect(screen.getByText('2 / 5')).toBeInTheDocument());
+
+    capturedOnMessage?.({
+      type: 'character_state',
+      payload: { ...character, id: 999, hp_marked: 4 },
+    });
+
+    expect(screen.getByText('2 / 5')).toBeInTheDocument();
   });
 });

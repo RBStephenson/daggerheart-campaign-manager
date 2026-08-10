@@ -2,12 +2,20 @@ import { useEffect, useState } from 'react';
 import { ApiError } from '../../api/client';
 import { getCampaignFear, listCampaignCountdowns } from '../../api/player';
 import type { Countdown } from '../../api/campaigns';
+import { useWebSocket, type Envelope } from '../../hooks/useWebSocket';
 
 /** Read-only view of the shared Fear pool and active countdowns for a
  * campaign — players previously had no visibility into either. Probes via
  * the endpoints themselves (same invisible-rather-than-erroring pattern
- * used everywhere else in the player area, since /api/settings is gm-only). */
-export default function CampaignStatusPanel({ campaignId }: { campaignId: number }) {
+ * used everywhere else in the player area, since /api/settings is gm-only).
+ * When a session is active, updates live as the GM adjusts Fear/countdowns. */
+export default function CampaignStatusPanel({
+  campaignId,
+  room = null,
+}: {
+  campaignId: number;
+  room?: string | null;
+}) {
   const [available, setAvailable] = useState(true);
   const [fear, setFear] = useState<number | null>(null);
   const [countdowns, setCountdowns] = useState<Countdown[]>([]);
@@ -29,6 +37,29 @@ export default function CampaignStatusPanel({ campaignId }: { campaignId: number
       cancelled = true;
     };
   }, [campaignId]);
+
+  useWebSocket(room, {
+    onMessage: (envelope: Envelope) => {
+      if (envelope.type === 'fear') {
+        setFear((envelope.payload as unknown as { fear: number }).fear);
+        return;
+      }
+      if (envelope.type === 'countdown_created') {
+        const created = envelope.payload as unknown as Countdown;
+        setCountdowns((prev) => [...prev, created]);
+        return;
+      }
+      if (envelope.type === 'countdown_updated') {
+        const updated = envelope.payload as unknown as Countdown;
+        setCountdowns((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+        return;
+      }
+      if (envelope.type === 'countdown_deleted') {
+        const { id } = envelope.payload as unknown as { id: number };
+        setCountdowns((prev) => prev.filter((c) => c.id !== id));
+      }
+    },
+  });
 
   if (!available) return null;
 
