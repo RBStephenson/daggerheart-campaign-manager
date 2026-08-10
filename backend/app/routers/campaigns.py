@@ -9,10 +9,16 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_owned_campaign, require_role
-from app.models import Campaign, CampaignMembership, GameSession, User
+from app.models import Campaign, CampaignMembership, Character, GameSession, User
 from app.routers.settings import get_settings
-from app.schemas.campaigns import CampaignCreate, CampaignOut, CampaignUpdate, GameSessionOut
-from app.schemas.player import AddMemberRequest, CampaignMemberOut
+from app.schemas.campaigns import (
+    CampaignCreate,
+    CampaignOut,
+    CampaignUpdate,
+    GameSessionOut,
+    PartyMemberOut,
+)
+from app.schemas.player import AddMemberRequest, CampaignMemberOut, CharacterOut
 
 
 def _require_campaigns_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
@@ -209,6 +215,30 @@ def add_member(
         player_username=player.username,
         joined_at=member.joined_at,
     )
+
+
+@router.get("/{campaign_id}/party", response_model=list[PartyMemberOut])
+def get_party(
+    campaign_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    gm: Annotated[User, Depends(require_role("gm"))],
+) -> list[PartyMemberOut]:
+    """Every campaign member's characters, read-only. The GM previously had
+    no visibility into player characters at all — this is that view."""
+    get_owned_campaign(campaign_id, db, gm)
+    rows = db.execute(
+        select(Character, User.username)
+        .join(User, Character.player_user_id == User.id)
+        .where(Character.campaign_id == campaign_id)
+        .order_by(User.username, Character.id)
+    ).all()
+    return [
+        PartyMemberOut(
+            player_username=username,
+            character=CharacterOut.model_validate(character, from_attributes=True),
+        )
+        for character, username in rows
+    ]
 
 
 @router.delete("/{campaign_id}/members/{user_id}", status_code=204)

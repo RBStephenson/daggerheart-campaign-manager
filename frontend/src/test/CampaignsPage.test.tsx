@@ -23,6 +23,11 @@ vi.mock('../pages/gm/CountdownsPanel', () => ({
     <div data-testid="countdowns-panel">{campaignId}</div>
   ),
 }));
+vi.mock('../pages/gm/PartyPanel', () => ({
+  default: ({ campaignId }: { campaignId: number }) => (
+    <div data-testid="party-panel">{campaignId}</div>
+  ),
+}));
 vi.mock('../pages/gm/InvitePlayerPanel', () => ({
   default: () => <div data-testid="invite-player-panel" />,
 }));
@@ -239,5 +244,33 @@ describe('CampaignsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Countdowns' }));
     expect(screen.getByTestId('countdowns-panel')).toHaveTextContent('1');
     expect(screen.getByRole('button', { name: 'Hide countdowns' })).toBeInTheDocument();
+  });
+
+  it('hides the Party button when player_area_enabled is off', async () => {
+    mocked.listCampaigns.mockResolvedValue([
+      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
+    ]);
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: 'Party' })).not.toBeInTheDocument();
+  });
+
+  it('toggles the party panel for a campaign when player_area_enabled is on', async () => {
+    mockedSettings.mockReturnValue({
+      settings: { ...appSettings.DEFAULTS, player_area_enabled: true },
+      loading: false,
+      updateSettings: vi.fn(),
+    });
+    mocked.listCampaigns.mockResolvedValue([
+      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
+    ]);
+
+    render(<CampaignsPage />);
+    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Party' }));
+    expect(screen.getByTestId('party-panel')).toHaveTextContent('1');
+    expect(screen.getByRole('button', { name: 'Hide party' })).toBeInTheDocument();
   });
 });

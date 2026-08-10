@@ -8,6 +8,7 @@ import CountdownsPanel from './CountdownsPanel';
 import FearTracker from './FearTracker';
 import InvitePlayerPanel from './InvitePlayerPanel';
 import MembersPanel from './MembersPanel';
+import PartyPanel from './PartyPanel';
 import SessionPlansPanel from './SessionPlansPanel';
 import {
   createCampaign,
@@ -41,6 +42,7 @@ export default function CampaignsPage() {
   const [planningCampaignId, setPlanningCampaignId] = useState<number | null>(null);
   const [membersCampaignId, setMembersCampaignId] = useState<number | null>(null);
   const [countdownsCampaignId, setCountdownsCampaignId] = useState<number | null>(null);
+  const [partyCampaignId, setPartyCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -267,6 +269,17 @@ export default function CampaignsPage() {
                       >
                         {membersCampaignId === campaign.id ? 'Hide members' : 'Members'}
                       </button>
+                      {settings.player_area_enabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPartyCampaignId(partyCampaignId === campaign.id ? null : campaign.id)
+                          }
+                          className={ghostButtonClass}
+                        >
+                          {partyCampaignId === campaign.id ? 'Hide party' : 'Party'}
+                        </button>
+                      )}
                       {settings.combat_tools_enabled && (
                         <button
                           type="button"
@@ -290,6 +303,11 @@ export default function CampaignsPage() {
                     {membersCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
                         <MembersPanel campaignId={campaign.id} />
+                      </div>
+                    )}
+                    {partyCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <PartyPanel campaignId={campaign.id} />
                       </div>
                     )}
                     {countdownsCampaignId === campaign.id && (
