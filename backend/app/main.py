@@ -14,6 +14,7 @@ from app.db import SessionLocal
 from app.models import User
 from app.routers import (
     auth,
+    bestiary,
     campaigns,
     chat,
     database,
@@ -113,6 +114,7 @@ def create_app() -> FastAPI:
     app.include_router(player.router)
     app.include_router(database.router)
     app.include_router(srd.router)
+    app.include_router(bestiary.router)
     return app
 
 
