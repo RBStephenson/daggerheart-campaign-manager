@@ -330,6 +330,21 @@ card, mirroring `MembersPanel`'s CRUD layout.
 | `PATCH /api/campaigns/{id}/countdowns/{cid}` | `{delta}` → advance (ticks down) |
 | `DELETE /api/campaigns/{id}/countdowns/{cid}` | Remove a countdown |
 
+**Player visibility** — players previously had no way to see the Fear pool or
+countdowns at all. Read-only mirrors live under `/api/player`, scoped to the
+requesting player's own campaign membership (404 for a campaign they're not in,
+same pattern as the rest of the player area) and gated by both
+`player_area_enabled` and `combat_tools_enabled`. `CampaignStatusPanel`
+(`frontend/src/pages/player/CampaignStatusPanel.tsx`) renders under each
+campaign in the Player area's campaign list; since `/api/settings` is gm-only,
+it probes availability the same way every other player-area feature does —
+a 404 from either endpoint means render nothing.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/player/campaigns/{id}/fear` | The campaign's current Fear value |
+| `GET /api/player/campaigns/{id}/countdowns` | The campaign's countdowns |
+
 ## Help pages
 
 `/help` (`frontend/src/pages/help/HelpPage.tsx`), linked from the top nav whenever

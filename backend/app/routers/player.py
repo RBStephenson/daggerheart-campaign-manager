@@ -10,11 +10,12 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import require_role
-from app.models import Campaign, CampaignMembership, CampaignNote, Character, User
+from app.models import Campaign, CampaignMembership, CampaignNote, Character, Countdown, User
 from app.routers.settings import get_settings
 from app.schemas.character_rest import RestRequest, apply_rest
 from app.schemas.character_sheet import validate_extra
 from app.schemas.character_state import CharacterStateUpdate, validate_state_update
+from app.schemas.combat import CountdownOut, FearOut
 from app.schemas.player import (
     CharacterCreate,
     CharacterOut,
@@ -24,6 +25,11 @@ from app.schemas.player import (
     NoteUpdate,
     RestResponse,
 )
+
+
+def _require_combat_tools_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
+    if not get_settings(db).get("combat_tools_enabled", False):
+        raise HTTPException(status_code=404)
 
 
 def _require_player_area_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
@@ -84,6 +90,44 @@ def list_my_campaigns(
             select(Campaign)
             .join(CampaignMembership, CampaignMembership.campaign_id == Campaign.id)
             .where(CampaignMembership.player_user_id == player.id)
+        )
+    )
+
+
+@router.get(
+    "/campaigns/{campaign_id}/fear",
+    response_model=FearOut,
+    dependencies=[Depends(_require_combat_tools_enabled)],
+)
+def get_campaign_fear(
+    campaign_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    player: Annotated[User, Depends(require_role("player"))],
+) -> FearOut:
+    """Read-only view of the shared Fear pool — players previously had no
+    visibility into it at all, GM-only."""
+    _require_membership(campaign_id, db, player)
+    campaign = db.get(Campaign, campaign_id)
+    assert campaign is not None  # membership implies the campaign exists
+    return FearOut(fear=campaign.fear)
+
+
+@router.get(
+    "/campaigns/{campaign_id}/countdowns",
+    response_model=list[CountdownOut],
+    dependencies=[Depends(_require_combat_tools_enabled)],
+)
+def list_campaign_countdowns(
+    campaign_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    player: Annotated[User, Depends(require_role("player"))],
+) -> list[Countdown]:
+    """Read-only view of the campaign's countdowns — same visibility gap as
+    the Fear pool above."""
+    _require_membership(campaign_id, db, player)
+    return list(
+        db.scalars(
+            select(Countdown).where(Countdown.campaign_id == campaign_id).order_by(Countdown.id)
         )
     )
 

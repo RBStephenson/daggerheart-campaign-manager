@@ -72,6 +72,8 @@ describe('PlayerPage', () => {
     // 404), matching the real backend's 404-when-disabled gate.
     mockedSrd.mockRejectedValue(new ApiError(404, 'not found'));
     mocked.checkDowntimeAvailable.mockRejectedValue(new ApiError(404, 'not found'));
+    mocked.getCampaignFear.mockRejectedValue(new ApiError(404, 'not found'));
+    mocked.listCampaignCountdowns.mockRejectedValue(new ApiError(404, 'not found'));
   });
 
   it('shows a disabled message when the backend 404s', async () => {

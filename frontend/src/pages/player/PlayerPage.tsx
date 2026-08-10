@@ -15,6 +15,7 @@ import {
   type MemberCampaign,
 } from '../../api/player';
 import { getCharacterCreationData, type SrdArmor } from '../../api/srd';
+import CampaignStatusPanel from './CampaignStatusPanel';
 import CharacterSheetPanel from './CharacterSheetPanel';
 import CharacterWizard from './CharacterWizard';
 
@@ -203,10 +204,11 @@ export default function PlayerPage() {
             You haven't been added to a campaign yet. Ask your GM for an invite.
           </p>
         ) : (
-          <ul className="mb-6 flex flex-wrap gap-2">
+          <ul className="mb-6 flex flex-col gap-2">
             {campaigns.map((c) => (
-              <li key={c.id}>
+              <li key={c.id} className={cardClass}>
                 <Badge variant="violet">{c.name}</Badge>
+                <CampaignStatusPanel campaignId={c.id} />
               </li>
             ))}
           </ul>
