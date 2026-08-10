@@ -56,6 +56,11 @@ export default function Layout() {
                 Player
               </NavLink>
             )}
+            {user && (
+              <NavLink to="/help" className={navLinkClass}>
+                Help
+              </NavLink>
+            )}
           </div>
         </div>
       </nav>

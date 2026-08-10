@@ -104,6 +104,18 @@ describe('App', () => {
     );
   });
 
+  it('lets a gm reach /help with the GM guide', async () => {
+    renderApp('/help', { id: 1, username: 'alice', role: 'gm' });
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Help' })).toBeInTheDocument());
+    expect(screen.getByText(/running a campaign/)).toBeInTheDocument();
+  });
+
+  it('lets a player reach /help with the Player guide', async () => {
+    renderApp('/help', { id: 2, username: 'bob', role: 'player' });
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Help' })).toBeInTheDocument());
+    expect(screen.getByText(/getting set up and playing/)).toBeInTheDocument();
+  });
+
   it('renders settings under /host/settings for a gm', async () => {
     renderApp('/host/settings', { id: 1, username: 'alice', role: 'gm' });
     await waitFor(() => expect(screen.getByText(/No settings yet/)).toBeInTheDocument());
