@@ -17,6 +17,11 @@ export default function PlayerGuide() {
           The Player area lists every campaign your GM has added you to. If you don't see the one
           you're expecting, ask your GM to add you via their Members panel.
         </p>
+        <p>
+          If your GM has combat tools turned on, you'll also see the shared{' '}
+          <strong>Fear</strong> pool and any active <strong>countdowns</strong> right under each
+          campaign — read-only, so you always know where the table stands.
+        </p>
       </HelpSection>
 
       <HelpSection title="3. Create a character">

@@ -1,4 +1,5 @@
 import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from './client';
+import type { Countdown } from './campaigns';
 
 export interface MemberCampaign {
   id: number;
@@ -110,4 +111,12 @@ export function getNote(campaignId: number): Promise<Note> {
 
 export function saveNote(campaignId: number, body: string): Promise<Note> {
   return apiPut(`/api/player/campaigns/${campaignId}/note`, { body });
+}
+
+export function getCampaignFear(campaignId: number): Promise<{ fear: number }> {
+  return apiGet(`/api/player/campaigns/${campaignId}/fear`);
+}
+
+export function listCampaignCountdowns(campaignId: number): Promise<Countdown[]> {
+  return apiGet(`/api/player/campaigns/${campaignId}/countdowns`);
 }
