@@ -31,6 +31,7 @@ DEFAULTS: dict[str, Any] = {
     "session_planning_enabled": False,
     "character_sheet_enabled": False,
     "downtime_enabled": False,
+    "combat_tools_enabled": False,
 }
 
 
