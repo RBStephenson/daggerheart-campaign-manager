@@ -72,3 +72,43 @@ export function removeMember(campaignId: number, playerUserId: number): Promise<
 export function adjustFear(campaignId: number, delta: number): Promise<{ fear: number }> {
   return apiPatch(`/api/campaigns/${campaignId}/fear`, { delta });
 }
+
+export interface Countdown {
+  id: number;
+  campaign_id: number;
+  name: string;
+  starting_value: number;
+  current_value: number;
+  loop: boolean;
+  triggered_at: string | null;
+  created_at: string;
+}
+
+export function listCountdowns(campaignId: number): Promise<Countdown[]> {
+  return apiGet(`/api/campaigns/${campaignId}/countdowns`);
+}
+
+export function createCountdown(
+  campaignId: number,
+  name: string,
+  startingValue: number,
+  loop: boolean,
+): Promise<Countdown> {
+  return apiPost(`/api/campaigns/${campaignId}/countdowns`, {
+    name,
+    starting_value: startingValue,
+    loop,
+  });
+}
+
+export function advanceCountdown(
+  campaignId: number,
+  countdownId: number,
+  delta: number,
+): Promise<Countdown> {
+  return apiPatch(`/api/campaigns/${campaignId}/countdowns/${countdownId}`, { delta });
+}
+
+export function deleteCountdown(campaignId: number, countdownId: number): Promise<void> {
+  return apiDelete(`/api/campaigns/${campaignId}/countdowns/${countdownId}`);
+}

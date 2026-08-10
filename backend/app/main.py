@@ -116,7 +116,8 @@ def create_app() -> FastAPI:
     app.include_router(database.router)
     app.include_router(srd.router)
     app.include_router(bestiary.router)
-    app.include_router(combat.router)
+    app.include_router(combat.fear_router)
+    app.include_router(combat.countdown_router)
     return app
 
 
