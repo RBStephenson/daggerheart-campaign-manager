@@ -51,6 +51,10 @@ export default function GmGuide() {
           name, class, and (once a player has a completed sheet) their current HP, Stress, and
           Hope. This is read-only; players still mark their own trackers from the Player area.
         </p>
+        <p>
+          While a session is active, this updates live — a player marking HP shows up here
+          immediately, no refresh needed.
+        </p>
       </HelpSection>
 
       <HelpSection title="Session planning" flag="session_planning_enabled">

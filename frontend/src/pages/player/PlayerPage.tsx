@@ -208,7 +208,7 @@ export default function PlayerPage() {
             {campaigns.map((c) => (
               <li key={c.id} className={cardClass}>
                 <Badge variant="violet">{c.name}</Badge>
-                <CampaignStatusPanel campaignId={c.id} />
+                <CampaignStatusPanel campaignId={c.id} room={c.active_session_room} />
               </li>
             ))}
           </ul>

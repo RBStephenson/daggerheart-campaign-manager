@@ -51,6 +51,7 @@ class MemberCampaignOut(BaseModel):
     description: str
     gm_user_id: int
     created_at: datetime
+    active_session_room: str | None
 
 
 class CampaignMemberOut(BaseModel):

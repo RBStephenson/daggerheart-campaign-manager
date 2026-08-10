@@ -20,7 +20,8 @@ export default function PlayerGuide() {
         <p>
           If your GM has combat tools turned on, you'll also see the shared{' '}
           <strong>Fear</strong> pool and any active <strong>countdowns</strong> right under each
-          campaign — read-only, so you always know where the table stands.
+          campaign — read-only, so you always know where the table stands. While a session is
+          active, these update live as your GM changes them, no refresh needed.
         </p>
       </HelpSection>
 

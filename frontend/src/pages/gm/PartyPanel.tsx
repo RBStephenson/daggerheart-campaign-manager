@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import Skeleton from '../../components/ui/Skeleton';
 import { getParty, type PartyMember } from '../../api/campaigns';
+import type { Character } from '../../api/player';
+import { useWebSocket, type Envelope } from '../../hooks/useWebSocket';
 
 const cardClass =
   'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -30,8 +32,15 @@ function StatText({ label, value, max }: { label: string; value: number; max: nu
 }
 
 /** Read-only view of every campaign member's character sheet — the GM
- * previously had no visibility into player characters at all. */
-export default function PartyPanel({ campaignId }: { campaignId: number }) {
+ * previously had no visibility into player characters at all. When a
+ * session is active, updates live as players mark their trackers. */
+export default function PartyPanel({
+  campaignId,
+  room = null,
+}: {
+  campaignId: number;
+  room?: string | null;
+}) {
   const [party, setParty] = useState<PartyMember[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +51,18 @@ export default function PartyPanel({ campaignId }: { campaignId: number }) {
       .catch((err: unknown) => console.error(err))
       .finally(() => setLoading(false));
   }, [campaignId]);
+
+  useWebSocket(room, {
+    onMessage: (envelope: Envelope) => {
+      if (envelope.type !== 'character_state') return;
+      const updated = envelope.payload as unknown as Character;
+      setParty((prev) =>
+        prev?.map((member) =>
+          member.character.id === updated.id ? { ...member, character: updated } : member,
+        ) ?? prev,
+      );
+    },
+  });
 
   if (loading) {
     return (

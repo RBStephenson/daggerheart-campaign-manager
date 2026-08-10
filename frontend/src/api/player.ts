@@ -7,6 +7,7 @@ export interface MemberCampaign {
   description: string;
   gm_user_id: number;
   created_at: string;
+  active_session_room: string | null;
 }
 
 export interface Character {

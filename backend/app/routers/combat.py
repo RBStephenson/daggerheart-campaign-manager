@@ -17,6 +17,7 @@ from app.deps import get_owned_campaign, require_role
 from app.models import Countdown, User
 from app.routers.settings import get_settings
 from app.schemas.combat import CountdownAdjust, CountdownCreate, CountdownOut, FearAdjust, FearOut
+from app.services.realtime import broadcast_to_campaign
 
 # The SRD: "You start a campaign with 1 Fear per PC... You can never have
 # more than 12 Fear at one time."
@@ -36,7 +37,7 @@ fear_router = APIRouter(
 
 
 @fear_router.patch("", response_model=FearOut)
-def adjust_fear(
+async def adjust_fear(
     campaign_id: int,
     body: FearAdjust,
     db: Annotated[Session, Depends(get_db)],
@@ -45,7 +46,11 @@ def adjust_fear(
     campaign = get_owned_campaign(campaign_id, db, gm)
     campaign.fear = max(0, min(FEAR_MAX, campaign.fear + body.delta))
     db.commit()
-    return FearOut(fear=campaign.fear)
+    out = FearOut(fear=campaign.fear)
+    await broadcast_to_campaign(
+        campaign_id, db, {"type": "fear", "payload": out.model_dump(mode="json")}
+    )
+    return out
 
 
 countdown_router = APIRouter(
@@ -77,7 +82,7 @@ def list_countdowns(
 
 
 @countdown_router.post("", response_model=CountdownOut)
-def create_countdown(
+async def create_countdown(
     campaign_id: int,
     body: CountdownCreate,
     db: Annotated[Session, Depends(get_db)],
@@ -95,11 +100,15 @@ def create_countdown(
     db.add(countdown)
     db.commit()
     db.refresh(countdown)
+    out = CountdownOut.model_validate(countdown, from_attributes=True)
+    await broadcast_to_campaign(
+        campaign_id, db, {"type": "countdown_created", "payload": out.model_dump(mode="json")}
+    )
     return countdown
 
 
 @countdown_router.patch("/{countdown_id}", response_model=CountdownOut)
-def adjust_countdown(
+async def adjust_countdown(
     campaign_id: int,
     countdown_id: int,
     body: CountdownAdjust,
@@ -115,11 +124,15 @@ def adjust_countdown(
     else:
         countdown.current_value = new_value
     db.commit()
+    out = CountdownOut.model_validate(countdown, from_attributes=True)
+    await broadcast_to_campaign(
+        campaign_id, db, {"type": "countdown_updated", "payload": out.model_dump(mode="json")}
+    )
     return countdown
 
 
 @countdown_router.delete("/{countdown_id}", status_code=204)
-def delete_countdown(
+async def delete_countdown(
     campaign_id: int,
     countdown_id: int,
     db: Annotated[Session, Depends(get_db)],
@@ -129,3 +142,6 @@ def delete_countdown(
     countdown = _get_countdown(campaign_id, countdown_id, db)
     db.delete(countdown)
     db.commit()
+    await broadcast_to_campaign(
+        campaign_id, db, {"type": "countdown_deleted", "payload": {"id": countdown_id}}
+    )

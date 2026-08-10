@@ -117,6 +117,34 @@ else to the rest of the room. Frontend: `useWebSocket(room, { onMessage })`
 in `frontend/src/hooks/useWebSocket.ts`, with automatic exponential-backoff
 reconnect.
 
+### Live state sync (character sheets, Fear, countdowns)
+
+The GM party view (DHCM-58) and player Fear/countdown views (DHCM-59) push
+live updates over the same `/ws/{room}` connection instead of requiring a
+refresh — this is what actually makes Epic 7 "real-time" rather than just
+read-only. `app.services.realtime.broadcast_to_campaign(campaign_id, db,
+message)` is the shared helper: it looks up the campaign's active
+`GameSession` and broadcasts to that session's room, or silently no-ops if
+there isn't one (nothing to sync to). Called from the mutating endpoints
+after `db.commit()`:
+
+- `PATCH /api/player/characters/{id}/state` and `POST .../rest` → `{type:
+  "character_state", payload: <CharacterOut>}`
+- `PATCH /api/campaigns/{id}/fear` → `{type: "fear", payload: <FearOut>}`
+- `POST/PATCH/DELETE /api/campaigns/{id}/countdowns...` → `{type:
+  "countdown_created"|"countdown_updated"|"countdown_deleted", payload:
+  <CountdownOut> | {id}}`
+
+Frontend: `PartyPanel` and `CampaignStatusPanel` both take an optional
+`room` prop and call `useWebSocket(room, { onMessage })` to merge incoming
+messages into their existing state (matching by id) — passed down as
+`activeSession?.room` (GM side, from `CampaignsPage`'s existing session
+lookup) or the new `active_session_room` field on `GET /api/player/campaigns`
+(player side, since players had no prior way to know which room to join).
+`room` defaults to `null` (no session active), which makes `useWebSocket`
+a no-op — the views still work as plain read-only data without a session,
+same as DHCM-58/59 shipped them.
+
 ## Chat
 
 Behind the `chat_enabled` feature flag (default off, toggle on

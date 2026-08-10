@@ -307,7 +307,7 @@ export default function CampaignsPage() {
                     )}
                     {partyCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <PartyPanel campaignId={campaign.id} />
+                        <PartyPanel campaignId={campaign.id} room={activeSession?.room ?? null} />
                       </div>
                     )}
                     {countdownsCampaignId === campaign.id && (
