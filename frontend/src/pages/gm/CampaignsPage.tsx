@@ -3,6 +3,7 @@ import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import ChatPanel from '../../components/ChatPanel';
+import MembersPanel from './MembersPanel';
 import SessionPlansPanel from './SessionPlansPanel';
 import {
   createCampaign,
@@ -33,6 +34,7 @@ export default function CampaignsPage() {
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [planningCampaignId, setPlanningCampaignId] = useState<number | null>(null);
+  const [membersCampaignId, setMembersCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -231,11 +233,27 @@ export default function CampaignsPage() {
                       >
                         {planningCampaignId === campaign.id ? 'Hide session plans' : 'Session plans'}
                       </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMembersCampaignId(
+                            membersCampaignId === campaign.id ? null : campaign.id,
+                          )
+                        }
+                        className={ghostButtonClass}
+                      >
+                        {membersCampaignId === campaign.id ? 'Hide members' : 'Members'}
+                      </button>
                     </div>
                     {activeSession && <ChatPanel room={activeSession.room} />}
                     {planningCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
                         <SessionPlansPanel campaignId={campaign.id} />
+                      </div>
+                    )}
+                    {membersCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <MembersPanel campaignId={campaign.id} />
                       </div>
                     )}
                   </>
