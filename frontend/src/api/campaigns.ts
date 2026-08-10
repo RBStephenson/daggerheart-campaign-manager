@@ -17,6 +17,14 @@ export interface GameSession {
   ended_at: string | null;
 }
 
+export interface CampaignMember {
+  id: number;
+  campaign_id: number;
+  player_user_id: number;
+  player_username: string;
+  joined_at: string;
+}
+
 export function listCampaigns(): Promise<Campaign[]> {
   return apiGet('/api/campaigns');
 }
@@ -46,4 +54,16 @@ export function endSession(campaignId: number, sessionId: number): Promise<GameS
 
 export function listSessions(campaignId: number): Promise<GameSession[]> {
   return apiGet(`/api/campaigns/${campaignId}/sessions`);
+}
+
+export function listMembers(campaignId: number): Promise<CampaignMember[]> {
+  return apiGet(`/api/campaigns/${campaignId}/members`);
+}
+
+export function addMember(campaignId: number, username: string): Promise<CampaignMember> {
+  return apiPost(`/api/campaigns/${campaignId}/members`, { username });
+}
+
+export function removeMember(campaignId: number, playerUserId: number): Promise<void> {
+  return apiDelete(`/api/campaigns/${campaignId}/members/${playerUserId}`);
 }
