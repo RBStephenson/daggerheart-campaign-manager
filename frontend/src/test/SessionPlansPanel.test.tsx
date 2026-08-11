@@ -62,19 +62,59 @@ describe('SessionPlansPanel', () => {
         title: 'Raid on Hillford, Session 1',
         summary: '',
         order: 0,
-        content: {},
+        content: { opening: '', reward: '', notes: '' },
       }),
     );
   });
 
-  it('rejects invalid JSON content instead of submitting', async () => {
+  it('sends opening/reward/notes as dedicated fields, separate from the beats/countdowns/hooks JSON', async () => {
+    mocked.listSessionPlans.mockResolvedValue([]);
+    mocked.createSessionPlan.mockResolvedValue({
+      id: 2,
+      campaign_id: 1,
+      title: 'Session 1',
+      summary: '',
+      order: 0,
+      content: {},
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+
+    render(<SessionPlansPanel campaignId={1} />);
+    await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
+
+    await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
+    await userEvent.type(screen.getByPlaceholderText(/Opening/), 'Smoke on the horizon.');
+    fireEvent.change(screen.getByPlaceholderText(/Beats, countdowns, hooks/), {
+      target: { value: '{"hooks": ["Where was the Baron?"]}' },
+    });
+    await userEvent.type(screen.getByPlaceholderText(/Reward/), 'A signet ring.');
+    await userEvent.type(screen.getByPlaceholderText('Notes (optional)'), 'Sandbox, not scripted.');
+    await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
+
+    await waitFor(() =>
+      expect(mocked.createSessionPlan).toHaveBeenCalledWith(1, {
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {
+          hooks: ['Where was the Baron?'],
+          opening: 'Smoke on the horizon.',
+          reward: 'A signet ring.',
+          notes: 'Sandbox, not scripted.',
+        },
+      }),
+    );
+  });
+
+  it('rejects invalid JSON in the beats/countdowns/hooks field instead of submitting', async () => {
     mocked.listSessionPlans.mockResolvedValue([]);
 
     render(<SessionPlansPanel campaignId={1} />);
     await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
 
     await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
-    fireEvent.change(screen.getByPlaceholderText(/Planned content as JSON/), {
+    fireEvent.change(screen.getByPlaceholderText(/Beats, countdowns, hooks/), {
       target: { value: '{not valid json' },
     });
     await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
