@@ -1,15 +1,16 @@
 """Session planning schemas: SessionPlan and its structured planned content.
 
 `SessionPlanContent` models the shape Brent already plans sessions in by hand
-(see the Hillford Raid on Hillford Session 1/2 prep): a sequence of story
-`beats`, parallel `countdowns` (Daggerheart's countdown mechanic — segments,
-what ticks them, what happens on completion vs. early intervention), and a
-flat list of seeded `hooks`. All three are optional and `notes` is a plain
-freeform bucket, so a session with no combat countdowns at all (pure
-roleplay, investigation) is just as valid as a raid. `extra="allow"` on the
-model means an unanticipated future planning shape isn't rejected outright —
-it round-trips through `SessionPlan.extra` even before the schema grows a
-named field for it.
+(see the Hillford Raid on Hillford Session 1/2 prep): an `opening` beat, a
+sequence of story `beats`, parallel `countdowns` (Daggerheart's countdown
+mechanic — segments, what ticks them, what happens on completion vs. early
+intervention), a flat list of seeded `hooks`, a `reward`, and a `notes`
+freeform bucket. Every field is optional, so a session with no combat
+countdowns at all (pure roleplay, investigation) is just as valid as a raid,
+and a GM can fill in one field or all of them. `extra="allow"` on the model
+means an unanticipated future planning shape isn't rejected outright — it
+round-trips through `SessionPlan.extra` even before the schema grows a named
+field for it.
 """
 
 from datetime import datetime
@@ -35,9 +36,11 @@ class SessionCountdown(BaseModel):
 
 
 class SessionPlanContent(BaseModel):
+    opening: str = ""
     beats: list[SessionBeat] = Field(default_factory=list)
     countdowns: list[SessionCountdown] = Field(default_factory=list)
     hooks: list[str] = Field(default_factory=list)
+    reward: str = ""
     notes: str = ""
 
     model_config = {"extra": "allow"}
