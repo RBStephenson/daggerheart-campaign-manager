@@ -1,6 +1,7 @@
 import { apiDelete, apiGet, apiPost, apiPut } from './client';
 
 export interface SessionPlanContent {
+  opening?: string;
   beats?: { name: string; description?: string; npc_ids?: number[] }[];
   countdowns?: {
     name: string;
@@ -10,6 +11,7 @@ export interface SessionPlanContent {
     on_intervention?: string;
   }[];
   hooks?: string[];
+  reward?: string;
   notes?: string;
   [key: string]: unknown;
 }

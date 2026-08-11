@@ -12,8 +12,20 @@ import {
   updateSessionPlan,
   type LibraryEntityType,
   type SessionPlan,
+  type SessionPlanContent,
   type SessionPlanLibraryLink,
 } from '../../api/sessionPlans';
+
+// opening/reward/notes get their own inputs; everything else in `content`
+// (beats/countdowns/hooks, plus any future unnamed key) stays JSON-editable
+// until its own repeatable-list UI ships (DHCM-69/70/71).
+function contentRest(content: SessionPlanContent): Record<string, unknown> {
+  const rest: Record<string, unknown> = { ...content };
+  delete rest.opening;
+  delete rest.reward;
+  delete rest.notes;
+  return rest;
+}
 
 const cardClass =
   'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -212,6 +224,17 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     }
   }
 
+  function buildContent(form: FormData): SessionPlanContent | null {
+    const rest = parseContent(String(form.get('content') ?? ''));
+    if (rest === null) return null;
+    return {
+      ...rest,
+      opening: String(form.get('opening') ?? '').trim(),
+      reward: String(form.get('reward') ?? '').trim(),
+      notes: String(form.get('notes') ?? '').trim(),
+    };
+  }
+
   async function handleCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -220,10 +243,10 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     const title = String(form.get('title') ?? '').trim();
     const summary = String(form.get('summary') ?? '').trim();
     const order = Number(form.get('order') ?? 0);
-    const content = parseContent(String(form.get('content') ?? ''));
+    const content = buildContent(form);
     if (!title) return;
     if (content === null) {
-      setError('Content must be valid JSON.');
+      setError('Beats/countdowns/hooks content must be valid JSON.');
       return;
     }
     try {
@@ -242,10 +265,10 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     const title = String(form.get('title') ?? '').trim();
     const summary = String(form.get('summary') ?? '').trim();
     const order = Number(form.get('order') ?? 0);
-    const content = parseContent(String(form.get('content') ?? ''));
+    const content = buildContent(form);
     if (!title) return;
     if (content === null) {
-      setError('Content must be valid JSON.');
+      setError('Beats/countdowns/hooks content must be valid JSON.');
       return;
     }
     try {
@@ -282,11 +305,14 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
         <input name="title" placeholder="Session title" required className={inputClass} />
         <textarea name="summary" placeholder="Summary (optional)" className={inputClass} />
         <input name="order" type="number" placeholder="Order" defaultValue={0} className={inputClass} />
+        <textarea name="opening" placeholder="Opening (optional) — how the session starts" className={inputClass} />
         <textarea
           name="content"
-          placeholder='Planned content as JSON (optional), e.g. {"hooks": ["..."]}'
+          placeholder='Beats, countdowns, hooks as JSON (optional), e.g. {"hooks": ["..."]}'
           className={`${inputClass} font-mono text-xs`}
         />
+        <textarea name="reward" placeholder="Reward (optional) — the payoff" className={inputClass} />
+        <textarea name="notes" placeholder="Notes (optional)" className={inputClass} />
         <button
           type="submit"
           className="self-start rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
@@ -314,9 +340,28 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
                   <textarea name="summary" defaultValue={plan.summary} className={inputClass} />
                   <input name="order" type="number" defaultValue={plan.order} className={inputClass} />
                   <textarea
+                    name="opening"
+                    defaultValue={plan.content.opening ?? ''}
+                    placeholder="Opening (optional) — how the session starts"
+                    className={inputClass}
+                  />
+                  <textarea
                     name="content"
-                    defaultValue={JSON.stringify(plan.content, null, 2)}
+                    defaultValue={JSON.stringify(contentRest(plan.content), null, 2)}
+                    placeholder='Beats, countdowns, hooks as JSON (optional), e.g. {"hooks": ["..."]}'
                     className={`${inputClass} font-mono text-xs`}
+                  />
+                  <textarea
+                    name="reward"
+                    defaultValue={plan.content.reward ?? ''}
+                    placeholder="Reward (optional) — the payoff"
+                    className={inputClass}
+                  />
+                  <textarea
+                    name="notes"
+                    defaultValue={plan.content.notes ?? ''}
+                    placeholder="Notes (optional)"
+                    className={inputClass}
                   />
                   <div className="flex gap-2">
                     <button
