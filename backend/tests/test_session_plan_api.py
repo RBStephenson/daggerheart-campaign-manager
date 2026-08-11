@@ -80,7 +80,14 @@ def test_create_and_list_session_plan(as_user, db: Session) -> None:
     body = create_resp.json()
     assert body["title"] == "Raid on Hillford, Session 1"
     assert body["campaign_id"] == campaign.id
-    assert body["content"] == {"beats": [], "countdowns": [], "hooks": [], "notes": ""}
+    assert body["content"] == {
+        "opening": "",
+        "beats": [],
+        "countdowns": [],
+        "hooks": [],
+        "reward": "",
+        "notes": "",
+    }
 
     list_resp = client.get(f"/api/campaigns/{campaign.id}/session-plans")
     assert list_resp.status_code == 200
@@ -112,7 +119,24 @@ def test_create_session_plan_with_full_hillford_shaped_content(as_user, db: Sess
         json={"title": "Raid on Hillford, Session 1", "content": content},
     )
     assert resp.status_code == 200
-    assert resp.json()["content"] == content
+    assert resp.json()["content"] == {**content, "opening": "", "reward": ""}
+
+
+def test_create_session_plan_with_opening_and_reward(as_user, db: Session) -> None:
+    enable_session_planning(db)
+    client, campaign = _as_gm_with_campaign(as_user, db)
+
+    content = {
+        "opening": "The party wakes to smoke on the horizon over Hillford.",
+        "reward": "A signet ring bearing the Harrowind crest.",
+    }
+    resp = client.post(
+        f"/api/campaigns/{campaign.id}/session-plans",
+        json={"title": "Session 1", "content": content},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["content"]["opening"] == content["opening"]
+    assert resp.json()["content"]["reward"] == content["reward"]
 
 
 def test_session_plan_content_allows_unknown_future_keys(as_user, db: Session) -> None:
