@@ -18,6 +18,7 @@ from app.deps import get_owned_campaign, require_role
 from app.models import (
     Adversary,
     Continent,
+    Environment,
     Faction,
     Location,
     Npc,
@@ -43,6 +44,7 @@ _LIBRARY_MODELS: dict[str, type] = {
     "faction": Faction,
     "npc": Npc,
     "adversary": Adversary,
+    "environment": Environment,
 }
 
 

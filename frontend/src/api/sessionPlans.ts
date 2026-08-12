@@ -33,7 +33,8 @@ export type LibraryEntityType =
   | 'location'
   | 'faction'
   | 'npc'
-  | 'adversary';
+  | 'adversary'
+  | 'environment';
 
 export interface SessionPlanLibraryLink {
   id: number;
