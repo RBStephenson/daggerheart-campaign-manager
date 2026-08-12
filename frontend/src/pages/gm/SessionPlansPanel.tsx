@@ -16,9 +16,11 @@ import {
   type SessionPlanLibraryLink,
 } from '../../api/sessionPlans';
 
-// opening/reward/notes/hooks/beats get their own inputs; everything else in
-// `content` (countdowns, plus any future unnamed key) stays JSON-editable
-// until its own repeatable-list UI ships (DHCM-71).
+// opening/reward/notes/hooks/beats/countdowns all get their own inputs now.
+// Whatever's left is a genuinely unmodeled key (the schema's `extra="allow"`
+// catch-all) — never shown or editable here, but carried forward unchanged
+// via a hidden `content-extra` field so retiring the JSON textarea doesn't
+// silently drop it on the next save.
 function contentRest(content: SessionPlanContent): Record<string, unknown> {
   const rest: Record<string, unknown> = { ...content };
   delete rest.opening;
@@ -26,10 +28,23 @@ function contentRest(content: SessionPlanContent): Record<string, unknown> {
   delete rest.notes;
   delete rest.hooks;
   delete rest.beats;
+  delete rest.countdowns;
   return rest;
 }
 
+function parseContentExtra(raw: string): Record<string, unknown> {
+  try {
+    const parsed: unknown = JSON.parse(raw || '{}');
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
 type Beat = NonNullable<SessionPlanContent['beats']>[number];
+type Countdown = NonNullable<SessionPlanContent['countdowns']>[number];
 
 const cardClass =
   'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -182,6 +197,86 @@ function BeatsListEditor({ initial }: { initial: Beat[] }) {
   );
 }
 
+// Same FormData-zip-by-index convention as Hooks/Beats, extended to five
+// parallel fields per row instead of one or two.
+function CountdownsListEditor({ initial }: { initial: Countdown[] }) {
+  const emptyCountdown: Countdown = { name: '', max_segments: 4 };
+  const [countdowns, setCountdowns] = useState<Countdown[]>(initial.length ? initial : [emptyCountdown]);
+
+  function updateCountdown(index: number, patch: Partial<Countdown>) {
+    setCountdowns((prev) => prev.map((c, i) => (i === index ? { ...c, ...patch } : c)));
+  }
+
+  function addCountdown() {
+    setCountdowns((prev) => [...prev, emptyCountdown]);
+  }
+
+  function removeCountdown(index: number) {
+    setCountdowns((prev) => (prev.length === 1 ? [emptyCountdown] : prev.filter((_, i) => i !== index)));
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs text-parchment/50">Countdowns (optional)</span>
+      {countdowns.map((countdown, i) => (
+        <div key={i} className="flex flex-col gap-1 rounded-md border border-hairline/15 p-2">
+          <div className="flex gap-2">
+            <input
+              name="countdowns-name"
+              value={countdown.name}
+              onChange={(e) => updateCountdown(i, { name: e.target.value })}
+              placeholder="Countdown name"
+              className={inputClass}
+            />
+            <input
+              name="countdowns-max-segments"
+              type="number"
+              min={1}
+              value={countdown.max_segments}
+              onChange={(e) => updateCountdown(i, { max_segments: Number(e.target.value) })}
+              placeholder="Segments"
+              aria-label={`Countdown ${i + 1} segments`}
+              className={`${inputClass} w-24`}
+            />
+            <button
+              type="button"
+              onClick={() => removeCountdown(i)}
+              aria-label={`Remove countdown ${i + 1}`}
+              className={ghostButtonClass}
+            >
+              ×
+            </button>
+          </div>
+          <input
+            name="countdowns-trigger"
+            value={countdown.trigger ?? ''}
+            onChange={(e) => updateCountdown(i, { trigger: e.target.value })}
+            placeholder="Trigger — what ticks this countdown (optional)"
+            className={inputClass}
+          />
+          <textarea
+            name="countdowns-on-complete"
+            value={countdown.on_complete ?? ''}
+            onChange={(e) => updateCountdown(i, { on_complete: e.target.value })}
+            placeholder="On complete (optional)"
+            className={inputClass}
+          />
+          <textarea
+            name="countdowns-on-intervention"
+            value={countdown.on_intervention ?? ''}
+            onChange={(e) => updateCountdown(i, { on_intervention: e.target.value })}
+            placeholder="On intervention (optional)"
+            className={inputClass}
+          />
+        </div>
+      ))}
+      <button type="button" onClick={addCountdown} className={`${ghostButtonClass} self-start`}>
+        Add countdown
+      </button>
+    </div>
+  );
+}
+
 function LinksSection({ campaignId, planId }: { campaignId: number; planId: number }) {
   const [links, setLinks] = useState<SessionPlanLibraryLink[] | null>(null);
   const [worldId, setWorldId] = useState<number | null>(null);
@@ -326,16 +421,6 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     void refresh();
   }, []);
 
-  function parseContent(raw: string): Record<string, unknown> | null {
-    const trimmed = raw.trim();
-    if (!trimmed) return {};
-    try {
-      return JSON.parse(trimmed) as Record<string, unknown>;
-    } catch {
-      return null;
-    }
-  }
-
   function buildBeats(form: FormData): SessionPlanContent['beats'] {
     const names = form.getAll('beats-name').map(String);
     const descriptions = form.getAll('beats-description').map(String);
@@ -356,18 +441,42 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     });
   }
 
-  function buildContent(form: FormData): SessionPlanContent | null {
-    const rest = parseContent(String(form.get('content') ?? ''));
-    if (rest === null) return null;
+  function buildCountdowns(form: FormData): SessionPlanContent['countdowns'] {
+    const names = form.getAll('countdowns-name').map(String);
+    const maxSegments = form.getAll('countdowns-max-segments').map(String);
+    const triggers = form.getAll('countdowns-trigger').map(String);
+    const onCompletes = form.getAll('countdowns-on-complete').map(String);
+    const onInterventions = form.getAll('countdowns-on-intervention').map(String);
+    return names.flatMap((rawName, i) => {
+      const name = rawName.trim();
+      if (!name) return [];
+      const segments = Number(maxSegments[i]);
+      const countdown: Countdown = {
+        name,
+        max_segments: Number.isFinite(segments) && segments > 0 ? segments : 1,
+      };
+      const trigger = (triggers[i] ?? '').trim();
+      if (trigger) countdown.trigger = trigger;
+      const onComplete = (onCompletes[i] ?? '').trim();
+      if (onComplete) countdown.on_complete = onComplete;
+      const onIntervention = (onInterventions[i] ?? '').trim();
+      if (onIntervention) countdown.on_intervention = onIntervention;
+      return [countdown];
+    });
+  }
+
+  function buildContent(form: FormData): SessionPlanContent {
+    const extra = parseContentExtra(String(form.get('content-extra') ?? '{}'));
     const hooks = form
       .getAll('hooks')
       .map((h) => String(h).trim())
       .filter(Boolean);
     return {
-      ...rest,
+      ...extra,
       opening: String(form.get('opening') ?? '').trim(),
       hooks,
       beats: buildBeats(form),
+      countdowns: buildCountdowns(form),
       reward: String(form.get('reward') ?? '').trim(),
       notes: String(form.get('notes') ?? '').trim(),
     };
@@ -381,12 +490,8 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     const title = String(form.get('title') ?? '').trim();
     const summary = String(form.get('summary') ?? '').trim();
     const order = Number(form.get('order') ?? 0);
-    const content = buildContent(form);
     if (!title) return;
-    if (content === null) {
-      setError('Countdowns content must be valid JSON.');
-      return;
-    }
+    const content = buildContent(form);
     try {
       await createSessionPlan(campaignId, { title, summary, order, content });
       formEl.reset();
@@ -404,12 +509,8 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     const title = String(form.get('title') ?? '').trim();
     const summary = String(form.get('summary') ?? '').trim();
     const order = Number(form.get('order') ?? 0);
-    const content = buildContent(form);
     if (!title) return;
-    if (content === null) {
-      setError('Countdowns content must be valid JSON.');
-      return;
-    }
+    const content = buildContent(form);
     try {
       await updateSessionPlan(campaignId, id, { title, summary, order, content });
       setEditingId(null);
@@ -447,11 +548,7 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
         <textarea name="opening" placeholder="Opening (optional) — how the session starts" className={inputClass} />
         <HooksListEditor key={`hooks-${createFormGen}`} initial={[]} />
         <BeatsListEditor key={`beats-${createFormGen}`} initial={[]} />
-        <textarea
-          name="content"
-          placeholder='Countdowns as JSON (optional), e.g. {"countdowns": [...]}'
-          className={`${inputClass} font-mono text-xs`}
-        />
+        <CountdownsListEditor key={`countdowns-${createFormGen}`} initial={[]} />
         <textarea name="reward" placeholder="Reward (optional) — the payoff" className={inputClass} />
         <textarea name="notes" placeholder="Notes (optional)" className={inputClass} />
         <button
@@ -488,11 +585,12 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
                   />
                   <HooksListEditor initial={plan.content.hooks ?? []} />
                   <BeatsListEditor initial={plan.content.beats ?? []} />
-                  <textarea
-                    name="content"
-                    defaultValue={JSON.stringify(contentRest(plan.content), null, 2)}
-                    placeholder='Countdowns as JSON (optional), e.g. {"countdowns": [...]}'
-                    className={`${inputClass} font-mono text-xs`}
+                  <CountdownsListEditor initial={plan.content.countdowns ?? []} />
+                  <input
+                    type="hidden"
+                    name="content-extra"
+                    value={JSON.stringify(contentRest(plan.content))}
+                    readOnly
                   />
                   <textarea
                     name="reward"

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/client';
@@ -62,7 +62,7 @@ describe('SessionPlansPanel', () => {
         title: 'Raid on Hillford, Session 1',
         summary: '',
         order: 0,
-        content: { opening: '', hooks: [], beats: [], reward: '', notes: '' },
+        content: { opening: '', hooks: [], beats: [], countdowns: [], reward: '', notes: '' },
       }),
     );
   });
@@ -98,6 +98,7 @@ describe('SessionPlansPanel', () => {
         content: {
           hooks: ['Where was the Baron?'],
           beats: [],
+          countdowns: [],
           opening: 'Smoke on the horizon.',
           reward: 'A signet ring.',
           notes: 'Sandbox, not scripted.',
@@ -106,20 +107,59 @@ describe('SessionPlansPanel', () => {
     );
   });
 
-  it('rejects invalid JSON in the countdowns field instead of submitting', async () => {
+  it('supports adding and removing countdowns in the create form', async () => {
     mocked.listSessionPlans.mockResolvedValue([]);
+    mocked.createSessionPlan.mockResolvedValue({
+      id: 2,
+      campaign_id: 1,
+      title: 'Session 1',
+      summary: '',
+      order: 0,
+      content: {},
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
 
     render(<SessionPlansPanel campaignId={1} />);
     await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
 
     await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
-    fireEvent.change(screen.getByPlaceholderText(/Countdowns/), {
-      target: { value: '{not valid json' },
-    });
+    await userEvent.clear(screen.getByLabelText('Countdown 1 segments'));
+    await userEvent.type(screen.getByLabelText('Countdown 1 segments'), '6');
+    await userEvent.type(screen.getByPlaceholderText('Countdown name'), 'The gate falls');
+    await userEvent.type(
+      screen.getByPlaceholderText('Trigger — what ticks this countdown (optional)'),
+      'Every round the Baron holds the gate.',
+    );
+    await userEvent.type(screen.getByPlaceholderText('On complete (optional)'), 'The gate opens.');
+    await userEvent.click(screen.getByRole('button', { name: 'Add countdown' }));
+    const nameInputs = screen.getAllByPlaceholderText('Countdown name');
+    await userEvent.type(nameInputs[1], 'The reinforcements arrive');
     await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
 
-    await waitFor(() => expect(screen.getByText(/must be valid JSON/i)).toBeInTheDocument());
-    expect(mocked.createSessionPlan).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(mocked.createSessionPlan).toHaveBeenCalledWith(1, {
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {
+          opening: '',
+          hooks: [],
+          beats: [],
+          countdowns: [
+            {
+              name: 'The gate falls',
+              max_segments: 6,
+              trigger: 'Every round the Baron holds the gate.',
+              on_complete: 'The gate opens.',
+            },
+            { name: 'The reinforcements arrive', max_segments: 4 },
+          ],
+          reward: '',
+          notes: '',
+        },
+      }),
+    );
   });
 
   it('supports adding and removing hooks in the create form', async () => {
@@ -155,6 +195,7 @@ describe('SessionPlansPanel', () => {
           opening: '',
           hooks: ['Who burned the granary?'],
           beats: [],
+          countdowns: [],
           reward: '',
           notes: '',
         },
@@ -197,6 +238,7 @@ describe('SessionPlansPanel', () => {
           opening: '',
           hooks: [],
           beats: [{ name: 'The granary burns' }],
+          countdowns: [],
           reward: '',
           notes: '',
         },
@@ -243,6 +285,55 @@ describe('SessionPlansPanel', () => {
         expect.objectContaining({
           content: expect.objectContaining({
             beats: [{ name: 'The Baron arrives', description: 'A twist.', npc_ids: [7, 12] }],
+          }),
+        }),
+      ),
+    );
+  });
+
+  it('preserves an unmodeled content key through an edit-and-save, now that the JSON textarea is retired', async () => {
+    mocked.listSessionPlans.mockResolvedValue([
+      {
+        id: 2,
+        campaign_id: 1,
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {
+          // A shape this UI doesn't (yet) model — e.g. seeded by a future
+          // schema field or a direct API call — must survive a save
+          // untouched rather than silently vanishing once the free-text
+          // JSON escape hatch is gone.
+          weather: 'A storm rolls in from the coast.',
+        } as sessionPlansApi.SessionPlanContent,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
+    mocked.updateSessionPlan.mockResolvedValue({
+      id: 2,
+      campaign_id: 1,
+      title: 'Session 1',
+      summary: '',
+      order: 0,
+      content: {},
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+
+    render(<SessionPlansPanel campaignId={1} />);
+    await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(mocked.updateSessionPlan).toHaveBeenCalledWith(
+        1,
+        2,
+        expect.objectContaining({
+          content: expect.objectContaining({
+            weather: 'A storm rolls in from the coast.',
           }),
         }),
       ),
