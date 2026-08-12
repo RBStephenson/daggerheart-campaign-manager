@@ -62,12 +62,12 @@ describe('SessionPlansPanel', () => {
         title: 'Raid on Hillford, Session 1',
         summary: '',
         order: 0,
-        content: { opening: '', reward: '', notes: '' },
+        content: { opening: '', hooks: [], reward: '', notes: '' },
       }),
     );
   });
 
-  it('sends opening/reward/notes as dedicated fields, separate from the beats/countdowns/hooks JSON', async () => {
+  it('sends opening/reward/notes/hooks as dedicated fields, separate from the beats/countdowns JSON', async () => {
     mocked.listSessionPlans.mockResolvedValue([]);
     mocked.createSessionPlan.mockResolvedValue({
       id: 2,
@@ -85,9 +85,7 @@ describe('SessionPlansPanel', () => {
 
     await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
     await userEvent.type(screen.getByPlaceholderText(/Opening/), 'Smoke on the horizon.');
-    fireEvent.change(screen.getByPlaceholderText(/Beats, countdowns, hooks/), {
-      target: { value: '{"hooks": ["Where was the Baron?"]}' },
-    });
+    await userEvent.type(screen.getByPlaceholderText('Hook'), 'Where was the Baron?');
     await userEvent.type(screen.getByPlaceholderText(/Reward/), 'A signet ring.');
     await userEvent.type(screen.getByPlaceholderText('Notes (optional)'), 'Sandbox, not scripted.');
     await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
@@ -107,20 +105,59 @@ describe('SessionPlansPanel', () => {
     );
   });
 
-  it('rejects invalid JSON in the beats/countdowns/hooks field instead of submitting', async () => {
+  it('rejects invalid JSON in the beats/countdowns field instead of submitting', async () => {
     mocked.listSessionPlans.mockResolvedValue([]);
 
     render(<SessionPlansPanel campaignId={1} />);
     await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
 
     await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
-    fireEvent.change(screen.getByPlaceholderText(/Beats, countdowns, hooks/), {
+    fireEvent.change(screen.getByPlaceholderText(/Beats, countdowns/), {
       target: { value: '{not valid json' },
     });
     await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
 
     await waitFor(() => expect(screen.getByText(/must be valid JSON/i)).toBeInTheDocument());
     expect(mocked.createSessionPlan).not.toHaveBeenCalled();
+  });
+
+  it('supports adding and removing hooks in the create form', async () => {
+    mocked.listSessionPlans.mockResolvedValue([]);
+    mocked.createSessionPlan.mockResolvedValue({
+      id: 2,
+      campaign_id: 1,
+      title: 'Session 1',
+      summary: '',
+      order: 0,
+      content: {},
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+
+    render(<SessionPlansPanel campaignId={1} />);
+    await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
+
+    await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
+    await userEvent.click(screen.getByRole('button', { name: 'Add hook' }));
+    const hookInputs = screen.getAllByPlaceholderText('Hook');
+    await userEvent.type(hookInputs[0], 'Where was the Baron?');
+    await userEvent.type(hookInputs[1], 'Who burned the granary?');
+    await userEvent.click(screen.getByRole('button', { name: 'Remove hook 1' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
+
+    await waitFor(() =>
+      expect(mocked.createSessionPlan).toHaveBeenCalledWith(1, {
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {
+          opening: '',
+          hooks: ['Who burned the granary?'],
+          reward: '',
+          notes: '',
+        },
+      }),
+    );
   });
 
   it('lists existing plans and supports delete', async () => {
