@@ -9,6 +9,7 @@ import FearTracker from './FearTracker';
 import InvitePlayerPanel from './InvitePlayerPanel';
 import MembersPanel from './MembersPanel';
 import PartyPanel from './PartyPanel';
+import QuickGeneratePanel from './QuickGeneratePanel';
 import SessionPlansPanel from './SessionPlansPanel';
 import {
   createCampaign,
@@ -43,6 +44,7 @@ export default function CampaignsPage() {
   const [membersCampaignId, setMembersCampaignId] = useState<number | null>(null);
   const [countdownsCampaignId, setCountdownsCampaignId] = useState<number | null>(null);
   const [partyCampaignId, setPartyCampaignId] = useState<number | null>(null);
+  const [generateCampaignId, setGenerateCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -293,6 +295,19 @@ export default function CampaignsPage() {
                           {countdownsCampaignId === campaign.id ? 'Hide countdowns' : 'Countdowns'}
                         </button>
                       )}
+                      {settings.generators_enabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setGenerateCampaignId(
+                              generateCampaignId === campaign.id ? null : campaign.id,
+                            )
+                          }
+                          className={ghostButtonClass}
+                        >
+                          {generateCampaignId === campaign.id ? 'Hide quick generate' : 'Quick generate'}
+                        </button>
+                      )}
                     </div>
                     {activeSession && <ChatPanel room={activeSession.room} />}
                     {planningCampaignId === campaign.id && (
@@ -313,6 +328,11 @@ export default function CampaignsPage() {
                     {countdownsCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
                         <CountdownsPanel campaignId={campaign.id} />
+                      </div>
+                    )}
+                    {generateCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <QuickGeneratePanel />
                       </div>
                     )}
                   </>

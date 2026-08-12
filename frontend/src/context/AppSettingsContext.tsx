@@ -31,6 +31,7 @@ export const DEFAULTS: AppSettings = {
   character_sheet_enabled: false,
   downtime_enabled: false,
   combat_tools_enabled: false,
+  generators_enabled: false,
 };
 
 interface AppSettingsContextValue {
