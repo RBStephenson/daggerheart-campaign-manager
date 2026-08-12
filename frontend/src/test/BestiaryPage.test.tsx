@@ -133,4 +133,49 @@ describe('BestiaryPage', () => {
     );
     await waitFor(() => expect(screen.getByText('Added to Library')).toBeInTheDocument());
   });
+
+  it('prompts to create a Library world before an environment can be added', async () => {
+    mocked.getBestiary.mockResolvedValue({ adversaries: [], environments: [abandonedGrove] });
+    mockedLibrary.listWorlds.mockResolvedValue([]);
+    render(<BestiaryPage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Environments (1)' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Environments (1)' }));
+    await waitFor(() => expect(screen.getByText('ABANDONED GROVE')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /ABANDONED GROVE/ }));
+    expect(screen.getByText(/Create a Library world first/)).toBeInTheDocument();
+  });
+
+  it('adds an environment to the Library when a world exists', async () => {
+    mocked.getBestiary.mockResolvedValue({ adversaries: [], environments: [abandonedGrove] });
+    mockedLibrary.listWorlds.mockResolvedValue([
+      { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
+    ]);
+    mockedLibrary.createEntity.mockResolvedValue({
+      id: 6,
+      world_id: 1,
+      name: 'ABANDONED GROVE',
+      summary: abandonedGrove.description,
+      extra: JSON.stringify(abandonedGrove),
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+    render(<BestiaryPage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Environments (1)' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Environments (1)' }));
+    await waitFor(() => expect(screen.getByText('ABANDONED GROVE')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /ABANDONED GROVE/ }));
+    await waitFor(() => expect(mockedLibrary.listWorlds).toHaveBeenCalled());
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Library' }));
+
+    await waitFor(() =>
+      expect(mockedLibrary.createEntity).toHaveBeenCalledWith('environments', 1, {
+        name: 'ABANDONED GROVE',
+        summary: abandonedGrove.description,
+        extra: JSON.stringify(abandonedGrove),
+      }),
+    );
+    await waitFor(() => expect(screen.getByText('Added to Library')).toBeInTheDocument());
+  });
 });

@@ -113,8 +113,29 @@ function AdversaryCard({
   );
 }
 
-function EnvironmentCard({ environment }: { environment: Environment }) {
+function EnvironmentCard({
+  environment,
+  world,
+  onSpawn,
+}: {
+  environment: Environment;
+  world: World | null;
+  onSpawn: (environment: Environment) => Promise<void>;
+}) {
   const [open, setOpen] = useState(false);
+  const [spawning, setSpawning] = useState(false);
+  const [spawned, setSpawned] = useState(false);
+
+  async function handleSpawn() {
+    setSpawning(true);
+    try {
+      await onSpawn(environment);
+      setSpawned(true);
+    } finally {
+      setSpawning(false);
+    }
+  }
+
   return (
     <li className={cardClass}>
       <button
@@ -144,6 +165,23 @@ function EnvironmentCard({ environment }: { environment: Environment }) {
             </p>
           )}
           <FeatureList features={environment.features} />
+
+          <div className="mt-4">
+            {world ? (
+              <button
+                type="button"
+                onClick={() => void handleSpawn()}
+                disabled={spawning || spawned}
+                className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {spawned ? 'Added to Library' : spawning ? 'Adding…' : 'Add to Library'}
+              </button>
+            ) : (
+              <p className="text-xs text-parchment/50">
+                Create a Library world first (Library tab) to add environments to it.
+              </p>
+            )}
+          </div>
         </div>
       )}
     </li>
@@ -184,6 +222,15 @@ export default function BestiaryPage() {
       name: adversary.name,
       summary: adversary.description,
       extra: JSON.stringify(adversary),
+    });
+  }
+
+  async function handleSpawnEnvironment(environment: Environment) {
+    if (!world) return;
+    await createEntity('environments', world.id, {
+      name: environment.name,
+      summary: environment.description,
+      extra: JSON.stringify(environment),
     });
   }
 
@@ -262,7 +309,7 @@ export default function BestiaryPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {filteredEnvironments.map((e) => (
-            <EnvironmentCard key={e.name} environment={e} />
+            <EnvironmentCard key={e.name} environment={e} world={world} onSpawn={handleSpawnEnvironment} />
           ))}
           {filteredEnvironments.length === 0 && (
             <li className={`${cardClass} text-center text-sm text-parchment/50`}>
