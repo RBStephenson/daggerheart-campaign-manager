@@ -391,6 +391,20 @@ class Adversary(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
+class Environment(Base):
+    """A Library environment/scene stat block, scoped to a world and independent of any campaign."""
+
+    __tablename__ = "environments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String(200), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
 class SessionPlan(Base):
     """A GM's plan for a future session of a campaign, defined ahead of play.
 

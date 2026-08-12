@@ -1,7 +1,7 @@
 """GM world-building library.
 
 World > Continent > Region > Location is the place hierarchy; Factions/NPCs/
-Adversaries hang directly off World. Gated by library_enabled. Entity types
+Adversaries/Environments hang directly off World. Gated by library_enabled. Entity types
 that share a shape get their routes built once by _add_entity_routes instead
 of writing the same CRUD block repeatedly.
 """
@@ -20,6 +20,7 @@ from app.models import (
     Adversary,
     Base,
     Continent,
+    Environment,
     Faction,
     Location,
     Npc,
@@ -210,6 +211,7 @@ for _model, _segment, _parent_model, _parent_segment, _parent_attr, _parent_labe
     (Faction, "factions", World, "worlds", "world_id", "World", False),
     (Npc, "npcs", World, "worlds", "world_id", "World", False),
     (Adversary, "adversaries", World, "worlds", "world_id", "World", False),
+    (Environment, "environments", World, "worlds", "world_id", "World", False),
     (Region, "regions", Continent, "continents", "continent_id", "Continent", True),
     (Location, "locations", Region, "regions", "region_id", "Region", True),
 ):
