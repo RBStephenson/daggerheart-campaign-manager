@@ -16,14 +16,15 @@ import {
   type SessionPlanLibraryLink,
 } from '../../api/sessionPlans';
 
-// opening/reward/notes get their own inputs; everything else in `content`
-// (beats/countdowns/hooks, plus any future unnamed key) stays JSON-editable
-// until its own repeatable-list UI ships (DHCM-69/70/71).
+// opening/reward/notes/hooks get their own inputs; everything else in
+// `content` (beats/countdowns, plus any future unnamed key) stays
+// JSON-editable until its own repeatable-list UI ships (DHCM-70/71).
 function contentRest(content: SessionPlanContent): Record<string, unknown> {
   const rest: Record<string, unknown> = { ...content };
   delete rest.opening;
   delete rest.reward;
   delete rest.notes;
+  delete rest.hooks;
   return rest;
 }
 
@@ -70,6 +71,53 @@ const EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
   npc: [],
   adversary: [],
 };
+
+// Renders as repeated `name="hooks"` inputs so the surrounding form's
+// FormData.getAll('hooks') collects them in order on submit, keeping this
+// consistent with the rest of the panel's uncontrolled-form pattern.
+function HooksListEditor({ initial }: { initial: string[] }) {
+  const [hooks, setHooks] = useState<string[]>(initial.length ? initial : ['']);
+
+  function updateHook(index: number, value: string) {
+    setHooks((prev) => prev.map((hook, i) => (i === index ? value : hook)));
+  }
+
+  function addHook() {
+    setHooks((prev) => [...prev, '']);
+  }
+
+  function removeHook(index: number) {
+    setHooks((prev) => (prev.length === 1 ? [''] : prev.filter((_, i) => i !== index)));
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs text-parchment/50">Hooks (optional)</span>
+      {hooks.map((hook, i) => (
+        <div key={i} className="flex gap-2">
+          <input
+            name="hooks"
+            value={hook}
+            onChange={(e) => updateHook(i, e.target.value)}
+            placeholder="Hook"
+            className={inputClass}
+          />
+          <button
+            type="button"
+            onClick={() => removeHook(i)}
+            aria-label={`Remove hook ${i + 1}`}
+            className={ghostButtonClass}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <button type="button" onClick={addHook} className={`${ghostButtonClass} self-start`}>
+        Add hook
+      </button>
+    </div>
+  );
+}
 
 function LinksSection({ campaignId, planId }: { campaignId: number; planId: number }) {
   const [links, setLinks] = useState<SessionPlanLibraryLink[] | null>(null);
@@ -194,6 +242,7 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [createFormGen, setCreateFormGen] = useState(0);
 
   async function refresh() {
     setLoading(true);
@@ -227,9 +276,14 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
   function buildContent(form: FormData): SessionPlanContent | null {
     const rest = parseContent(String(form.get('content') ?? ''));
     if (rest === null) return null;
+    const hooks = form
+      .getAll('hooks')
+      .map((h) => String(h).trim())
+      .filter(Boolean);
     return {
       ...rest,
       opening: String(form.get('opening') ?? '').trim(),
+      hooks,
       reward: String(form.get('reward') ?? '').trim(),
       notes: String(form.get('notes') ?? '').trim(),
     };
@@ -252,6 +306,7 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     try {
       await createSessionPlan(campaignId, { title, summary, order, content });
       formEl.reset();
+      setCreateFormGen((gen) => gen + 1);
       await refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to create session plan.');
@@ -306,9 +361,10 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
         <textarea name="summary" placeholder="Summary (optional)" className={inputClass} />
         <input name="order" type="number" placeholder="Order" defaultValue={0} className={inputClass} />
         <textarea name="opening" placeholder="Opening (optional) — how the session starts" className={inputClass} />
+        <HooksListEditor key={createFormGen} initial={[]} />
         <textarea
           name="content"
-          placeholder='Beats, countdowns, hooks as JSON (optional), e.g. {"hooks": ["..."]}'
+          placeholder='Beats, countdowns as JSON (optional), e.g. {"beats": [...]}'
           className={`${inputClass} font-mono text-xs`}
         />
         <textarea name="reward" placeholder="Reward (optional) — the payoff" className={inputClass} />
@@ -345,10 +401,11 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
                     placeholder="Opening (optional) — how the session starts"
                     className={inputClass}
                   />
+                  <HooksListEditor initial={plan.content.hooks ?? []} />
                   <textarea
                     name="content"
                     defaultValue={JSON.stringify(contentRest(plan.content), null, 2)}
-                    placeholder='Beats, countdowns, hooks as JSON (optional), e.g. {"hooks": ["..."]}'
+                    placeholder='Beats, countdowns as JSON (optional), e.g. {"beats": [...]}'
                     className={`${inputClass} font-mono text-xs`}
                   />
                   <textarea
