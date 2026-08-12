@@ -6,9 +6,17 @@ from sqlalchemy.orm import Session
 from app.models import AppSetting
 
 # World > Continent > Region > Location is the place hierarchy; Faction/Npc/
-# Adversary hang directly off World. ENTITY_SEGMENTS covers every entity type
-# the shared CRUD factory builds; KIND_SEGMENTS is the subset with `kind`.
-ENTITY_SEGMENTS = ["continents", "regions", "locations", "factions", "npcs", "adversaries"]
+# Adversary/Environment hang directly off World. ENTITY_SEGMENTS covers every
+# entity type the shared CRUD factory builds; KIND_SEGMENTS is the subset with `kind`.
+ENTITY_SEGMENTS = [
+    "continents",
+    "regions",
+    "locations",
+    "factions",
+    "npcs",
+    "adversaries",
+    "environments",
+]
 KIND_SEGMENTS = ["continents", "regions", "locations"]
 
 
