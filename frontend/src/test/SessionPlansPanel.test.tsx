@@ -62,12 +62,12 @@ describe('SessionPlansPanel', () => {
         title: 'Raid on Hillford, Session 1',
         summary: '',
         order: 0,
-        content: { opening: '', hooks: [], reward: '', notes: '' },
+        content: { opening: '', hooks: [], beats: [], reward: '', notes: '' },
       }),
     );
   });
 
-  it('sends opening/reward/notes/hooks as dedicated fields, separate from the beats/countdowns JSON', async () => {
+  it('sends opening/reward/notes/hooks as dedicated fields, separate from the countdowns JSON', async () => {
     mocked.listSessionPlans.mockResolvedValue([]);
     mocked.createSessionPlan.mockResolvedValue({
       id: 2,
@@ -97,6 +97,7 @@ describe('SessionPlansPanel', () => {
         order: 0,
         content: {
           hooks: ['Where was the Baron?'],
+          beats: [],
           opening: 'Smoke on the horizon.',
           reward: 'A signet ring.',
           notes: 'Sandbox, not scripted.',
@@ -105,14 +106,14 @@ describe('SessionPlansPanel', () => {
     );
   });
 
-  it('rejects invalid JSON in the beats/countdowns field instead of submitting', async () => {
+  it('rejects invalid JSON in the countdowns field instead of submitting', async () => {
     mocked.listSessionPlans.mockResolvedValue([]);
 
     render(<SessionPlansPanel campaignId={1} />);
     await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
 
     await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
-    fireEvent.change(screen.getByPlaceholderText(/Beats, countdowns/), {
+    fireEvent.change(screen.getByPlaceholderText(/Countdowns/), {
       target: { value: '{not valid json' },
     });
     await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
@@ -153,10 +154,98 @@ describe('SessionPlansPanel', () => {
         content: {
           opening: '',
           hooks: ['Who burned the granary?'],
+          beats: [],
           reward: '',
           notes: '',
         },
       }),
+    );
+  });
+
+  it('supports adding and removing beats in the create form', async () => {
+    mocked.listSessionPlans.mockResolvedValue([]);
+    mocked.createSessionPlan.mockResolvedValue({
+      id: 2,
+      campaign_id: 1,
+      title: 'Session 1',
+      summary: '',
+      order: 0,
+      content: {},
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+
+    render(<SessionPlansPanel campaignId={1} />);
+    await waitFor(() => expect(screen.getByText(/No session plans yet/)).toBeInTheDocument());
+
+    await userEvent.type(screen.getByPlaceholderText('Session title'), 'Session 1');
+    await userEvent.click(screen.getByRole('button', { name: 'Add beat' }));
+    const nameInputs = screen.getAllByPlaceholderText('Beat name');
+    const descriptionInputs = screen.getAllByPlaceholderText('Beat description (optional)');
+    await userEvent.type(nameInputs[0], 'The Baron arrives');
+    await userEvent.type(descriptionInputs[0], 'He is not who he claims.');
+    await userEvent.type(nameInputs[1], 'The granary burns');
+    await userEvent.click(screen.getByRole('button', { name: 'Remove beat 1' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create session plan' }));
+
+    await waitFor(() =>
+      expect(mocked.createSessionPlan).toHaveBeenCalledWith(1, {
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {
+          opening: '',
+          hooks: [],
+          beats: [{ name: 'The granary burns' }],
+          reward: '',
+          notes: '',
+        },
+      }),
+    );
+  });
+
+  it('preserves an existing beat npc_ids through an edit-and-save, unmodified by the UI', async () => {
+    mocked.listSessionPlans.mockResolvedValue([
+      {
+        id: 2,
+        campaign_id: 1,
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {
+          beats: [{ name: 'The Baron arrives', description: 'A twist.', npc_ids: [7, 12] }],
+        },
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
+    mocked.updateSessionPlan.mockResolvedValue({
+      id: 2,
+      campaign_id: 1,
+      title: 'Session 1',
+      summary: '',
+      order: 0,
+      content: {},
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+
+    render(<SessionPlansPanel campaignId={1} />);
+    await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(mocked.updateSessionPlan).toHaveBeenCalledWith(
+        1,
+        2,
+        expect.objectContaining({
+          content: expect.objectContaining({
+            beats: [{ name: 'The Baron arrives', description: 'A twist.', npc_ids: [7, 12] }],
+          }),
+        }),
+      ),
     );
   });
 
