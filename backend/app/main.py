@@ -19,6 +19,7 @@ from app.routers import (
     chat,
     combat,
     database,
+    generators,
     health,
     library,
     player,
@@ -118,6 +119,7 @@ def create_app() -> FastAPI:
     app.include_router(bestiary.router)
     app.include_router(combat.fear_router)
     app.include_router(combat.countdown_router)
+    app.include_router(generators.router)
     return app
 
 
