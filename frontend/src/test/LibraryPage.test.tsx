@@ -58,6 +58,9 @@ describe('LibraryPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Factions' }));
     await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('factions', 1));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Environments' }));
+    await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('environments', 1));
   });
 
   it('creates a continent via the form, including its kind field', async () => {
