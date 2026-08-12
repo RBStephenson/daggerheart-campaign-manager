@@ -68,8 +68,8 @@ export default function GmGuide() {
           a pure roleplay session looks nothing like one for a raid.
         </p>
         <p>
-          You can also link Library entities (see below) you plan to use, like the NPCs or
-          adversaries that'll show up.
+          You can also link Library entities (see below) you plan to use, like the NPCs,
+          adversaries, or environments that'll show up.
         </p>
       </HelpSection>
 
@@ -77,12 +77,12 @@ export default function GmGuide() {
         <p>
           The <strong>Library</strong> tab holds everything about your world that isn't tied to a
           specific campaign: the place hierarchy (Continents → Regions → Locations), Factions,
-          NPCs, and Adversaries you've authored yourself. The first time you visit, you'll be
-          asked to name your world — one world holds everything.
+          NPCs, Adversaries, and Environments you've authored yourself. The first time you visit,
+          you'll be asked to name your world — one world holds everything.
         </p>
         <p>
-          Adversaries you spawn from the Bestiary (below) show up here too, alongside anything you
-          write from scratch.
+          Adversaries and Environments you spawn from the Bestiary (below) show up here too,
+          alongside anything you write from scratch.
         </p>
       </HelpSection>
 
@@ -138,11 +138,10 @@ export default function GmGuide() {
           its full stat block (Difficulty, Thresholds, HP, Stress, attack, and every feature).
         </p>
         <p>
-          To actually use an adversary in your world, expand it and click{' '}
+          To actually use an adversary or environment in your world, expand it and click{' '}
           <strong>Add to Library</strong> — this creates a real Library entry with the whole stat
           block attached, which you can then link into a session plan or just reference on the
-          Library tab. Environments are reference-only for now; there's no "add to Library" for
-          them yet.
+          Library tab.
         </p>
       </HelpSection>
 

@@ -225,8 +225,9 @@ textarea, any such as-yet-unmodeled content key is likewise carried forward
 unedited via a hidden `content-extra` field, rather than silently dropped.
 
 A session plan can link to Library entities (Continents, Regions, Locations,
-Factions, NPCs, Adversaries) it expects to use — `SessionPlanLibraryLink` —
-surfaced in `SessionPlansPanel` as a "Library links" section per plan.
+Factions, NPCs, Adversaries, Environments) it expects to use —
+`SessionPlanLibraryLink` — surfaced in `SessionPlansPanel` as a "Library
+links" section per plan.
 
 | Endpoint | Description |
 | --- | --- |
@@ -353,13 +354,12 @@ stat blocks and 19 environment stat blocks, transcribed verbatim (see
 
 `BestiaryPage` (`frontend/src/pages/gm/BestiaryPage.tsx`, `/gm/bestiary`) lets the GM
 search and tier-filter both, and expand a card for the full stat block. "Add to
-Library" on an adversary card spawns it as a real Library `Adversary` entity
-(the GM worldbuilding feature behind `library_enabled` — worlds, Continents,
-Regions, Locations, Factions, NPCs, and Adversaries, see
-`backend/app/routers/library.py`) via the existing generic entity-create
-endpoint — no dedicated spawn endpoint exists, the stat block is just serialized
-into that entity's `extra` field. Environments have no Library equivalent yet, so
-they're browse-only.
+Library" on an adversary or environment card spawns it as a real Library
+`Adversary`/`Environment` entity (the GM worldbuilding feature behind
+`library_enabled` — worlds, Continents, Regions, Locations, Factions, NPCs,
+Adversaries, and Environments, see `backend/app/routers/library.py`) via the
+existing generic entity-create endpoint — no dedicated spawn endpoint exists,
+the stat block is just serialized into that entity's `extra` field.
 
 | Endpoint | Description |
 | --- | --- |
