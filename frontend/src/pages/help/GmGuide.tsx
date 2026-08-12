@@ -60,8 +60,16 @@ export default function GmGuide() {
       <HelpSection title="Session planning" flag="session_planning_enabled">
         <p>
           On a campaign's card, click <strong>Session plans</strong> to draft what you expect to
-          happen in an upcoming session — a title, summary, and links to Library entities (see
-          below) you plan to use, like the NPCs or adversaries that'll show up.
+          happen in an upcoming session: a title and summary, an opening beat for how it starts, a
+          list of hooks to seed, a sequence of story beats, parallel countdowns (Daggerheart's
+          countdown mechanic — segments, what ticks them, what happens on completion or early
+          intervention), a reward, and freeform notes. Use the <strong>Add</strong> buttons to add
+          as many hooks, beats, or countdowns as you need — every field is optional, so a plan for
+          a pure roleplay session looks nothing like one for a raid.
+        </p>
+        <p>
+          You can also link Library entities (see below) you plan to use, like the NPCs or
+          adversaries that'll show up.
         </p>
       </HelpSection>
 

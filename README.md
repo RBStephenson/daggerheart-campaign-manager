@@ -203,6 +203,42 @@ can have more than one character — `Character` has no uniqueness constraint on
 | --- | --- |
 | `GET /api/campaigns/{id}/party` | Every member's characters, read-only — gm only |
 
+### Session planning
+
+Behind the `session_planning_enabled` feature flag (default off, toggle on
+`/host/settings`), layered on top of `campaigns_enabled`. `SessionPlan`
+(`backend/app/schemas/session_plans.py`) models the shape Brent already plans
+sessions in by hand: a title, summary, and ordered `content` — an `opening`
+beat, a sequence of story `beats` (name/description, each optionally linked to
+specific NPCs via `npc_ids`), parallel `countdowns` (Daggerheart's countdown
+mechanic — segments, what ticks them, what happens on completion vs. early
+intervention), a flat list of seeded `hooks`, a `reward`, and a freeform
+`notes` bucket. Every field is optional. `SessionPlansPanel`
+(`frontend/src/pages/gm/SessionPlansPanel.tsx`) gives each repeatable field
+(hooks, beats, countdowns) its own add/remove list editor rather than a raw
+JSON textarea — `HooksListEditor`, `BeatsListEditor`, `CountdownsListEditor`.
+A beat's `npc_ids` isn't editable from this UI yet (DHCM-70's explicit scope);
+it survives a save unchanged via a hidden per-row field carrying the original
+value forward. The schema's `extra="allow"` means an unanticipated future
+planning shape isn't rejected outright — since DHCM-71 retired the JSON
+textarea, any such as-yet-unmodeled content key is likewise carried forward
+unedited via a hidden `content-extra` field, rather than silently dropped.
+
+A session plan can link to Library entities (Continents, Regions, Locations,
+Factions, NPCs, Adversaries) it expects to use — `SessionPlanLibraryLink` —
+surfaced in `SessionPlansPanel` as a "Library links" section per plan.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/campaigns/{id}/session-plans` | List a campaign's session plans |
+| `POST /api/campaigns/{id}/session-plans` | Create a session plan |
+| `GET /api/campaigns/{id}/session-plans/{plan_id}` | Get a session plan |
+| `PUT /api/campaigns/{id}/session-plans/{plan_id}` | Update a session plan |
+| `DELETE /api/campaigns/{id}/session-plans/{plan_id}` | Delete a session plan |
+| `GET .../session-plans/{plan_id}/links` | List a plan's Library links |
+| `POST .../session-plans/{plan_id}/links` | Attach a Library entity |
+| `DELETE .../session-plans/{plan_id}/links/{link_id}` | Remove a link |
+
 ## Player: characters, campaigns, notes
 
 Behind the `player_area_enabled` feature flag (default off, toggle on
