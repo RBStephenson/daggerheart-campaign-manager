@@ -33,6 +33,7 @@ const TOP_LEVEL_TABS: { type: LibrarySegment; label: string }[] = [
   { type: 'factions', label: 'Factions' },
   { type: 'npcs', label: 'NPCs' },
   { type: 'adversaries', label: 'Adversaries' },
+  { type: 'environments', label: 'Environments' },
 ];
 
 const SINGULAR: Record<LibrarySegment, string> = {
@@ -42,6 +43,7 @@ const SINGULAR: Record<LibrarySegment, string> = {
   factions: 'Faction',
   npcs: 'NPC',
   adversaries: 'Adversary',
+  environments: 'Environment',
 };
 
 const CHILD_SEGMENT: Partial<Record<LibrarySegment, LibrarySegment>> = {

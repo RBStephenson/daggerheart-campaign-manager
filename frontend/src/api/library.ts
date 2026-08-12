@@ -29,7 +29,8 @@ export type LibrarySegment =
   | 'locations'
   | 'factions'
   | 'npcs'
-  | 'adversaries';
+  | 'adversaries'
+  | 'environments';
 
 const PARENT_SEGMENT: Record<LibrarySegment, string> = {
   continents: 'worlds',
@@ -38,6 +39,7 @@ const PARENT_SEGMENT: Record<LibrarySegment, string> = {
   factions: 'worlds',
   npcs: 'worlds',
   adversaries: 'worlds',
+  environments: 'worlds',
 };
 
 export const SEGMENT_HAS_KIND: Record<LibrarySegment, boolean> = {
@@ -47,6 +49,7 @@ export const SEGMENT_HAS_KIND: Record<LibrarySegment, boolean> = {
   factions: false,
   npcs: false,
   adversaries: false,
+  environments: false,
 };
 
 function collectionUrl(segment: LibrarySegment, parentId: number): string {
