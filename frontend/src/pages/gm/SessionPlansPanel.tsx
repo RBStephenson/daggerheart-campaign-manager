@@ -16,17 +16,20 @@ import {
   type SessionPlanLibraryLink,
 } from '../../api/sessionPlans';
 
-// opening/reward/notes/hooks get their own inputs; everything else in
-// `content` (beats/countdowns, plus any future unnamed key) stays
-// JSON-editable until its own repeatable-list UI ships (DHCM-70/71).
+// opening/reward/notes/hooks/beats get their own inputs; everything else in
+// `content` (countdowns, plus any future unnamed key) stays JSON-editable
+// until its own repeatable-list UI ships (DHCM-71).
 function contentRest(content: SessionPlanContent): Record<string, unknown> {
   const rest: Record<string, unknown> = { ...content };
   delete rest.opening;
   delete rest.reward;
   delete rest.notes;
   delete rest.hooks;
+  delete rest.beats;
   return rest;
 }
+
+type Beat = NonNullable<SessionPlanContent['beats']>[number];
 
 const cardClass =
   'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -114,6 +117,66 @@ function HooksListEditor({ initial }: { initial: string[] }) {
       ))}
       <button type="button" onClick={addHook} className={`${ghostButtonClass} self-start`}>
         Add hook
+      </button>
+    </div>
+  );
+}
+
+// Renders name/description as repeated `name="beats-name"`/`name="beats-description"`
+// inputs, zipped by index on submit — same FormData convention as
+// HooksListEditor. `npc_ids` isn't editable from this UI yet (DHCM-70 scope),
+// but has to survive a save unchanged, so each row also carries a hidden
+// `name="beats-npc-ids"` input holding its original value untouched.
+function BeatsListEditor({ initial }: { initial: Beat[] }) {
+  const emptyBeat: Beat = { name: '' };
+  const [beats, setBeats] = useState<Beat[]>(initial.length ? initial : [emptyBeat]);
+
+  function updateBeat(index: number, patch: Partial<Beat>) {
+    setBeats((prev) => prev.map((beat, i) => (i === index ? { ...beat, ...patch } : beat)));
+  }
+
+  function addBeat() {
+    setBeats((prev) => [...prev, emptyBeat]);
+  }
+
+  function removeBeat(index: number) {
+    setBeats((prev) => (prev.length === 1 ? [emptyBeat] : prev.filter((_, i) => i !== index)));
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-xs text-parchment/50">Beats (optional)</span>
+      {beats.map((beat, i) => (
+        <div key={i} className="flex flex-col gap-1 rounded-md border border-hairline/15 p-2">
+          <div className="flex gap-2">
+            <input
+              name="beats-name"
+              value={beat.name}
+              onChange={(e) => updateBeat(i, { name: e.target.value })}
+              placeholder="Beat name"
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => removeBeat(i)}
+              aria-label={`Remove beat ${i + 1}`}
+              className={ghostButtonClass}
+            >
+              ×
+            </button>
+          </div>
+          <textarea
+            name="beats-description"
+            value={beat.description ?? ''}
+            onChange={(e) => updateBeat(i, { description: e.target.value })}
+            placeholder="Beat description (optional)"
+            className={inputClass}
+          />
+          <input type="hidden" name="beats-npc-ids" value={JSON.stringify(beat.npc_ids ?? [])} />
+        </div>
+      ))}
+      <button type="button" onClick={addBeat} className={`${ghostButtonClass} self-start`}>
+        Add beat
       </button>
     </div>
   );
@@ -273,6 +336,26 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     }
   }
 
+  function buildBeats(form: FormData): SessionPlanContent['beats'] {
+    const names = form.getAll('beats-name').map(String);
+    const descriptions = form.getAll('beats-description').map(String);
+    const npcIdsRaw = form.getAll('beats-npc-ids').map(String);
+    return names.flatMap((rawName, i) => {
+      const name = rawName.trim();
+      if (!name) return [];
+      const beat: Beat = { name };
+      const description = (descriptions[i] ?? '').trim();
+      if (description) beat.description = description;
+      try {
+        const parsed: unknown = JSON.parse(npcIdsRaw[i] || '[]');
+        if (Array.isArray(parsed) && parsed.length > 0) beat.npc_ids = parsed as number[];
+      } catch {
+        // malformed hidden field (shouldn't happen outside a test/devtools edit) — drop npc_ids
+      }
+      return [beat];
+    });
+  }
+
   function buildContent(form: FormData): SessionPlanContent | null {
     const rest = parseContent(String(form.get('content') ?? ''));
     if (rest === null) return null;
@@ -284,6 +367,7 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
       ...rest,
       opening: String(form.get('opening') ?? '').trim(),
       hooks,
+      beats: buildBeats(form),
       reward: String(form.get('reward') ?? '').trim(),
       notes: String(form.get('notes') ?? '').trim(),
     };
@@ -300,7 +384,7 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     const content = buildContent(form);
     if (!title) return;
     if (content === null) {
-      setError('Beats/countdowns/hooks content must be valid JSON.');
+      setError('Countdowns content must be valid JSON.');
       return;
     }
     try {
@@ -323,7 +407,7 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
     const content = buildContent(form);
     if (!title) return;
     if (content === null) {
-      setError('Beats/countdowns/hooks content must be valid JSON.');
+      setError('Countdowns content must be valid JSON.');
       return;
     }
     try {
@@ -361,10 +445,11 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
         <textarea name="summary" placeholder="Summary (optional)" className={inputClass} />
         <input name="order" type="number" placeholder="Order" defaultValue={0} className={inputClass} />
         <textarea name="opening" placeholder="Opening (optional) — how the session starts" className={inputClass} />
-        <HooksListEditor key={createFormGen} initial={[]} />
+        <HooksListEditor key={`hooks-${createFormGen}`} initial={[]} />
+        <BeatsListEditor key={`beats-${createFormGen}`} initial={[]} />
         <textarea
           name="content"
-          placeholder='Beats, countdowns as JSON (optional), e.g. {"beats": [...]}'
+          placeholder='Countdowns as JSON (optional), e.g. {"countdowns": [...]}'
           className={`${inputClass} font-mono text-xs`}
         />
         <textarea name="reward" placeholder="Reward (optional) — the payoff" className={inputClass} />
@@ -402,10 +487,11 @@ export default function SessionPlansPanel({ campaignId }: { campaignId: number }
                     className={inputClass}
                   />
                   <HooksListEditor initial={plan.content.hooks ?? []} />
+                  <BeatsListEditor initial={plan.content.beats ?? []} />
                   <textarea
                     name="content"
                     defaultValue={JSON.stringify(contentRest(plan.content), null, 2)}
-                    placeholder='Beats, countdowns as JSON (optional), e.g. {"beats": [...]}'
+                    placeholder='Countdowns as JSON (optional), e.g. {"countdowns": [...]}'
                     className={`${inputClass} font-mono text-xs`}
                   />
                   <textarea
