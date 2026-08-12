@@ -411,6 +411,60 @@ describe('SessionPlansPanel', () => {
     );
   });
 
+  it('attaches an Environment link to a plan', async () => {
+    mocked.listSessionPlans.mockResolvedValue([
+      {
+        id: 2,
+        campaign_id: 1,
+        title: 'Session 1',
+        summary: '',
+        order: 0,
+        content: {},
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
+    mockedLibrary.listEntities.mockImplementation((segment) => {
+      if (segment === 'environments') {
+        return Promise.resolve([
+          {
+            id: 7,
+            world_id: 1,
+            name: 'Abandoned Grove',
+            summary: '',
+            extra: '{}',
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-01-01T00:00:00Z',
+          },
+        ]);
+      }
+      return Promise.resolve([]);
+    });
+    mocked.createLink.mockResolvedValue({
+      id: 9,
+      session_plan_id: 2,
+      entity_type: 'environment',
+      entity_id: 7,
+      created_at: '2026-01-01T00:00:00Z',
+    });
+
+    render(<SessionPlansPanel campaignId={1} />);
+    await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Entity type' }), 'environment');
+    await waitFor(() => expect(screen.getByText('Abandoned Grove')).toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Library entity' }), '7');
+    await userEvent.click(screen.getByRole('button', { name: 'Attach' }));
+
+    await waitFor(() =>
+      expect(mocked.createLink).toHaveBeenCalledWith(1, 2, {
+        entity_type: 'environment',
+        entity_id: 7,
+      }),
+    );
+  });
+
   it('resolves an attached link to its entity name instead of a raw id', async () => {
     mocked.listSessionPlans.mockResolvedValue([
       {

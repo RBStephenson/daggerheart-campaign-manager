@@ -79,6 +79,7 @@ const LINK_TYPES: {
   { type: 'faction', label: 'Faction', list: (w) => listEntities('factions', w) },
   { type: 'npc', label: 'NPC', list: (w) => listEntities('npcs', w) },
   { type: 'adversary', label: 'Adversary', list: (w) => listEntities('adversaries', w) },
+  { type: 'environment', label: 'Environment', list: (w) => listEntities('environments', w) },
 ];
 
 const EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
@@ -88,6 +89,7 @@ const EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
   faction: [],
   npc: [],
   adversary: [],
+  environment: [],
 };
 
 // Renders as repeated `name="hooks"` inputs so the surrounding form's

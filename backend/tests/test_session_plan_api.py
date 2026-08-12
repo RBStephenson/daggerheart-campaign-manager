@@ -309,7 +309,8 @@ def test_session_plans_are_scoped_to_their_campaign(as_user, db: Session) -> Non
 
 
 @pytest.mark.parametrize(
-    "segment", ["continent", "region", "location", "faction", "npc", "adversary"]
+    "segment",
+    ["continent", "region", "location", "faction", "npc", "adversary", "environment"],
 )
 def test_link_accepts_every_library_entity_type(as_user, db: Session, segment: str) -> None:
     enable_session_planning(db)
