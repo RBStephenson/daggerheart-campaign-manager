@@ -93,3 +93,34 @@ class LocationOut(BaseModel):
     kind: str
     created_at: datetime
     updated_at: datetime
+
+
+# Adversary-only: a freeform GM note (DHCM-65/DHCM-90), kept separate from
+# `extra` since `extra` already carries the full spawned Bestiary stat block
+# for adversaries created via "Add to Library" (DHCM-73/75) -- mixing a note
+# into that JSON blob would collide with its shape.
+class AdversaryCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    summary: str = ""
+    extra: str = "{}"
+    notes: str = ""
+
+
+class AdversaryUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    summary: str | None = None
+    extra: str | None = None
+    notes: str | None = None
+
+    model_config = {"extra": "forbid"}
+
+
+class AdversaryOut(BaseModel):
+    id: int
+    world_id: int
+    name: str
+    summary: str
+    extra: str
+    notes: str
+    created_at: datetime
+    updated_at: datetime

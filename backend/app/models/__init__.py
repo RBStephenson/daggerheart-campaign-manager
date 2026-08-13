@@ -378,7 +378,13 @@ class Npc(Base):
 
 
 class Adversary(Base):
-    """A Library adversary/statblock, scoped to a world and independent of any campaign."""
+    """A Library adversary/statblock, scoped to a world and independent of any campaign.
+
+    `notes` is a freeform GM-only field (DHCM-65/DHCM-90) for live-play recall
+    (signature moves, table-specific reminders) -- kept separate from `extra`,
+    which already carries the full spawned Bestiary stat block for adversaries
+    created via "Add to Library" (DHCM-73/75).
+    """
 
     __tablename__ = "adversaries"
 
@@ -387,6 +393,7 @@ class Adversary(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False, default="")
     extra: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 

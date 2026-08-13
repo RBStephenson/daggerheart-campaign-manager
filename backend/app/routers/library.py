@@ -33,6 +33,9 @@ from app.routers.session_plans import _LIBRARY_MODELS
 from app.routers.settings import get_settings
 from app.schemas.clues import ClueCreate, ClueOut, ClueUpdate
 from app.schemas.library import (
+    AdversaryCreate,
+    AdversaryOut,
+    AdversaryUpdate,
     ContinentOut,
     LibraryEntityCreate,
     LibraryEntityOut,
@@ -119,14 +122,26 @@ def _add_entity_routes(
     parent_attr: str,
     parent_label: str,
     has_kind: bool,
+    has_notes: bool = False,
 ) -> None:
     prefix = f"/{parent_segment}/{{parent_id}}/{segment}"
-    create_schema = LibraryEntityWithKindCreate if has_kind else LibraryEntityCreate
-    update_schema = LibraryEntityWithKindUpdate if has_kind else LibraryEntityUpdate
+    # has_kind and has_notes never both apply to the same segment (kind is
+    # the place-hierarchy's field, notes is Adversary-only), so a simple
+    # if/elif is enough rather than a full matrix of schema combinations.
+    if has_kind:
+        create_schema: type[BaseModel] = LibraryEntityWithKindCreate
+        update_schema: type[BaseModel] = LibraryEntityWithKindUpdate
+    elif has_notes:
+        create_schema = AdversaryCreate
+        update_schema = AdversaryUpdate
+    else:
+        create_schema = LibraryEntityCreate
+        update_schema = LibraryEntityUpdate
     out_schemas: dict[str, type[BaseModel]] = {
         "continents": ContinentOut,
         "regions": RegionOut,
         "locations": LocationOut,
+        "adversaries": AdversaryOut,
     }
     out_schema = out_schemas.get(segment, LibraryEntityOut)
 
@@ -158,6 +173,8 @@ def _add_entity_routes(
         }
         if has_kind:
             kwargs["kind"] = body.kind  # type: ignore[attr-defined]
+        if has_notes:
+            kwargs["notes"] = body.notes  # type: ignore[attr-defined]
         entity = model(**kwargs)
         db.add(entity)
         db.commit()
@@ -192,6 +209,8 @@ def _add_entity_routes(
             entity.extra = body.extra  # type: ignore[attr-defined]
         if has_kind and body.kind is not None:  # type: ignore[attr-defined]
             entity.kind = body.kind  # type: ignore[attr-defined]
+        if has_notes and body.notes is not None:  # type: ignore[attr-defined]
+            entity.notes = body.notes  # type: ignore[attr-defined]
         entity.updated_at = datetime.now(UTC)  # type: ignore[attr-defined]
         db.commit()
         db.refresh(entity)
@@ -209,18 +228,18 @@ def _add_entity_routes(
         db.commit()
 
 
-for _model, _segment, _parent_model, _parent_segment, _parent_attr, _parent_label, _has_kind in (
-    (Continent, "continents", World, "worlds", "world_id", "World", True),
-    (Faction, "factions", World, "worlds", "world_id", "World", False),
-    (Npc, "npcs", World, "worlds", "world_id", "World", False),
-    (Adversary, "adversaries", World, "worlds", "world_id", "World", False),
-    (Environment, "environments", World, "worlds", "world_id", "World", False),
-    (Region, "regions", Continent, "continents", "continent_id", "Continent", True),
-    (Location, "locations", Region, "regions", "region_id", "Region", True),
-):
-    _add_entity_routes(
-        _model, _segment, _parent_model, _parent_segment, _parent_attr, _parent_label, _has_kind
-    )
+_ENTITY_ROUTE_SPECS = (
+    (Continent, "continents", World, "worlds", "world_id", "World", True, False),
+    (Faction, "factions", World, "worlds", "world_id", "World", False, False),
+    (Npc, "npcs", World, "worlds", "world_id", "World", False, False),
+    (Adversary, "adversaries", World, "worlds", "world_id", "World", False, True),
+    (Environment, "environments", World, "worlds", "world_id", "World", False, False),
+    (Region, "regions", Continent, "continents", "continent_id", "Continent", True, False),
+    (Location, "locations", Region, "regions", "region_id", "Region", True, False),
+)
+
+for _spec in _ENTITY_ROUTE_SPECS:
+    _add_entity_routes(*_spec)
 
 
 # Clue (DHCM-63/DHCM-86) doesn't share the name/summary/extra shape the

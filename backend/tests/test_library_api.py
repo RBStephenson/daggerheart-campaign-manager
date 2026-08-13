@@ -202,6 +202,36 @@ def test_update_entity_kind(as_user, db: Session, segment: str) -> None:
     assert resp.json()["kind"] == "ruin"
 
 
+def test_adversary_notes_defaults_empty_and_round_trips(as_user, db: Session) -> None:
+    enable_library(db)
+    client = as_user("gm")
+    world_id = make_world(client)
+    url = f"/api/library/worlds/{world_id}/adversaries"
+
+    resp = client.post(url, json={"name": "Grim Bailiff"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["notes"] == ""
+
+    entity_id = body["id"]
+    note = "Opens with the Fear feature immediately."
+    resp = client.put(f"{url}/{entity_id}", json={"notes": note})
+    assert resp.status_code == 200
+    assert resp.json()["notes"] == note
+
+    resp = client.get(f"{url}/{entity_id}")
+    assert resp.json()["notes"] == note
+
+
+def test_other_entity_types_have_no_notes_field(as_user, db: Session) -> None:
+    enable_library(db)
+    client = as_user("gm")
+    world_id = make_world(client)
+    resp = client.post(f"/api/library/worlds/{world_id}/factions", json={"name": "The Ashen Court"})
+    assert resp.status_code == 200
+    assert "notes" not in resp.json()
+
+
 @pytest.mark.parametrize("segment", ENTITY_SEGMENTS)
 def test_update_rejects_unknown_field(as_user, db: Session, segment: str) -> None:
     enable_library(db)
