@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
+import { createClue, deleteClue, listClues, updateClue, type Clue } from '../../api/clues';
 import {
   createEntity,
   createWorld,
@@ -13,6 +14,7 @@ import {
   type LibrarySegment,
   type World,
 } from '../../api/library';
+import type { LibraryEntityType } from '../../api/sessionPlans';
 
 const cardClass =
   'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -27,13 +29,19 @@ const tabClass = (active: boolean) =>
 
 // Top-level Library tabs. Continents is the entry point into the place
 // hierarchy (World > Continent > Region > Location); Factions/NPCs/
-// Adversaries stay flat, scoped directly to the world.
-const TOP_LEVEL_TABS: { type: LibrarySegment; label: string }[] = [
+// Adversaries stay flat, scoped directly to the world. Clues isn't a
+// LibrarySegment -- its shape (text/revelation/entity_type/entity_id)
+// doesn't match the shared name/summary/extra CRUD the other tabs use, so
+// it's handled as a separate branch below rather than folded into the
+// LibrarySegment union (see backend/app/routers/library.py's Clue routes,
+// which made the same call).
+const TOP_LEVEL_TABS: { type: LibrarySegment | 'clues'; label: string }[] = [
   { type: 'continents', label: 'Continents' },
   { type: 'factions', label: 'Factions' },
   { type: 'npcs', label: 'NPCs' },
   { type: 'adversaries', label: 'Adversaries' },
   { type: 'environments', label: 'Environments' },
+  { type: 'clues', label: 'Clues' },
 ];
 
 const SINGULAR: Record<LibrarySegment, string> = {
@@ -271,10 +279,236 @@ function WorldScopedPanel({ worldId, segment }: { worldId: number; segment: Libr
   return <EntityPanel key={segment} segment={segment} parentId={worldId} />;
 }
 
+// Attachment types a Clue can point at -- the same 7 keys the backend's
+// _LIBRARY_MODELS dict validates against (session_plans.py, reused by
+// library.py's Clue routes). Regions/Locations aren't listable directly off
+// a world, so their fetchers walk the hierarchy and flatten it, same trick
+// SessionPlansPanel.tsx uses for its own entity-link picker (not exported
+// from there, so duplicated here rather than reaching across panels).
+async function listAllRegions(worldId: number): Promise<LibraryEntity[]> {
+  const continents = await listEntities('continents', worldId);
+  const perContinent = await Promise.all(continents.map((c) => listEntities('regions', c.id)));
+  return perContinent.flat();
+}
+
+async function listAllLocations(worldId: number): Promise<LibraryEntity[]> {
+  const regions = await listAllRegions(worldId);
+  const perRegion = await Promise.all(regions.map((r) => listEntities('locations', r.id)));
+  return perRegion.flat();
+}
+
+const CLUE_LINK_TYPES: {
+  type: LibraryEntityType;
+  label: string;
+  list: (worldId: number) => Promise<LibraryEntity[]>;
+}[] = [
+  { type: 'continent', label: 'Continent', list: (w) => listEntities('continents', w) },
+  { type: 'region', label: 'Region', list: (w) => listAllRegions(w) },
+  { type: 'location', label: 'Location', list: (w) => listAllLocations(w) },
+  { type: 'faction', label: 'Faction', list: (w) => listEntities('factions', w) },
+  { type: 'npc', label: 'NPC', list: (w) => listEntities('npcs', w) },
+  { type: 'adversary', label: 'Adversary', list: (w) => listEntities('adversaries', w) },
+  { type: 'environment', label: 'Environment', list: (w) => listEntities('environments', w) },
+];
+
+const CLUE_EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = {
+  continent: [],
+  region: [],
+  location: [],
+  faction: [],
+  npc: [],
+  adversary: [],
+  environment: [],
+};
+
+function CluesPanel({ worldId }: { worldId: number }) {
+  const [clues, setClues] = useState<Clue[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [entityType, setEntityType] = useState<LibraryEntityType | ''>('');
+  const [entitiesByType, setEntitiesByType] =
+    useState<Record<LibraryEntityType, LibraryEntity[]>>(CLUE_EMPTY_ENTITIES_BY_TYPE);
+
+  async function refresh() {
+    setLoading(true);
+    try {
+      setClues(await listClues(worldId));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void refresh();
+  }, [worldId]);
+
+  useEffect(() => {
+    Promise.all(CLUE_LINK_TYPES.map(({ list }) => list(worldId)))
+      .then((results) => {
+        const byType = { ...CLUE_EMPTY_ENTITIES_BY_TYPE };
+        CLUE_LINK_TYPES.forEach(({ type }, i) => {
+          byType[type] = results[i];
+        });
+        setEntitiesByType(byType);
+      })
+      .catch(() => setEntitiesByType(CLUE_EMPTY_ENTITIES_BY_TYPE));
+  }, [worldId]);
+
+  function attachmentLabel(clue: Clue): string | null {
+    if (!clue.entity_type || clue.entity_id == null) return null;
+    const linkType = CLUE_LINK_TYPES.find((t) => t.type === clue.entity_type);
+    const label = linkType?.label ?? clue.entity_type;
+    const entity = linkType ? entitiesByType[linkType.type].find((e) => e.id === clue.entity_id) : undefined;
+    return entity ? `${label}: ${entity.name}` : `${label} #${clue.entity_id}`;
+  }
+
+  async function handleCreate(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formEl = e.currentTarget;
+    const form = new FormData(formEl);
+    const text = String(form.get('text') ?? '').trim();
+    const revelation = String(form.get('revelation') ?? '').trim();
+    const entityIdRaw = String(form.get('entity_id') ?? '').trim();
+    if (!text) return;
+    await createClue(worldId, {
+      text,
+      revelation,
+      entity_type: entityType || null,
+      entity_id: entityType && entityIdRaw ? Number(entityIdRaw) : null,
+    });
+    formEl.reset();
+    setEntityType('');
+    await refresh();
+  }
+
+  async function handleUpdate(id: number, e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const text = String(form.get('text') ?? '').trim();
+    const revelation = String(form.get('revelation') ?? '').trim();
+    if (!text) return;
+    await updateClue(worldId, id, { text, revelation });
+    setEditingId(null);
+    await refresh();
+  }
+
+  async function handleDelete(id: number) {
+    await deleteClue(worldId, id);
+    await refresh();
+  }
+
+  return (
+    <div>
+      <form onSubmit={(e) => void handleCreate(e)} className={`mb-6 flex max-w-md flex-col gap-2 ${cardClass}`}>
+        <h2 className="mb-1 font-display text-sm tracking-wide text-parchment/80">New Clue</h2>
+        <textarea name="text" placeholder="Clue text" required className={inputClass} />
+        <input name="revelation" placeholder="Revelation (optional)" className={inputClass} />
+        <div className="flex gap-2">
+          <select
+            aria-label="Attach to entity type"
+            value={entityType}
+            onChange={(e) => setEntityType(e.target.value as LibraryEntityType | '')}
+            className={`${inputClass} w-auto`}
+          >
+            <option value="">Unattached</option>
+            {CLUE_LINK_TYPES.map(({ type, label }) => (
+              <option key={type} value={type}>
+                {label}
+              </option>
+            ))}
+          </select>
+          {entityType && (
+            <select name="entity_id" aria-label="Attached entity" defaultValue="" className={`${inputClass} w-auto`}>
+              <option value="" disabled>
+                Choose {CLUE_LINK_TYPES.find((t) => t.type === entityType)!.label.toLowerCase()}...
+              </option>
+              {entitiesByType[entityType].map((entity) => (
+                <option key={entity.id} value={entity.id}>
+                  {entity.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <button
+          type="submit"
+          className="self-start rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
+        >
+          Create clue
+        </button>
+      </form>
+
+      {loading ? (
+        <ul className="flex flex-col gap-3" aria-label="Loading clues">
+          {[0, 1].map((i) => (
+            <li key={i} className={cardClass}>
+              <Skeleton className="mb-2 h-5 w-1/3" />
+              <Skeleton className="h-4 w-2/3" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {clues?.map((clue) => (
+            <li key={clue.id} className={cardClass}>
+              {editingId === clue.id ? (
+                <form onSubmit={(e) => void handleUpdate(clue.id, e)} className="flex flex-col gap-2">
+                  <textarea name="text" defaultValue={clue.text} required className={inputClass} />
+                  <input name="revelation" defaultValue={clue.revelation} className={inputClass} />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className="rounded-md px-3 py-2 text-sm text-parchment/60 hover:text-parchment"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <p className="break-words text-sm text-parchment">{clue.text}</p>
+                  {clue.revelation && (
+                    <p className="text-xs uppercase tracking-wide text-parchment/40">
+                      Points to: {clue.revelation}
+                    </p>
+                  )}
+                  {attachmentLabel(clue) && (
+                    <p className="text-xs text-parchment/40">Attached: {attachmentLabel(clue)}</p>
+                  )}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setEditingId(clue.id)} className={ghostButtonClass}>
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => void handleDelete(clue.id)} className={ghostButtonClass}>
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+          {clues?.length === 0 && (
+            <li className="rounded-[12px] border border-dashed border-hairline/25 p-6 text-center text-sm text-parchment/50">
+              No clues yet. Create one above.
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function LibraryPage() {
   const [world, setWorld] = useState<World | null | undefined>(undefined);
   const [disabled, setDisabled] = useState(false);
-  const [activeType, setActiveType] = useState<LibrarySegment>('continents');
+  const [activeType, setActiveType] = useState<LibrarySegment | 'clues'>('continents');
 
   async function loadWorld() {
     try {
@@ -349,7 +583,11 @@ export default function LibraryPage() {
           </button>
         ))}
       </div>
-      <WorldScopedPanel key={activeType} worldId={world.id} segment={activeType} />
+      {activeType === 'clues' ? (
+        <CluesPanel key="clues" worldId={world.id} />
+      ) : (
+        <WorldScopedPanel key={activeType} worldId={world.id} segment={activeType} />
+      )}
     </div>
   );
 }
