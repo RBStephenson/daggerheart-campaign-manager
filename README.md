@@ -436,6 +436,31 @@ a 404 from either endpoint means render nothing.
 | `GET /api/player/campaigns/{id}/fear` | The campaign's current Fear value |
 | `GET /api/player/campaigns/{id}/countdowns` | The campaign's countdowns |
 
+### Encounter budget
+
+Also behind `combat_tools_enabled`. `app.services.encounter_budget` implements
+the SRD's "Building Balanced Encounters" Battle Points formula verbatim
+(pulled from the SRD PDF via PyMuPDF): base budget `(3 × party size) + 2`,
+adjusted by up to six GM-chosen factors (easier/harder fight, 2+ Solo
+adversaries, bonus damage to all adversaries, including a lower-tier
+adversary, skipping Bruisers/Hordes/Leaders/Solos entirely). Party size is a
+live count of the campaign's characters, not a stored field.
+
+`EncounterBuilderPanel` (`frontend/src/pages/gm/EncounterBuilderPanel.tsx`) is
+a toggleable panel per campaign card: the budget and its adjustment checkboxes
+up top, a bestiary search-and-add picker below. Each added adversary's cost is
+a client-side lookup (`COST_BY_TYPE` in `frontend/src/api/campaigns.ts`,
+mirroring the backend's table exactly) by its SRD `type` — Minions/Social/
+Support cost 1, Horde/Ranged/Skulk/Standard cost 2, Leader 3, Bruiser 4, Solo
+5. The running total shows against the budget with an over-budget indicator
+when it's exceeded, but this is **advisory only** — nothing stops a GM from
+adding more. The picked list is local component state, not persisted; live
+mid-session tuning is a possible future enhancement, not built here.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/campaigns/{id}/encounter-budget` | Query params per adjustment (booleans) → `{party_size, budget}` |
+
 ## Help pages
 
 `/help` (`frontend/src/pages/help/HelpPage.tsx`), linked from the top nav whenever
