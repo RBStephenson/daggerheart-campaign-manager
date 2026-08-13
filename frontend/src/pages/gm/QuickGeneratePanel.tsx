@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ApiError } from '../../api/client';
 import { generate, type GeneratorKind, type GeneratorSuggestion } from '../../api/generators';
+import { createEntity, listWorlds, type World } from '../../api/library';
 
 const cardClass =
   'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
@@ -30,7 +31,8 @@ function SuggestionCard({ suggestion }: { suggestion: GeneratorSuggestion }) {
     return (
       <div className="flex flex-col gap-1">
         <p className="text-sm text-parchment">
-          {suggestion.name} — <span className="text-parchment/70">{suggestion.role}</span>
+          <span data-testid="quick-generate-npc-name">{suggestion.name}</span> —{' '}
+          <span className="text-parchment/70">{suggestion.role}</span>
         </p>
         <p className="text-xs text-parchment/60">Motivation: {suggestion.motivation}</p>
         <p className="text-xs text-parchment/60">Quirk: {suggestion.quirk}</p>
@@ -49,10 +51,23 @@ export default function QuickGeneratePanel() {
   const [active, setActive] = useState<GeneratorKind | null>(null);
   const [suggestion, setSuggestion] = useState<GeneratorSuggestion | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [world, setWorld] = useState<World | null>(null);
+  const [keeping, setKeeping] = useState(false);
+  const [kept, setKept] = useState(false);
+
+  useEffect(() => {
+    listWorlds()
+      .then((worlds) => setWorld(worlds[0] ?? null))
+      .catch(() => {
+        // Library might be disabled independently of generators — Keep is
+        // an optional enhancement, not a hard requirement for generating.
+      });
+  }, []);
 
   async function handleGenerate(kind: GeneratorKind) {
     setError(null);
     setActive(kind);
+    setKept(false);
     try {
       const result = await generate(kind);
       setSuggestion(result);
@@ -66,6 +81,24 @@ export default function QuickGeneratePanel() {
     setActive(null);
     setSuggestion(null);
     setError(null);
+    setKept(false);
+  }
+
+  async function handleKeep() {
+    if (!world || !suggestion || suggestion.kind !== 'npc') return;
+    setKeeping(true);
+    try {
+      await createEntity('npcs', world.id, {
+        name: suggestion.name,
+        summary: `${suggestion.role}. Motivation: ${suggestion.motivation}. Quirk: ${suggestion.quirk}`,
+        extra: JSON.stringify(suggestion),
+      });
+      setKept(true);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to save to Library.');
+    } finally {
+      setKeeping(false);
+    }
   }
 
   return (
@@ -112,6 +145,24 @@ export default function QuickGeneratePanel() {
             </div>
           </div>
           <SuggestionCard suggestion={suggestion} />
+          {suggestion.kind === 'npc' && (
+            <div className="mt-4">
+              {world ? (
+                <button
+                  type="button"
+                  onClick={() => void handleKeep()}
+                  disabled={keeping || kept}
+                  className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {kept ? 'Added to Library' : keeping ? 'Saving…' : 'Keep'}
+                </button>
+              ) : (
+                <p className="text-xs text-parchment/50">
+                  Create a Library world first (Library tab) to keep NPCs.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
