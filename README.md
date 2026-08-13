@@ -332,6 +332,34 @@ type-`ACKNOWLEDGED`-to-confirm dialog.
 | `POST /api/database/restore` | Upload and swap in a validated backup file |
 | `POST /api/database/reset` | Snapshot, then wipe and recreate an empty schema |
 
+## Host: custom content (DHCM-20/27-30)
+
+Behind the `custom_content_enabled` feature flag (default off, toggle on
+`/host/settings`, tab appears at `/host/custom-content` once enabled). GM-only.
+Lets a GM author their own classes, ancestries, communities, domains, domain
+cards, weapons, and armor — global/instance-wide entities, not scoped to a
+campaign — alongside the SRD's fixed static datasets. Each of the 7 types has
+its own shape (no shared name/summary/extra pattern), so both the backend CRUD
+(`backend/app/routers/custom_content.py`) and the frontend admin UI
+(`frontend/src/pages/host/CustomContentPage.tsx`) are built from a per-type
+config rather than 7 hand-copied implementations.
+
+Custom entries merge with the SRD's static data at the accessor layer
+(`app/services/srd.py`'s `merged_*` functions), tagged `"source": "custom"` in
+the merged dataset, so `CharacterSheet` validation and the character-creation
+wizard accept them transparently — a GM never has to distinguish SRD vs.
+custom content when building a character.
+
+Known gap: unique-constraint violations (e.g. a duplicate name) surface as a
+raw 500 instead of a clean 4xx, matching `library.py`'s existing CRUD — tracked
+as [DHCM-99](https://rbrentstephenson.atlassian.net/browse/DHCM-99), not fixed
+yet.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET/POST /api/custom-content/{segment}` | List / create entries for one of the 7 segments |
+| `GET/PUT/DELETE /api/custom-content/{segment}/{id}` | Get / update / delete a single entry |
+
 ## Character creation (Daggerheart SRD)
 
 Behind the `character_creation_enabled` feature flag (default off, toggle on
@@ -365,8 +393,9 @@ submits the assembled sheet as `extra`. `PlayerPage` shows a "Create Character
 directly and treats a 404 as "disabled," the same invisible-rather-than-erroring
 pattern used everywhere else in the player area.
 
-Note: custom GM-authored content (classes, heritages, etc., beyond the fixed SRD
-set) is tracked as a separate future epic — this dataset is currently read-only.
+Note: custom GM-authored content (classes, ancestries, communities, domains,
+domain cards, weapons, armor) merges with this dataset transparently at the
+accessor layer — see "Host: custom content" below.
 
 | Endpoint | Description |
 | --- | --- |
