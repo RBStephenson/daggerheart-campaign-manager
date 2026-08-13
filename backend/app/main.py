@@ -20,6 +20,7 @@ from app.routers import (
     combat,
     database,
     generators,
+    gm_moves,
     health,
     library,
     player,
@@ -120,6 +121,7 @@ def create_app() -> FastAPI:
     app.include_router(combat.fear_router)
     app.include_router(combat.countdown_router)
     app.include_router(generators.router)
+    app.include_router(gm_moves.router)
     return app
 
 
