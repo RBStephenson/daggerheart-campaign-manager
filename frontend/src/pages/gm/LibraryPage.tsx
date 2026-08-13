@@ -321,6 +321,33 @@ const CLUE_EMPTY_ENTITIES_BY_TYPE: Record<LibraryEntityType, LibraryEntity[]> = 
   environment: [],
 };
 
+// Visibility only, per DHCM-63's scope -- no enforced minimum clue count, no
+// "not enough" warning of any kind. Groups preserve first-appearance order;
+// clues with no revelation label (or a blank one) fall into an "Ungrouped"
+// bucket that always sorts last, regardless of where those clues appear in
+// the source list, so it doesn't jump around as clues are added/removed.
+const UNGROUPED_LABEL = 'Ungrouped';
+
+function groupCluesByRevelation(clues: Clue[]): { label: string; clues: Clue[] }[] {
+  const order: string[] = [];
+  const byLabel = new Map<string, Clue[]>();
+  for (const clue of clues) {
+    const label = clue.revelation.trim() || UNGROUPED_LABEL;
+    if (!byLabel.has(label)) {
+      order.push(label);
+      byLabel.set(label, []);
+    }
+    byLabel.get(label)!.push(clue);
+  }
+  const groups = order
+    .filter((label) => label !== UNGROUPED_LABEL)
+    .map((label) => ({ label, clues: byLabel.get(label)! }));
+  if (byLabel.has(UNGROUPED_LABEL)) {
+    groups.push({ label: UNGROUPED_LABEL, clues: byLabel.get(UNGROUPED_LABEL)! });
+  }
+  return groups;
+}
+
 function CluesPanel({ worldId }: { worldId: number }) {
   const [clues, setClues] = useState<Clue[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -397,6 +424,49 @@ function CluesPanel({ worldId }: { worldId: number }) {
     await refresh();
   }
 
+  function renderClue(clue: Clue) {
+    return (
+      <li key={clue.id} className={cardClass}>
+        {editingId === clue.id ? (
+          <form onSubmit={(e) => void handleUpdate(clue.id, e)} className="flex flex-col gap-2">
+            <textarea name="text" defaultValue={clue.text} required className={inputClass} />
+            <input name="revelation" defaultValue={clue.revelation} className={inputClass} />
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingId(null)}
+                className="rounded-md px-3 py-2 text-sm text-parchment/60 hover:text-parchment"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : (
+          <>
+            <p className="break-words text-sm text-parchment">{clue.text}</p>
+            {attachmentLabel(clue) && (
+              <p className="text-xs text-parchment/40">Attached: {attachmentLabel(clue)}</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => setEditingId(clue.id)} className={ghostButtonClass}>
+                Edit
+              </button>
+              <button type="button" onClick={() => void handleDelete(clue.id)} className={ghostButtonClass}>
+                Delete
+              </button>
+            </div>
+          </>
+        )}
+      </li>
+    );
+  }
+
   return (
     <div>
       <form onSubmit={(e) => void handleCreate(e)} className={`mb-6 flex max-w-md flex-col gap-2 ${cardClass}`}>
@@ -447,59 +517,21 @@ function CluesPanel({ worldId }: { worldId: number }) {
             </li>
           ))}
         </ul>
+      ) : clues?.length === 0 ? (
+        <p className="rounded-[12px] border border-dashed border-hairline/25 p-6 text-center text-sm text-parchment/50">
+          No clues yet. Create one above.
+        </p>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {clues?.map((clue) => (
-            <li key={clue.id} className={cardClass}>
-              {editingId === clue.id ? (
-                <form onSubmit={(e) => void handleUpdate(clue.id, e)} className="flex flex-col gap-2">
-                  <textarea name="text" defaultValue={clue.text} required className={inputClass} />
-                  <input name="revelation" defaultValue={clue.revelation} className={inputClass} />
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="rounded-md px-3 py-2 text-sm text-parchment/60 hover:text-parchment"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
-                  <p className="break-words text-sm text-parchment">{clue.text}</p>
-                  {clue.revelation && (
-                    <p className="text-xs uppercase tracking-wide text-parchment/40">
-                      Points to: {clue.revelation}
-                    </p>
-                  )}
-                  {attachmentLabel(clue) && (
-                    <p className="text-xs text-parchment/40">Attached: {attachmentLabel(clue)}</p>
-                  )}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setEditingId(clue.id)} className={ghostButtonClass}>
-                      Edit
-                    </button>
-                    <button type="button" onClick={() => void handleDelete(clue.id)} className={ghostButtonClass}>
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </li>
+        <div className="flex flex-col gap-6">
+          {groupCluesByRevelation(clues ?? []).map((group) => (
+            <div key={group.label}>
+              <h3 className="mb-2 font-display text-sm tracking-wide text-parchment/70">
+                {group.label} ({group.clues.length})
+              </h3>
+              <ul className="flex flex-col gap-3">{group.clues.map((clue) => renderClue(clue))}</ul>
+            </div>
           ))}
-          {clues?.length === 0 && (
-            <li className="rounded-[12px] border border-dashed border-hairline/25 p-6 text-center text-sm text-parchment/50">
-              No clues yet. Create one above.
-            </li>
-          )}
-        </ul>
+        </div>
       )}
     </div>
   );
