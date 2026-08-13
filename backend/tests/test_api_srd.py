@@ -1,11 +1,12 @@
 """Tests for the read-only SRD reference endpoint."""
 
 import json
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from app.models import AppSetting
+from app.models import AppSetting, CustomWeapon
 
 
 def _enable(db: Session) -> None:
@@ -42,3 +43,28 @@ def test_returns_dataset_when_enabled(as_user, db: Session) -> None:
     assert len(data["beastform_options"]) == 24
     assert len(data["loot"]) == 60
     assert len(data["consumables"]) == 60
+
+
+def test_includes_custom_weapon_tagged_as_custom_source(as_user, db: Session) -> None:
+    _enable(db)
+    db.add(
+        CustomWeapon(
+            name="Storm Lance",
+            trait="Strength",
+            range="Melee",
+            damage="d10 phy",
+            burden="Two-Handed",
+            is_magic=False,
+            feature=None,
+            created_at=datetime.now(UTC),
+        )
+    )
+    db.commit()
+    resp = as_user("player").get("/api/srd/character-creation")
+    assert resp.status_code == 200
+    data = resp.json()
+    custom = next(w for w in data["primary_weapons"] if w["name"] == "Storm Lance")
+    assert custom["source"] == "custom"
+    assert custom["tier"] == 1
+    srd_weapon = next(w for w in data["primary_weapons"] if w["name"] != "Storm Lance")
+    assert "source" not in srd_weapon

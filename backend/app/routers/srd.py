@@ -29,6 +29,8 @@ router = APIRouter(
 
 
 @router.get("/character-creation")
-def character_creation_data() -> dict[str, Any]:
-    """Return the full SRD character-creation dataset."""
-    return srd.get_dataset()
+def character_creation_data(db: Annotated[Session, Depends(get_db)]) -> dict[str, Any]:
+    """Return the SRD character-creation dataset merged with host-authored
+    custom content (DHCM-20/DHCM-27). Custom entries carry `"source": "custom"`;
+    SRD entries carry no `source` key."""
+    return srd.merged_dataset(db)

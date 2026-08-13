@@ -56,10 +56,10 @@ def _require_downtime_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
         raise HTTPException(status_code=404)
 
 
-def _validate_extra_or_422(extra: str | None) -> None:
+def _validate_extra_or_422(extra: str | None, db: Session) -> None:
     """Validate a populated `extra` sheet, translating failures to HTTP 422."""
     try:
-        validate_extra(extra)
+        validate_extra(extra, db)
     except (ValidationError, ValueError) as e:
         raise HTTPException(status_code=422, detail=f"Invalid character sheet: {e}") from e
 
@@ -180,7 +180,7 @@ def create_character(
     player: Annotated[User, Depends(require_role("player"))],
 ) -> Character:
     _require_membership(body.campaign_id, db, player)
-    _validate_extra_or_422(body.extra)
+    _validate_extra_or_422(body.extra, db)
     character = Character(
         player_user_id=player.id,
         campaign_id=body.campaign_id,
@@ -208,7 +208,7 @@ def update_character(
     character = _get_owned_character(character_id, db, player)
     updates = body.model_dump(exclude_unset=True)
     if "extra" in updates:
-        _validate_extra_or_422(updates["extra"])
+        _validate_extra_or_422(updates["extra"], db)
     for field, value in updates.items():
         setattr(character, field, value)
     db.commit()
