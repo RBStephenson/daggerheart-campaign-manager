@@ -240,6 +240,33 @@ links" section per plan.
 | `POST .../session-plans/{plan_id}/links` | Attach a Library entity |
 | `DELETE .../session-plans/{plan_id}/links/{link_id}` | Remove a link |
 
+### Quick generate
+
+Behind the `generators_enabled` feature flag (default off, toggle on
+`/host/settings`), layered on top of `campaigns_enabled`. A mid-session assist
+for when a GM invents something on the fly and doesn't want to leave the app:
+`app.services.generators` composes a random name, a minimal NPC sketch
+(role/motivation/quirk), or a loot/consumable pick drawn from the existing SRD
+tables already loaded by `app.services.srd` — no new dataset. These are
+starting suggestions, not a fixed table replicating any one source's content
+(loosely inspired by LGMRD's generator toolkit, per this project's
+source-material-is-a-guideline convention). `party_tier` is accepted on the
+loot endpoint but not currently used to filter — the SRD's own loot/consumable
+tables aren't tier-differentiated.
+
+`QuickGeneratePanel` (`frontend/src/pages/gm/QuickGeneratePanel.tsx`) is a
+toggleable panel per campaign card with Name/NPC/Loot buttons, a Reroll that
+re-generates the active kind, and a Dismiss that clears it — nothing
+persists automatically. For NPC suggestions only, a **Keep** button spawns
+the sketch as a real `Npc` Library entity via the existing Library create
+endpoint (same spawn-to-Library pattern as the Bestiary's "Add to Library").
+Name and Loot suggestions stay copy-only — there's no natural Library entity
+for a bare name or a loot roll.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/gm/generate/{kind}` | `kind` is `name`, `npc`, or `loot`; `name` takes an optional `ancestry` query param, `loot` an optional `party_tier` — gm only |
+
 ## Player: characters, campaigns, notes
 
 Behind the `player_area_enabled` feature flag (default off, toggle on
