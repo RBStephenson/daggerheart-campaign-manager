@@ -5,6 +5,7 @@ import { ApiError } from '../../api/client';
 import { useAppSettings } from '../../context/AppSettingsContext';
 import ChatPanel from '../../components/ChatPanel';
 import CountdownsPanel from './CountdownsPanel';
+import EncounterBuilderPanel from './EncounterBuilderPanel';
 import FearTracker from './FearTracker';
 import InvitePlayerPanel from './InvitePlayerPanel';
 import MembersPanel from './MembersPanel';
@@ -45,6 +46,7 @@ export default function CampaignsPage() {
   const [countdownsCampaignId, setCountdownsCampaignId] = useState<number | null>(null);
   const [partyCampaignId, setPartyCampaignId] = useState<number | null>(null);
   const [generateCampaignId, setGenerateCampaignId] = useState<number | null>(null);
+  const [encounterCampaignId, setEncounterCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -295,6 +297,21 @@ export default function CampaignsPage() {
                           {countdownsCampaignId === campaign.id ? 'Hide countdowns' : 'Countdowns'}
                         </button>
                       )}
+                      {settings.combat_tools_enabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEncounterCampaignId(
+                              encounterCampaignId === campaign.id ? null : campaign.id,
+                            )
+                          }
+                          className={ghostButtonClass}
+                        >
+                          {encounterCampaignId === campaign.id
+                            ? 'Hide encounter builder'
+                            : 'Encounter builder'}
+                        </button>
+                      )}
                       {settings.generators_enabled && (
                         <button
                           type="button"
@@ -328,6 +345,11 @@ export default function CampaignsPage() {
                     {countdownsCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
                         <CountdownsPanel campaignId={campaign.id} />
+                      </div>
+                    )}
+                    {encounterCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <EncounterBuilderPanel campaignId={campaign.id} />
                       </div>
                     )}
                     {generateCampaignId === campaign.id && (
