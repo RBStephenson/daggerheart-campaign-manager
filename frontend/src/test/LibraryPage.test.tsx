@@ -71,6 +71,66 @@ describe('LibraryPage', () => {
     await waitFor(() => expect(cluesMocked.listClues).toHaveBeenCalledWith(1));
   });
 
+  it('creates an adversary via the form, including its notes field', async () => {
+    mocked.listWorlds.mockResolvedValue([
+      { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
+    ]);
+    mocked.listEntities.mockResolvedValue([]);
+    mocked.createEntity.mockResolvedValue({
+      id: 3,
+      world_id: 1,
+      name: 'Grim Bailiff',
+      summary: '',
+      extra: '',
+      notes: 'Opens with the Fear feature immediately.',
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-01-01T00:00:00Z',
+    });
+    render(<LibraryPage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Adversaries' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Adversaries' }));
+    await waitFor(() => expect(screen.getByText(/No adversarys yet/)).toBeInTheDocument());
+
+    await userEvent.type(screen.getByPlaceholderText('Adversary name'), 'Grim Bailiff');
+    await userEvent.type(
+      screen.getByPlaceholderText(/GM notes for live play/),
+      'Opens with the Fear feature immediately.',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Create adversary' }));
+
+    await waitFor(() =>
+      expect(mocked.createEntity).toHaveBeenCalledWith('adversaries', 1, {
+        name: 'Grim Bailiff',
+        summary: '',
+        extra: '',
+        notes: 'Opens with the Fear feature immediately.',
+      }),
+    );
+  });
+
+  it('shows an adversary card with its GM notes', async () => {
+    mocked.listWorlds.mockResolvedValue([
+      { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
+    ]);
+    mocked.listEntities.mockResolvedValue([
+      {
+        id: 3,
+        world_id: 1,
+        name: 'Grim Bailiff',
+        summary: '',
+        extra: '',
+        notes: 'Opens with the Fear feature immediately.',
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      },
+    ]);
+    render(<LibraryPage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Adversaries' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Adversaries' }));
+    await waitFor(() => expect(screen.getByText('Grim Bailiff')).toBeInTheDocument());
+    expect(screen.getByText(/Opens with the Fear feature immediately\./)).toBeInTheDocument();
+  });
+
   it('creates a continent via the form, including its kind field', async () => {
     mocked.listWorlds.mockResolvedValue([
       { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },

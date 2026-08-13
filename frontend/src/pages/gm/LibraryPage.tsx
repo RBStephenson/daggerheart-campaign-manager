@@ -10,6 +10,7 @@ import {
   listWorlds,
   updateEntity,
   SEGMENT_HAS_KIND,
+  SEGMENT_HAS_NOTES,
   type LibraryEntity,
   type LibrarySegment,
   type World,
@@ -70,6 +71,7 @@ function EntityPanel({
 }) {
   const singular = SINGULAR[segment];
   const hasKind = SEGMENT_HAS_KIND[segment];
+  const hasNotes = SEGMENT_HAS_NOTES[segment];
   const childSegment = CHILD_SEGMENT[segment];
   const [entities, setEntities] = useState<LibraryEntity[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,8 +98,15 @@ function EntityPanel({
     const summary = String(form.get('summary') ?? '').trim();
     const extra = String(form.get('extra') ?? '').trim();
     const kind = String(form.get('kind') ?? '').trim();
+    const notes = String(form.get('notes') ?? '').trim();
     if (!name) return;
-    await createEntity(segment, parentId, hasKind ? { name, summary, extra, kind } : { name, summary, extra });
+    await createEntity(segment, parentId, {
+      name,
+      summary,
+      extra,
+      ...(hasKind && { kind }),
+      ...(hasNotes && { notes }),
+    });
     formEl.reset();
     await refresh();
   }
@@ -109,8 +118,15 @@ function EntityPanel({
     const summary = String(form.get('summary') ?? '').trim();
     const extra = String(form.get('extra') ?? '').trim();
     const kind = String(form.get('kind') ?? '').trim();
+    const notes = String(form.get('notes') ?? '').trim();
     if (!name) return;
-    await updateEntity(segment, parentId, id, hasKind ? { name, summary, extra, kind } : { name, summary, extra });
+    await updateEntity(segment, parentId, id, {
+      name,
+      summary,
+      extra,
+      ...(hasKind && { kind }),
+      ...(hasNotes && { notes }),
+    });
     setEditingId(null);
     await refresh();
   }
@@ -130,6 +146,13 @@ function EntityPanel({
         {hasKind && <input name="kind" placeholder="Kind (optional, e.g. town, ruin)" className={inputClass} />}
         <textarea name="summary" placeholder="Summary (optional)" className={inputClass} />
         <textarea name="extra" placeholder="Notes (optional)" className={inputClass} />
+        {hasNotes && (
+          <textarea
+            name="notes"
+            placeholder="GM notes for live play — signature moves, table reminders (optional)"
+            className={inputClass}
+          />
+        )}
         <button
           type="submit"
           className="self-start rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
@@ -159,6 +182,14 @@ function EntityPanel({
                   )}
                   <textarea name="summary" defaultValue={entity.summary} className={inputClass} />
                   <textarea name="extra" defaultValue={entity.extra} className={inputClass} />
+                  {hasNotes && (
+                    <textarea
+                      name="notes"
+                      defaultValue={entity.notes ?? ''}
+                      placeholder="GM notes for live play (optional)"
+                      className={inputClass}
+                    />
+                  )}
                   <div className="flex gap-2">
                     <button
                       type="submit"
@@ -181,6 +212,14 @@ function EntityPanel({
                   {entity.kind && <p className="text-xs uppercase tracking-wide text-parchment/40">{entity.kind}</p>}
                   {entity.summary && (
                     <p className="break-words text-sm text-parchment/60">{entity.summary}</p>
+                  )}
+                  {hasNotes && entity.notes && (
+                    <p className="mt-1 break-words text-sm text-parchment/50">
+                      <span className="text-xs uppercase tracking-wide text-parchment/40">
+                        GM notes:{' '}
+                      </span>
+                      {entity.notes}
+                    </p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button type="button" onClick={() => setEditingId(entity.id)} className={ghostButtonClass}>

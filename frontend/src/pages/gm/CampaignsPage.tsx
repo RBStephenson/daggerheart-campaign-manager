@@ -3,6 +3,7 @@ import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import { useAppSettings } from '../../context/AppSettingsContext';
+import AdversaryNotesPanel from './AdversaryNotesPanel';
 import ChatPanel from '../../components/ChatPanel';
 import CountdownsPanel from './CountdownsPanel';
 import EncounterBuilderPanel from './EncounterBuilderPanel';
@@ -45,6 +46,7 @@ export default function CampaignsPage() {
   const [membersCampaignId, setMembersCampaignId] = useState<number | null>(null);
   const [countdownsCampaignId, setCountdownsCampaignId] = useState<number | null>(null);
   const [partyCampaignId, setPartyCampaignId] = useState<number | null>(null);
+  const [adversaryNotesCampaignId, setAdversaryNotesCampaignId] = useState<number | null>(null);
   const [generateCampaignId, setGenerateCampaignId] = useState<number | null>(null);
   const [encounterCampaignId, setEncounterCampaignId] = useState<number | null>(null);
 
@@ -301,6 +303,21 @@ export default function CampaignsPage() {
                         <button
                           type="button"
                           onClick={() =>
+                            setAdversaryNotesCampaignId(
+                              adversaryNotesCampaignId === campaign.id ? null : campaign.id,
+                            )
+                          }
+                          className={ghostButtonClass}
+                        >
+                          {adversaryNotesCampaignId === campaign.id
+                            ? 'Hide adversary notes'
+                            : 'Adversary notes'}
+                        </button>
+                      )}
+                      {settings.combat_tools_enabled && (
+                        <button
+                          type="button"
+                          onClick={() =>
                             setEncounterCampaignId(
                               encounterCampaignId === campaign.id ? null : campaign.id,
                             )
@@ -340,6 +357,11 @@ export default function CampaignsPage() {
                     {partyCampaignId === campaign.id && (
                       <div className="mt-4 border-t border-hairline/15 pt-4">
                         <PartyPanel campaignId={campaign.id} room={activeSession?.room ?? null} />
+                      </div>
+                    )}
+                    {adversaryNotesCampaignId === campaign.id && (
+                      <div className="mt-4 border-t border-hairline/15 pt-4">
+                        <AdversaryNotesPanel />
                       </div>
                     )}
                     {countdownsCampaignId === campaign.id && (
