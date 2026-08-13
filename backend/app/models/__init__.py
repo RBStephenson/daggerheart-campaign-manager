@@ -405,6 +405,30 @@ class Environment(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
+class Clue(Base):
+    """A lightweight investigation-prep note: text pointing toward a `revelation`
+    (a free-text label, not its own entity), optionally attached to whatever
+    Library entity or session-plan node it was found on.
+
+    `entity_type`/`entity_id` are the same polymorphic-link tradeoff as
+    `SessionPlanLibraryLink` (a single column can't FK four different tables;
+    validity is enforced at the API layer) but nullable here, since a clue is
+    allowed to exist with no attachment at all -- the whole feature (DHCM-63)
+    is visibility-only, never an enforced rule.
+    """
+
+    __tablename__ = "clues"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    world_id: Mapped[int] = mapped_column(ForeignKey("worlds.id"), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    revelation: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    entity_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    entity_id: Mapped[int | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
 class SessionPlan(Base):
     """A GM's plan for a future session of a campaign, defined ahead of play.
 
