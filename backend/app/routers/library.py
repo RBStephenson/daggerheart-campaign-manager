@@ -19,6 +19,7 @@ from app.deps import require_role
 from app.models import (
     Adversary,
     Base,
+    Clue,
     Continent,
     Environment,
     Faction,
@@ -28,7 +29,9 @@ from app.models import (
     User,
     World,
 )
+from app.routers.session_plans import _LIBRARY_MODELS
 from app.routers.settings import get_settings
+from app.schemas.clues import ClueCreate, ClueOut, ClueUpdate
 from app.schemas.library import (
     ContinentOut,
     LibraryEntityCreate,
@@ -218,3 +221,115 @@ for _model, _segment, _parent_model, _parent_segment, _parent_attr, _parent_labe
     _add_entity_routes(
         _model, _segment, _parent_model, _parent_segment, _parent_attr, _parent_label, _has_kind
     )
+
+
+# Clue (DHCM-63/DHCM-86) doesn't share the name/summary/extra shape the
+# _add_entity_routes factory assumes (it's text/revelation/entity_type/
+# entity_id), so it gets its own small CRUD block instead of a factory entry.
+
+_CLUE_PREFIX = "/worlds/{world_id}/clues"
+
+
+def _validate_clue_attachment(entity_type: str | None, entity_id: int | None, db: Session) -> None:
+    if entity_type is None and entity_id is None:
+        return
+    if entity_type is None or entity_id is None:
+        raise HTTPException(
+            status_code=400, detail="entity_type and entity_id must both be set or both be null"
+        )
+    model = _LIBRARY_MODELS.get(entity_type)
+    if model is None:
+        raise HTTPException(status_code=400, detail=f"Unknown entity_type: {entity_type}")
+    if db.get(model, entity_id) is None:
+        raise HTTPException(status_code=404, detail=f"No such {entity_type}")
+
+
+def _get_clue(world_id: int, clue_id: int, db: Session) -> Clue:
+    clue = db.get(Clue, clue_id)
+    if clue is None or clue.world_id != world_id:
+        raise HTTPException(status_code=404, detail="Not found")
+    return clue
+
+
+@router.get(_CLUE_PREFIX, response_model=list[ClueOut], name="list_clues")
+def list_clues(
+    world_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    _gm: Annotated[User, Depends(require_role("gm"))],
+) -> list[Clue]:
+    _get_world(world_id, db)
+    return list(db.scalars(select(Clue).where(Clue.world_id == world_id)))
+
+
+@router.post(_CLUE_PREFIX, response_model=ClueOut, name="create_clue")
+def create_clue(
+    world_id: int,
+    body: ClueCreate,
+    db: Annotated[Session, Depends(get_db)],
+    _gm: Annotated[User, Depends(require_role("gm"))],
+) -> Clue:
+    _get_world(world_id, db)
+    _validate_clue_attachment(body.entity_type, body.entity_id, db)
+    now = datetime.now(UTC)
+    clue = Clue(
+        world_id=world_id,
+        text=body.text,
+        revelation=body.revelation,
+        entity_type=body.entity_type,
+        entity_id=body.entity_id,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(clue)
+    db.commit()
+    db.refresh(clue)
+    return clue
+
+
+@router.get(f"{_CLUE_PREFIX}/{{clue_id}}", response_model=ClueOut, name="get_clue")
+def get_clue(
+    world_id: int,
+    clue_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    _gm: Annotated[User, Depends(require_role("gm"))],
+) -> Clue:
+    return _get_clue(world_id, clue_id, db)
+
+
+@router.put(f"{_CLUE_PREFIX}/{{clue_id}}", response_model=ClueOut, name="update_clue")
+def update_clue(
+    world_id: int,
+    clue_id: int,
+    body: ClueUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    _gm: Annotated[User, Depends(require_role("gm"))],
+) -> Clue:
+    clue = _get_clue(world_id, clue_id, db)
+    next_entity_type = body.entity_type if body.entity_type is not None else clue.entity_type
+    next_entity_id = body.entity_id if body.entity_id is not None else clue.entity_id
+    if body.entity_type is not None or body.entity_id is not None:
+        _validate_clue_attachment(next_entity_type, next_entity_id, db)
+    if body.text is not None:
+        clue.text = body.text
+    if body.revelation is not None:
+        clue.revelation = body.revelation
+    if body.entity_type is not None:
+        clue.entity_type = body.entity_type
+    if body.entity_id is not None:
+        clue.entity_id = body.entity_id
+    clue.updated_at = datetime.now(UTC)
+    db.commit()
+    db.refresh(clue)
+    return clue
+
+
+@router.delete(f"{_CLUE_PREFIX}/{{clue_id}}", status_code=204, name="delete_clue")
+def delete_clue(
+    world_id: int,
+    clue_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    _gm: Annotated[User, Depends(require_role("gm"))],
+) -> None:
+    clue = _get_clue(world_id, clue_id, db)
+    db.delete(clue)
+    db.commit()
