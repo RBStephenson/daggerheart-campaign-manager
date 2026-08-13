@@ -201,7 +201,7 @@ describe('LibraryPage', () => {
       await waitFor(() => expect(cluesMocked.listClues).toHaveBeenCalledWith(1));
     }
 
-    it('lists existing clues, including an attached one', async () => {
+    it('lists existing clues under their revelation heading', async () => {
       cluesMocked.listClues.mockResolvedValue([
         {
           id: 5,
@@ -219,7 +219,50 @@ describe('LibraryPage', () => {
       await waitFor(() =>
         expect(screen.getByText('Bloodstained ledger in the cellar')).toBeInTheDocument(),
       );
-      expect(screen.getByText(/Points to: The steward is the thief/)).toBeInTheDocument();
+      expect(screen.getByText('The steward is the thief (1)')).toBeInTheDocument();
+    });
+
+    it('groups clues by revelation with a visible count, ungrouped last', async () => {
+      cluesMocked.listClues.mockResolvedValue([
+        {
+          id: 1,
+          world_id: 1,
+          text: 'Bloodstained ledger',
+          revelation: 'The steward is the thief',
+          entity_type: null,
+          entity_id: null,
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+        {
+          id: 2,
+          world_id: 1,
+          text: 'Muddy bootprints',
+          revelation: '',
+          entity_type: null,
+          entity_id: null,
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+        {
+          id: 3,
+          world_id: 1,
+          text: 'Torn ledger page found on the steward',
+          revelation: 'The steward is the thief',
+          entity_type: null,
+          entity_id: null,
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+      ]);
+      await openCluesTab();
+
+      await waitFor(() => expect(screen.getByText('Bloodstained ledger')).toBeInTheDocument());
+      expect(screen.getByText('The steward is the thief (2)')).toBeInTheDocument();
+      expect(screen.getByText('Ungrouped (1)')).toBeInTheDocument();
+
+      const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+      expect(headings).toEqual(['The steward is the thief (2)', 'Ungrouped (1)']);
     });
 
     it('shows an empty state when no clues exist yet', async () => {
