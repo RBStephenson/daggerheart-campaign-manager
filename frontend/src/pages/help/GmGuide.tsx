@@ -77,12 +77,28 @@ export default function GmGuide() {
         <p>
           The <strong>Library</strong> tab holds everything about your world that isn't tied to a
           specific campaign: the place hierarchy (Continents → Regions → Locations), Factions,
-          NPCs, Adversaries, and Environments you've authored yourself. The first time you visit,
-          you'll be asked to name your world — one world holds everything.
+          NPCs, Adversaries, Environments, and Clues you've authored yourself. The first time you
+          visit, you'll be asked to name your world — one world holds everything.
         </p>
         <p>
           Adversaries and Environments you spawn from the Bestiary (below) show up here too,
           alongside anything you write from scratch.
+        </p>
+      </HelpSection>
+
+      <HelpSection title="Clues: tracking what points to what" flag="library_enabled">
+        <p>
+          On the Library tab's <strong>Clues</strong> subtab, jot down anything you want players to
+          be able to discover: a note of what it is, and (optionally) a <strong>revelation</strong>{' '}
+          it points toward — a plain label like "the steward is the thief." You can also attach a
+          clue to any other Library entry (an NPC, a location, an adversary, whatever it was found
+          on), or leave it unattached.
+        </p>
+        <p>
+          Clues pointing at the same revelation are grouped together with a plain count, so you can
+          see at a glance how many ways players have to find something out. There's no enforced
+          minimum and no warning if you think there aren't enough — that's your call as GM, not the
+          app's.
         </p>
       </HelpSection>
 
