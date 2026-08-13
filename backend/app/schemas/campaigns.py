@@ -42,3 +42,8 @@ class PartyMemberOut(BaseModel):
 
     player_username: str
     character: CharacterOut
+
+
+class EncounterBudgetOut(BaseModel):
+    party_size: int
+    budget: int
