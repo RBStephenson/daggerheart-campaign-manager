@@ -131,6 +131,24 @@ export default function GmGuide() {
         </p>
       </HelpSection>
 
+      <HelpSection title="Quick generate: names, NPCs, and loot on the fly" flag="generators_enabled">
+        <p>
+          On a campaign's card, click <strong>Quick generate</strong> when you need a starting
+          suggestion mid-session instead of leaving the app: <strong>Generate Name</strong> gives
+          a random name, <strong>Generate NPC</strong> gives a quick sketch (role, motivation,
+          quirk), and <strong>Generate Loot</strong> gives an item roughly in line with a party's
+          level. Not happy with what you got? Click <strong>Reroll</strong> for another, or{' '}
+          <strong>Dismiss</strong> to clear it. These are starting points to riff on, not a fixed
+          table — edit or ignore anything that doesn't fit.
+        </p>
+        <p>
+          If you want to keep an NPC sketch around, click <strong>Keep</strong> to save it as a
+          real entry on your Library's NPCs tab (needs <code>library_enabled</code> and a world
+          created there first). Names and loot are copy-only — jot them down if you want to reuse
+          them.
+        </p>
+      </HelpSection>
+
       <HelpSection title="Bestiary: browsing and using SRD adversaries" flag="combat_tools_enabled">
         <p>
           The <strong>Bestiary</strong> tab is the full SRD reference — all adversary and
