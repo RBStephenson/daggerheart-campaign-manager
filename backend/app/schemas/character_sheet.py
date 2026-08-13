@@ -14,7 +14,8 @@ SRD secondary-weapon table and full feature-card prose are deferred.
 import json
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, ValidationInfo, model_validator
+from sqlalchemy.orm import Session
 
 from app.services import srd
 
@@ -72,17 +73,31 @@ class CharacterSheet(BaseModel):
     gold_handfuls: int = Field(default=1, ge=0)
 
     @model_validator(mode="after")
-    def _validate_against_srd(self) -> "CharacterSheet":
-        cls = srd.classes_by_name().get(self.char_class)
+    def _validate_against_srd(self, info: ValidationInfo) -> "CharacterSheet":
+        # Context carries the merged SRD + custom-content lookups (DHCM-27),
+        # built by `validate_extra` when a `db` session is available. Falls
+        # back to SRD-only when absent, so existing direct
+        # `CharacterSheet.model_validate(...)` callers (tests, etc.) keep
+        # working unchanged.
+        context = info.context or {}
+        classes = context.get("classes") or srd.classes_by_name()
+        ancestry_names = context.get("ancestry_names") or srd.ancestry_names()
+        community_names = context.get("community_names") or srd.community_names()
+        domain_cards_l1 = context.get("domain_cards_l1") or srd.domain_cards_l1_by_key()
+        weapons = context.get("weapons") or srd.weapons_by_name()
+        armor_names = context.get("armor_names") or srd.armor_names()
+
+        cls = classes.get(self.char_class)
         if cls is None:
             raise ValueError(f"Unknown class: {self.char_class!r}")
 
-        if self.subclass not in srd.subclass_names(self.char_class):
+        subclass_names = frozenset(s["name"] for s in cls["subclasses"])
+        if self.subclass not in subclass_names:
             raise ValueError(f"{self.subclass!r} is not a subclass of {self.char_class}")
 
-        if self.heritage.ancestry not in srd.ancestry_names():
+        if self.heritage.ancestry not in ancestry_names:
             raise ValueError(f"Unknown ancestry: {self.heritage.ancestry!r}")
-        if self.heritage.community not in srd.community_names():
+        if self.heritage.community not in community_names:
             raise ValueError(f"Unknown community: {self.heritage.community!r}")
 
         # Traits: exactly the six named traits, values a permutation of the array.
@@ -117,7 +132,7 @@ class CharacterSheet(BaseModel):
         if len(self.domain_cards) != 2:
             raise ValueError("Choose exactly two domain cards")
         class_domains = set(cls["domains"])
-        cards = srd.domain_cards_l1_by_key()
+        cards = domain_cards_l1
         for card in self.domain_cards:
             if card.domain not in class_domains:
                 raise ValueError(
@@ -128,7 +143,6 @@ class CharacterSheet(BaseModel):
                 raise ValueError(f"Unknown Level 1 {card.domain} card: {card.name!r}")
 
         # Equipment: primary/secondary weapons and armor from the Tier 1 tables.
-        weapons = srd.weapons_by_name()
         primary = weapons.get(self.equipment.primary_weapon)
         if primary is None:
             raise ValueError(f"Unknown Tier 1 weapon: {self.equipment.primary_weapon!r}")
@@ -140,18 +154,22 @@ class CharacterSheet(BaseModel):
                 raise ValueError(f"Unknown Tier 1 weapon: {self.equipment.secondary_weapon!r}")
             if secondary["burden"] != "One-Handed":
                 raise ValueError("A secondary weapon must be one-handed")
-        if self.equipment.armor not in srd.armor_names():
+        if self.equipment.armor not in armor_names:
             raise ValueError(f"Unknown Tier 1 armor: {self.equipment.armor!r}")
 
         return self
 
 
-def validate_extra(extra: str | None) -> None:
+def validate_extra(extra: str | None, db: Session | None = None) -> None:
     """Validate a `Character.extra` value as a CharacterSheet, when populated.
 
     An empty value (``None``, ``""``, or ``"{}"``) is allowed for backward
     compatibility with the flat character form, which never populates a sheet.
     A non-empty object must validate fully as a `CharacterSheet`.
+
+    ``db``, when given, lets custom (host-authored, DHCM-20) content count as
+    valid alongside the static SRD dataset — see `srd.build_validation_context`.
+    Omit it to validate against the SRD dataset only.
 
     Raises `ValueError` / `pydantic.ValidationError` on invalid content; callers
     translate these into HTTP 422.
@@ -164,4 +182,5 @@ def validate_extra(extra: str | None) -> None:
         raise ValueError(f"extra is not valid JSON: {e}") from e
     if not isinstance(data, dict) or not data:
         return
-    CharacterSheet.model_validate(data)
+    context = srd.build_validation_context(db) if db is not None else None
+    CharacterSheet.model_validate(data, context=context)

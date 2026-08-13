@@ -1,12 +1,16 @@
 """Validation tests for the SRD dataset and the CharacterSheet schema."""
 
 import copy
+import json
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
-from app.schemas.character_sheet import CharacterSheet
+from app.models import CustomClass
+from app.schemas.character_sheet import CharacterSheet, validate_extra
 from app.services import srd
 
 
@@ -236,3 +240,64 @@ def test_every_class_valid_baseline() -> None:
         data["domain_cards"] = picks
         sheet = CharacterSheet(**data)
         assert sheet.char_class == cls["name"]
+
+
+# --- Custom content (DHCM-27) -----------------------------------------------
+
+
+def test_unknown_class_rejected_without_context() -> None:
+    data = copy.deepcopy(valid_bard_sheet())
+    data["char_class"] = "Alchemist"
+    with pytest.raises(ValidationError, match="Unknown class"):
+        CharacterSheet(**data)
+
+
+def test_custom_class_accepted_via_validation_context(db: Session) -> None:
+    db.add(
+        CustomClass(
+            name="Alchemist",
+            domains_json=json.dumps(["Grace", "Codex"]),
+            starting_evasion=10,
+            starting_hp=5,
+            class_items_json=json.dumps(["A satchel of reagents"]),
+            subclasses_json=json.dumps(
+                [{"name": "Volatile Chemist", "spellcast_trait": "Knowledge"}]
+            ),
+            created_at=datetime.now(UTC),
+        )
+    )
+    db.commit()
+
+    data = copy.deepcopy(valid_bard_sheet())
+    data["char_class"] = "Alchemist"
+    data["subclass"] = "Volatile Chemist"
+    context = srd.build_validation_context(db)
+    sheet = CharacterSheet.model_validate(data, context=context)
+    assert sheet.char_class == "Alchemist"
+
+
+def test_validate_extra_accepts_custom_class_when_db_given(db: Session) -> None:
+    db.add(
+        CustomClass(
+            name="Alchemist",
+            domains_json=json.dumps(["Grace", "Codex"]),
+            starting_evasion=10,
+            starting_hp=5,
+            class_items_json=json.dumps(["A satchel of reagents"]),
+            subclasses_json=json.dumps(
+                [{"name": "Volatile Chemist", "spellcast_trait": "Knowledge"}]
+            ),
+            created_at=datetime.now(UTC),
+        )
+    )
+    db.commit()
+
+    data = copy.deepcopy(valid_bard_sheet())
+    data["char_class"] = "Alchemist"
+    data["subclass"] = "Volatile Chemist"
+    extra = json.dumps(data)
+
+    with pytest.raises(ValueError, match="Unknown class"):
+        validate_extra(extra)  # no db: SRD-only, custom class rejected
+
+    validate_extra(extra, db)  # db given: custom class accepted

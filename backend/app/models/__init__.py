@@ -196,22 +196,34 @@ class CustomClass(Base):
 
 
 class CustomAncestry(Base):
-    """GM-authored ancestry, alongside the SRD's static ancestries."""
+    """GM-authored ancestry, alongside the SRD's static ancestries.
+
+    ``features_json`` is a JSON-encoded list of ``{"name": ..., "text": ...}``,
+    matching the shape of the SRD dataset's ancestry entries.
+    """
 
     __tablename__ = "custom_ancestries"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    features_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
 class CustomCommunity(Base):
-    """GM-authored community, alongside the SRD's static communities."""
+    """GM-authored community, alongside the SRD's static communities.
+
+    ``adjectives_json`` is a JSON-encoded list of strings and ``feature_json``
+    a JSON-encoded ``{"name": ..., "text": ...}`` object (or ``null``),
+    matching the shape of the SRD dataset's community entries.
+    """
 
     __tablename__ = "custom_communities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    adjectives_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    feature_json: Mapped[str] = mapped_column(Text, nullable=False, default="null")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 

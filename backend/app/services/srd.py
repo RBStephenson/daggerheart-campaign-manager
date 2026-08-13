@@ -11,6 +11,18 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, cast
 
+from sqlalchemy.orm import Session
+
+from app.models import (
+    CustomAncestry,
+    CustomArmor,
+    CustomClass,
+    CustomCommunity,
+    CustomDomain,
+    CustomDomainCard,
+    CustomWeapon,
+)
+
 _DATASET_PATH = Path(__file__).resolve().parent.parent / "data" / "srd" / "character_creation.json"
 
 
@@ -146,3 +158,165 @@ def tier_for_level(level: int) -> int:
     if level <= 7:
         return 3
     return 4
+
+
+# --- Custom content (DHCM-20/DHCM-27) --------------------------------------
+#
+# Host-authored content lives in the `custom_*` DB tables (DHCM-26) and is
+# merged with the static SRD dataset here, at request time. These accessors
+# are deliberately *not* `@lru_cache`d like the pure-SRD ones above: a DB
+# session isn't safe to cache across requests, and character creation isn't a
+# hot path, so a fresh query per call is the simpler and correct choice.
+# Every dict below matches the shape of its SRD-dataset counterpart, and
+# custom entries are tagged `"source": "custom"` so callers (and the
+# character-creation wizard) can distinguish them from SRD-sourced entries.
+
+
+def custom_classes_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    return {
+        c.name: {
+            "name": c.name,
+            "domains": json.loads(c.domains_json),
+            "starting_evasion": c.starting_evasion,
+            "starting_hp": c.starting_hp,
+            "class_items": json.loads(c.class_items_json),
+            "subclasses": json.loads(c.subclasses_json),
+            "source": "custom",
+        }
+        for c in db.query(CustomClass).all()
+    }
+
+
+def custom_ancestries_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    return {
+        a.name: {
+            "name": a.name,
+            "features": json.loads(a.features_json),
+            "source": "custom",
+        }
+        for a in db.query(CustomAncestry).all()
+    }
+
+
+def custom_communities_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    return {
+        c.name: {
+            "name": c.name,
+            "adjectives": json.loads(c.adjectives_json),
+            "feature": json.loads(c.feature_json),
+            "source": "custom",
+        }
+        for c in db.query(CustomCommunity).all()
+    }
+
+
+def custom_domains_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    return {
+        d.name: {
+            "name": d.name,
+            "classes": json.loads(d.classes_json),
+            "source": "custom",
+        }
+        for d in db.query(CustomDomain).all()
+    }
+
+
+def custom_domain_cards_l1_by_key(db: Session) -> dict[tuple[str, str], dict[str, Any]]:
+    """Custom domain cards are always Level 1 (the only level DHCM-26 scoped)."""
+    return {
+        (c.domain, c.name): {
+            "domain": c.domain,
+            "level": 1,
+            "name": c.name,
+            "type": c.type,
+            "recall_cost": c.recall_cost,
+            "source": "custom",
+        }
+        for c in db.query(CustomDomainCard).all()
+    }
+
+
+def custom_weapons_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    """Custom weapons are always Tier 1 (the only tier available at creation)."""
+    return {
+        w.name: {
+            "tier": 1,
+            "name": w.name,
+            "trait": w.trait,
+            "range": w.range,
+            "damage": w.damage,
+            "burden": w.burden,
+            "is_magic": w.is_magic,
+            "feature": w.feature,
+            "source": "custom",
+        }
+        for w in db.query(CustomWeapon).all()
+    }
+
+
+def custom_armor_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    """Custom armor is always Tier 1 (the only tier available at creation)."""
+    return {
+        a.name: {
+            "tier": 1,
+            "name": a.name,
+            "base_thresholds": [a.threshold_low, a.threshold_high],
+            "base_score": a.base_score,
+            "feature": a.feature,
+            "source": "custom",
+        }
+        for a in db.query(CustomArmor).all()
+    }
+
+
+def merged_classes_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    return {**classes_by_name(), **custom_classes_by_name(db)}
+
+
+def merged_ancestry_names(db: Session) -> frozenset[str]:
+    return ancestry_names() | frozenset(custom_ancestries_by_name(db))
+
+
+def merged_community_names(db: Session) -> frozenset[str]:
+    return community_names() | frozenset(custom_communities_by_name(db))
+
+
+def merged_domain_cards_l1_by_key(db: Session) -> dict[tuple[str, str], dict[str, Any]]:
+    return {**domain_cards_l1_by_key(), **custom_domain_cards_l1_by_key(db)}
+
+
+def merged_weapons_by_name(db: Session) -> dict[str, dict[str, Any]]:
+    return {**weapons_by_name(), **custom_weapons_by_name(db)}
+
+
+def merged_armor_names(db: Session) -> frozenset[str]:
+    return armor_names() | frozenset(custom_armor_by_name(db))
+
+
+def build_validation_context(db: Session) -> dict[str, Any]:
+    """Bundle the merged lookups `CharacterSheet` needs, for use as Pydantic
+    `model_validate(..., context=...)`. Built once per validation call rather
+    than having the validator query the DB itself, since Pydantic validators
+    don't otherwise have a clean way to receive a `Session`."""
+    return {
+        "classes": merged_classes_by_name(db),
+        "ancestry_names": merged_ancestry_names(db),
+        "community_names": merged_community_names(db),
+        "domain_cards_l1": merged_domain_cards_l1_by_key(db),
+        "weapons": merged_weapons_by_name(db),
+        "armor_names": merged_armor_names(db),
+    }
+
+
+def merged_dataset(db: Session) -> dict[str, Any]:
+    """Full character-creation dataset with custom entries appended to each
+    relevant list, for the `/api/srd/character-creation` endpoint."""
+    data = dict(get_dataset())
+    data["classes"] = [*data["classes"], *custom_classes_by_name(db).values()]
+    data["ancestries"] = [*data["ancestries"], *custom_ancestries_by_name(db).values()]
+    data["communities"] = [*data["communities"], *custom_communities_by_name(db).values()]
+    data["domains"] = [*data["domains"], *custom_domains_by_name(db).values()]
+    data["domain_cards"] = [*data["domain_cards"], *custom_domain_cards_l1_by_key(db).values()]
+    data["primary_weapons"] = [*data["primary_weapons"], *custom_weapons_by_name(db).values()]
+    data["armor"] = [*data["armor"], *custom_armor_by_name(db).values()]
+    return data
