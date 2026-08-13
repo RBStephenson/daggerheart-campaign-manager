@@ -134,6 +134,12 @@ export default function GmGuide() {
           when you gain Fear (a player rolls with Fear, takes a rest, etc.) and the - button when
           you spend it.
         </p>
+        <p>
+          Click the <strong>?</strong> button next to the Fear counter for a quick reference of
+          the SRD's example GM moves — spending Fear is the SRD's own cue to make one. This is a
+          lookup only: nothing opens automatically when you spend Fear, nothing is chosen for you,
+          and you're free to ignore it entirely.
+        </p>
       </HelpSection>
 
       <HelpSection title="Countdowns" flag="combat_tools_enabled">
@@ -192,6 +198,20 @@ export default function GmGuide() {
           <strong>Add to Library</strong> — this creates a real Library entry with the whole stat
           block attached, which you can then link into a session plan or just reference on the
           Library tab.
+        </p>
+      </HelpSection>
+
+      <HelpSection title="Adversary notes: recall your own signature moves" flag="combat_tools_enabled">
+        <p>
+          Any Adversary on your Library tab has its own freeform <strong>notes</strong> field —
+          jot down a signature move, a table-specific reminder, or anything you want to remember
+          about it mid-fight. There's no template or required structure; write whatever's useful
+          to you.
+        </p>
+        <p>
+          On a campaign's card, click <strong>Adversary notes</strong> for a searchable, read-only
+          list of every adversary in your Library and its notes — quick recall during a live
+          session without leaving the fight to go dig through the Library tab.
         </p>
       </HelpSection>
 
