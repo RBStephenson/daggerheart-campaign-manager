@@ -6,6 +6,7 @@ import CampaignsPage from './pages/gm/CampaignsPage';
 import GmPage from './pages/gm/GmPage';
 import LibraryPage from './pages/gm/LibraryPage';
 import HelpPage from './pages/help/HelpPage';
+import CustomContentPage from './pages/host/CustomContentPage';
 import DataManagementPage from './pages/host/DataManagementPage';
 import HostPage from './pages/host/HostPage';
 import HostSettingsPage from './pages/host/HostSettingsPage';
@@ -28,6 +29,8 @@ export default function App() {
         >
           <Route path="settings" element={<HostSettingsPage />} />
           <Route path="data" element={<DataManagementPage />} />
+          <Route path="custom-content" element={<CustomContentPage />} />
+          <Route path="custom-content/:segment" element={<CustomContentPage />} />
         </Route>
         <Route
           path="gm"

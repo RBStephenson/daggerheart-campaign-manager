@@ -47,6 +47,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Combat tools',
     description: "The GM's shared Fear pool, tracked per campaign.",
   },
+  custom_content_enabled: {
+    label: 'Custom content',
+    description: 'GM-authored classes, ancestries, communities, domains, weapons, and armor.',
+  },
 };
 
 export default function HostSettingsPage() {

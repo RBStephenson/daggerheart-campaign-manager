@@ -32,6 +32,7 @@ export const DEFAULTS: AppSettings = {
   downtime_enabled: false,
   combat_tools_enabled: false,
   generators_enabled: false,
+  custom_content_enabled: false,
 };
 
 interface AppSettingsContextValue {

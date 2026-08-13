@@ -66,6 +66,11 @@ export default function HostPage() {
               Data
             </NavLink>
           )}
+          {settings.custom_content_enabled && (
+            <NavLink to="/host/custom-content" className={tabClass}>
+              Custom Content
+            </NavLink>
+          )}
         </div>
 
         {atRoot ? (

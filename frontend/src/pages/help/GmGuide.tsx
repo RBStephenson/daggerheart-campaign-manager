@@ -222,6 +222,19 @@ export default function GmGuide() {
           <code>ACKNOWLEDGED</code> to confirm.
         </p>
       </HelpSection>
+
+      <HelpSection title="Custom content: author your own rules content" flag="custom_content_enabled">
+        <p>
+          On <strong>Host → Custom Content</strong>: create your own classes, ancestries,
+          communities, domains, domain cards, weapons, and armor, alongside the SRD's built-in
+          sets. These are instance-wide, not tied to a single campaign.
+        </p>
+        <p>
+          Custom entries show up everywhere the SRD's own content does — character creation, the
+          character sheet, domain card selection — you never have to pick "SRD" vs. "custom"
+          separately.
+        </p>
+      </HelpSection>
     </ul>
   );
 }
