@@ -149,6 +149,22 @@ export default function GmGuide() {
         </p>
       </HelpSection>
 
+      <HelpSection title="Encounter builder: keeping fights balanced" flag="combat_tools_enabled">
+        <p>
+          On a campaign's card, click <strong>Encounter builder</strong> to see a Battle Points
+          budget for your current party, per the SRD's encounter-difficulty rules. Check the boxes
+          that apply — an easier or harder fight, running two or more Solo adversaries, giving
+          everything bonus damage, and so on — and the budget updates live.
+        </p>
+        <p>
+          Search the bestiary below to add adversaries; each one's cost comes off your budget as
+          you add it, and you'll see a warning if you go over. This is a guideline, not a hard
+          limit — the app never stops you from adding more, it just tells you when a fight is
+          likely to run heavier than planned. Nothing here is saved; it's a scratch pad for
+          planning, not a persisted encounter list.
+        </p>
+      </HelpSection>
+
       <HelpSection title="Bestiary: browsing and using SRD adversaries" flag="combat_tools_enabled">
         <p>
           The <strong>Bestiary</strong> tab is the full SRD reference — all adversary and
