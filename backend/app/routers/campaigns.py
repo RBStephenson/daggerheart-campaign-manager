@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -15,10 +15,12 @@ from app.schemas.campaigns import (
     CampaignCreate,
     CampaignOut,
     CampaignUpdate,
+    EncounterBudgetOut,
     GameSessionOut,
     PartyMemberOut,
 )
 from app.schemas.player import AddMemberRequest, CampaignMemberOut, CharacterOut
+from app.services.encounter_budget import BudgetAdjustments, calculate_budget
 
 
 def _require_campaigns_enabled(db: Annotated[Session, Depends(get_db)]) -> None:
@@ -239,6 +241,40 @@ def get_party(
         )
         for character, username in rows
     ]
+
+
+@router.get("/{campaign_id}/encounter-budget", response_model=EncounterBudgetOut)
+def get_encounter_budget(
+    campaign_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    gm: Annotated[User, Depends(require_role("gm"))],
+    easier_fight: bool = False,
+    two_plus_solos: bool = False,
+    bonus_damage: bool = False,
+    lower_tier_adversary: bool = False,
+    no_bruiser_horde_leader_solo: bool = False,
+    harder_fight: bool = False,
+) -> EncounterBudgetOut:
+    """Battle Points budget for the campaign's current party, per the SRD's
+    Building Balanced Encounters formula. Advisory only."""
+    if not get_settings(db).get("combat_tools_enabled", False):
+        raise HTTPException(status_code=404)
+    get_owned_campaign(campaign_id, db, gm)
+    party_size = db.scalar(
+        select(func.count(Character.id)).where(Character.campaign_id == campaign_id)
+    )
+    budget = calculate_budget(
+        party_size or 0,
+        BudgetAdjustments(
+            easier_fight=easier_fight,
+            two_plus_solos=two_plus_solos,
+            bonus_damage=bonus_damage,
+            lower_tier_adversary=lower_tier_adversary,
+            no_bruiser_horde_leader_solo=no_bruiser_horde_leader_solo,
+            harder_fight=harder_fight,
+        ),
+    )
+    return EncounterBudgetOut(party_size=party_size or 0, budget=budget)
 
 
 @router.delete("/{campaign_id}/members/{user_id}", status_code=204)
