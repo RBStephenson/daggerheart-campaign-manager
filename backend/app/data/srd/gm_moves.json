@@ -1,0 +1,33 @@
+{
+  "_source_note": "Transcribed 2026-08-13 from the Daggerheart SRD's Core GM Mechanics chapter, cross-checked against two independent SRD mirrors (daggerheartsrd.com/rules/core-gm-mechanics, daggerheart.su/rule/example-gm-moves) which converged on the same 16 moves in the same order and the same 5 trigger conditions. Wording is a best-effort transcription, not a verified character-for-character quote against the official PDF -- spot-check against the primary source before treating this as a legal-grade verbatim citation. See NOTICE.md for the SRD's own attribution terms.",
+  "when_to_move": [
+    "Rolls with Fear on an action roll",
+    "Fails an action roll",
+    "Does something that would have consequences",
+    "Gives them a golden opportunity",
+    "Looks to them for what happens next"
+  ],
+  "soft_vs_hard": {
+    "soft": "Soft moves go easier on the players -- they give the party new information about the scene and offer them an opportunity to react to it.",
+    "hard": "Hard moves are harsher, more impactful, or more direct -- the PCs don't get an opening to interrupt, alter, or anticipate the outcome.",
+    "guidance": "Apply softer moves in response to Hope rolls and harder moves in response to Fear rolls."
+  },
+  "moves": [
+    "Show how the world reacts",
+    "Ask a question and build on the answer",
+    "Make an NPC act in accordance with their motive",
+    "Drive a PC to take action by dangling their goals in front of them",
+    "Signal an imminent off-screen threat",
+    "Reveal an unwelcome truth or unexpected danger",
+    "Force the group to split up",
+    "Make a PC mark Stress",
+    "Make a move the characters don't see",
+    "Show the collateral damage",
+    "Clear an adversary's condition",
+    "Shift the environment",
+    "Spotlight an adversary",
+    "Capture someone or something important",
+    "Use a PC's backstory against them",
+    "Take away an opportunity permanently"
+  ]
+}
