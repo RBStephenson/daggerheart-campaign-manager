@@ -33,6 +33,7 @@ DEFAULTS: dict[str, Any] = {
     "downtime_enabled": False,
     "combat_tools_enabled": False,
     "generators_enabled": False,
+    "custom_content_enabled": False,
 }
 
 

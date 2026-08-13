@@ -18,6 +18,7 @@ from app.routers import (
     campaigns,
     chat,
     combat,
+    custom_content,
     database,
     generators,
     gm_moves,
@@ -122,6 +123,7 @@ def create_app() -> FastAPI:
     app.include_router(combat.countdown_router)
     app.include_router(generators.router)
     app.include_router(gm_moves.router)
+    app.include_router(custom_content.router)
     return app
 
 
