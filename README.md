@@ -394,6 +394,18 @@ directly in the Library's Clues tab; see "Investigation prep: Clues" below.)
 | --- | --- |
 | `GET /api/bestiary/` | The full adversary + environment dataset — gm only |
 
+**Adversary notes & live-play recall (DHCM-65/-90/-91)** — a Library
+`Adversary` carries a dedicated `notes` field (separate from `extra`, which
+holds the spawned stat block JSON) for freeform GM-only recall text —
+signature moves, table reminders, anything worth remembering mid-fight.
+Written from the Library's Adversary tab (`LibraryPage`'s `EntityPanel`,
+gated by `SEGMENT_HAS_NOTES` alongside the existing `SEGMENT_HAS_KIND`
+pattern). Surfaced read-only during live play in `AdversaryNotesPanel`
+(`frontend/src/pages/gm/AdversaryNotesPanel.tsx`), a toggleable panel per
+campaign card alongside the party view, gated by `combat_tools_enabled` and
+searchable by name. No enforced structure or timing template — entirely the
+GM's own notes, entirely optional to use.
+
 ### Investigation prep: Clues
 
 Behind `library_enabled`, alongside the rest of the Library. A `Clue` is a
@@ -452,6 +464,19 @@ card, mirroring `MembersPanel`'s CRUD layout.
 | `POST /api/campaigns/{id}/countdowns` | `{name, starting_value, loop}` → create |
 | `PATCH /api/campaigns/{id}/countdowns/{cid}` | `{delta}` → advance (ticks down) |
 | `DELETE /api/campaigns/{id}/countdowns/{cid}` | Remove a countdown |
+
+**GM-moves reference (DHCM-65/-92/-93)** — a "?" button next to `FearTracker`'s
+spend-Fear control opens a reference-only popover of the SRD's example GM
+moves, the "when to make a move" trigger conditions, and the soft-vs-hard
+move framing (`backend/app/data/srd/gm_moves.json`, served via
+`GET /api/gm-moves/`, gated by `combat_tools_enabled`). Purely a lookup aid —
+spending Fear never opens it automatically, nothing is chosen or applied for
+the GM, and there's no enforced workflow. Fetched once when the popover opens
+rather than tied to the +/- buttons, since the data is static.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/gm-moves/` | The SRD GM-moves reference dataset — gm only |
 
 **Player visibility** — players previously had no way to see the Fear pool or
 countdowns at all. Read-only mirrors live under `/api/player`, scoped to the
