@@ -122,3 +122,43 @@ export interface PartyMember {
 export function getParty(campaignId: number): Promise<PartyMember[]> {
   return apiGet(`/api/campaigns/${campaignId}/party`);
 }
+
+export interface EncounterBudgetAdjustments {
+  easier_fight: boolean;
+  two_plus_solos: boolean;
+  bonus_damage: boolean;
+  lower_tier_adversary: boolean;
+  no_bruiser_horde_leader_solo: boolean;
+  harder_fight: boolean;
+}
+
+export interface EncounterBudget {
+  party_size: number;
+  budget: number;
+}
+
+// Battle Point cost per SRD adversary `type`, mirroring
+// backend/app/services/encounter_budget.py's COST_BY_TYPE — kept in sync by
+// hand since it's a small fixed SRD table, not worth a round trip per pick.
+export const COST_BY_TYPE: Record<string, number> = {
+  Minion: 1,
+  Social: 1,
+  Support: 1,
+  Horde: 2,
+  Ranged: 2,
+  Skulk: 2,
+  Standard: 2,
+  Leader: 3,
+  Bruiser: 4,
+  Solo: 5,
+};
+
+export function getEncounterBudget(
+  campaignId: number,
+  adjustments: EncounterBudgetAdjustments,
+): Promise<EncounterBudget> {
+  const params = new URLSearchParams(
+    Object.entries(adjustments).map(([key, value]) => [key, String(value)]),
+  );
+  return apiGet(`/api/campaigns/${campaignId}/encounter-budget?${params.toString()}`);
+}
