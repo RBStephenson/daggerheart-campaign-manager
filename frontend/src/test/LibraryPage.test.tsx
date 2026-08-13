@@ -2,15 +2,19 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../api/client';
+import * as cluesApi from '../api/clues';
 import * as libraryApi from '../api/library';
 import LibraryPage from '../pages/gm/LibraryPage';
 
 vi.mock('../api/library');
+vi.mock('../api/clues');
 const mocked = vi.mocked(libraryApi);
+const cluesMocked = vi.mocked(cluesApi);
 
 describe('LibraryPage', () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    mocked.listEntities.mockResolvedValue([]);
   });
 
   it('shows a disabled message when the backend 404s', async () => {
@@ -53,6 +57,7 @@ describe('LibraryPage', () => {
       { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
     ]);
     mocked.listEntities.mockResolvedValue([]);
+    cluesMocked.listClues.mockResolvedValue([]);
     render(<LibraryPage />);
     await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('continents', 1));
 
@@ -61,6 +66,9 @@ describe('LibraryPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Environments' }));
     await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('environments', 1));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clues' }));
+    await waitFor(() => expect(cluesMocked.listClues).toHaveBeenCalledWith(1));
   });
 
   it('creates a continent via the form, including its kind field', async () => {
@@ -180,5 +188,116 @@ describe('LibraryPage', () => {
     await waitFor(() => expect(mocked.listEntities).toHaveBeenCalledWith('locations', 20));
     await waitFor(() => expect(screen.getByText('Hillford')).toBeInTheDocument());
     expect(screen.getByText('town')).toBeInTheDocument();
+  });
+
+  describe('Clues tab', () => {
+    async function openCluesTab() {
+      mocked.listWorlds.mockResolvedValue([
+        { id: 1, name: 'Aetheris', created_at: '2026-01-01T00:00:00Z' },
+      ]);
+      render(<LibraryPage />);
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Clues' })).toBeInTheDocument());
+      await userEvent.click(screen.getByRole('button', { name: 'Clues' }));
+      await waitFor(() => expect(cluesMocked.listClues).toHaveBeenCalledWith(1));
+    }
+
+    it('lists existing clues, including an attached one', async () => {
+      cluesMocked.listClues.mockResolvedValue([
+        {
+          id: 5,
+          world_id: 1,
+          text: 'Bloodstained ledger in the cellar',
+          revelation: 'The steward is the thief',
+          entity_type: null,
+          entity_id: null,
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+      ]);
+      await openCluesTab();
+
+      await waitFor(() =>
+        expect(screen.getByText('Bloodstained ledger in the cellar')).toBeInTheDocument(),
+      );
+      expect(screen.getByText(/Points to: The steward is the thief/)).toBeInTheDocument();
+    });
+
+    it('shows an empty state when no clues exist yet', async () => {
+      cluesMocked.listClues.mockResolvedValue([]);
+      await openCluesTab();
+      await waitFor(() => expect(screen.getByText(/No clues yet/)).toBeInTheDocument());
+    });
+
+    it('creates an unattached clue via the form', async () => {
+      cluesMocked.listClues.mockResolvedValue([]);
+      cluesMocked.createClue.mockResolvedValue({
+        id: 6,
+        world_id: 1,
+        text: 'Torn letter',
+        revelation: '',
+        entity_type: null,
+        entity_id: null,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      });
+      await openCluesTab();
+      await waitFor(() => expect(screen.getByText(/No clues yet/)).toBeInTheDocument());
+
+      await userEvent.type(screen.getByPlaceholderText('Clue text'), 'Torn letter');
+      await userEvent.click(screen.getByRole('button', { name: 'Create clue' }));
+
+      await waitFor(() =>
+        expect(cluesMocked.createClue).toHaveBeenCalledWith(1, {
+          text: 'Torn letter',
+          revelation: '',
+          entity_type: null,
+          entity_id: null,
+        }),
+      );
+    });
+
+    it('edits and deletes an existing clue', async () => {
+      cluesMocked.listClues.mockResolvedValue([
+        {
+          id: 7,
+          world_id: 1,
+          text: 'First draft',
+          revelation: '',
+          entity_type: null,
+          entity_id: null,
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+      ]);
+      cluesMocked.updateClue.mockResolvedValue({
+        id: 7,
+        world_id: 1,
+        text: 'Revised text',
+        revelation: 'New revelation',
+        entity_type: null,
+        entity_id: null,
+        created_at: '2026-01-01T00:00:00Z',
+        updated_at: '2026-01-01T00:00:00Z',
+      });
+      cluesMocked.deleteClue.mockResolvedValue(undefined);
+      await openCluesTab();
+      await waitFor(() => expect(screen.getByText('First draft')).toBeInTheDocument());
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      const textbox = screen.getByDisplayValue('First draft');
+      await userEvent.clear(textbox);
+      await userEvent.type(textbox, 'Revised text');
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      await waitFor(() =>
+        expect(cluesMocked.updateClue).toHaveBeenCalledWith(1, 7, {
+          text: 'Revised text',
+          revelation: '',
+        }),
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+      await waitFor(() => expect(cluesMocked.deleteClue).toHaveBeenCalledWith(1, 7));
+    });
   });
 });
