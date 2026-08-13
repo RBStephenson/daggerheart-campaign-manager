@@ -384,13 +384,45 @@ search and tier-filter both, and expand a card for the full stat block. "Add to
 Library" on an adversary or environment card spawns it as a real Library
 `Adversary`/`Environment` entity (the GM worldbuilding feature behind
 `library_enabled` — worlds, Continents, Regions, Locations, Factions, NPCs,
-Adversaries, and Environments, see `backend/app/routers/library.py`) via the
+Adversaries, Environments, and Clues, see `backend/app/routers/library.py`) via the
 existing generic entity-create endpoint — no dedicated spawn endpoint exists,
-the stat block is just serialized into that entity's `extra` field.
+the stat block is just serialized into that entity's `extra` field. (Clues aren't
+Bestiary-spawnable — there's no stat block to spawn from — they're created
+directly in the Library's Clues tab; see "Investigation prep: Clues" below.)
 
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/bestiary/` | The full adversary + environment dataset — gm only |
+
+### Investigation prep: Clues
+
+Behind `library_enabled`, alongside the rest of the Library. A `Clue` is a
+lightweight, world-scoped note: `text`, a free-text `revelation` label (not
+its own entity — just a grouping string), and an optional attachment to any
+other Library entity or place (`entity_type`/`entity_id`, the same 7 types
+`SessionPlanLibraryLink` accepts). A clue doesn't need an attachment at all.
+
+**Visibility only, never an enforced rule** — loosely inspired by the
+clue-redundancy prep technique (multiple clues pointing at the same
+revelation, so a scenario survives players missing any one of them), but the
+app never enforces a minimum or warns about "not enough" clues. `LibraryPage`
+(`frontend/src/pages/gm/LibraryPage.tsx`)'s **Clues** tab groups the list by
+`revelation` and shows a plain count per group (clues with no revelation fall
+into an "Ungrouped" bucket, sorted last) — the GM decides what's sufficient.
+
+Clue's shape doesn't match the generic name/summary/extra CRUD every other
+Library entity shares, so both the backend (`backend/app/routers/library.py`)
+and frontend (`CluesPanel` in `LibraryPage.tsx`) give it its own small
+dedicated code path rather than forcing it into the shared entity-route
+factory / `LibrarySegment` union.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/library/worlds/{world_id}/clues` | List a world's clues |
+| `POST /api/library/worlds/{world_id}/clues` | Create a clue |
+| `GET /api/library/worlds/{world_id}/clues/{clue_id}` | Get a clue |
+| `PUT /api/library/worlds/{world_id}/clues/{clue_id}` | Update a clue |
+| `DELETE /api/library/worlds/{world_id}/clues/{clue_id}` | Delete a clue |
 
 ## Combat tools: Fear pool & countdowns
 
