@@ -13,6 +13,7 @@ from sqlalchemy import select
 from app.db import SessionLocal
 from app.models import User
 from app.routers import (
+    ai_text,
     auth,
     bestiary,
     campaigns,
@@ -124,6 +125,7 @@ def create_app() -> FastAPI:
     app.include_router(generators.router)
     app.include_router(gm_moves.router)
     app.include_router(custom_content.router)
+    app.include_router(ai_text.router)
     return app
 
 
