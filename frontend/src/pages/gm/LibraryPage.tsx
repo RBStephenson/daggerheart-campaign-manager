@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import AiDraftField from '../../components/ui/AiDraftField';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import { createClue, deleteClue, listClues, updateClue, type Clue } from '../../api/clues';
@@ -60,6 +61,19 @@ const CHILD_SEGMENT: Partial<Record<LibrarySegment, LibrarySegment>> = {
   regions: 'locations',
 };
 
+// entity_type passed to POST /api/ai/generate (DHCM-98) -- server treats it
+// as free-form prompt context, not a validated enum, so these just need to
+// read sensibly in the generated prompt.
+const ENTITY_TYPE_FOR_SEGMENT: Record<LibrarySegment, string> = {
+  continents: 'continent',
+  regions: 'region',
+  locations: 'location',
+  factions: 'faction',
+  npcs: 'NPC',
+  adversaries: 'adversary',
+  environments: 'environment',
+};
+
 function EntityPanel({
   segment,
   parentId,
@@ -72,6 +86,7 @@ function EntityPanel({
   const singular = SINGULAR[segment];
   const hasKind = SEGMENT_HAS_KIND[segment];
   const hasNotes = SEGMENT_HAS_NOTES[segment];
+  const entityType = ENTITY_TYPE_FOR_SEGMENT[segment];
   const childSegment = CHILD_SEGMENT[segment];
   const [entities, setEntities] = useState<LibraryEntity[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -144,12 +159,26 @@ function EntityPanel({
         </h2>
         <input name="name" placeholder={`${singular} name`} required className={inputClass} />
         {hasKind && <input name="kind" placeholder="Kind (optional, e.g. town, ruin)" className={inputClass} />}
-        <textarea name="summary" placeholder="Summary (optional)" className={inputClass} />
-        <textarea name="extra" placeholder="Notes (optional)" className={inputClass} />
+        <AiDraftField
+          name="summary"
+          label="Summary"
+          placeholder="Summary (optional)"
+          entityType={entityType}
+          className={inputClass}
+        />
+        <AiDraftField
+          name="extra"
+          label="Details"
+          placeholder="Notes (optional)"
+          entityType={entityType}
+          className={inputClass}
+        />
         {hasNotes && (
-          <textarea
+          <AiDraftField
             name="notes"
+            label="GM notes"
             placeholder="GM notes for live play — signature moves, table reminders (optional)"
+            entityType={entityType}
             className={inputClass}
           />
         )}
@@ -180,13 +209,27 @@ function EntityPanel({
                   {hasKind && (
                     <input name="kind" defaultValue={entity.kind ?? ''} placeholder="Kind" className={inputClass} />
                   )}
-                  <textarea name="summary" defaultValue={entity.summary} className={inputClass} />
-                  <textarea name="extra" defaultValue={entity.extra} className={inputClass} />
+                  <AiDraftField
+                    name="summary"
+                    label="Summary"
+                    defaultValue={entity.summary}
+                    entityType={entityType}
+                    className={inputClass}
+                  />
+                  <AiDraftField
+                    name="extra"
+                    label="Details"
+                    defaultValue={entity.extra}
+                    entityType={entityType}
+                    className={inputClass}
+                  />
                   {hasNotes && (
-                    <textarea
+                    <AiDraftField
                       name="notes"
+                      label="GM notes"
                       defaultValue={entity.notes ?? ''}
                       placeholder="GM notes for live play (optional)"
+                      entityType={entityType}
                       className={inputClass}
                     />
                   )}
@@ -468,7 +511,14 @@ function CluesPanel({ worldId }: { worldId: number }) {
       <li key={clue.id} className={cardClass}>
         {editingId === clue.id ? (
           <form onSubmit={(e) => void handleUpdate(clue.id, e)} className="flex flex-col gap-2">
-            <textarea name="text" defaultValue={clue.text} required className={inputClass} />
+            <AiDraftField
+              name="text"
+              label="Clue text"
+              defaultValue={clue.text}
+              required
+              entityType="clue"
+              className={inputClass}
+            />
             <input name="revelation" defaultValue={clue.revelation} className={inputClass} />
             <div className="flex gap-2">
               <button
@@ -510,7 +560,14 @@ function CluesPanel({ worldId }: { worldId: number }) {
     <div>
       <form onSubmit={(e) => void handleCreate(e)} className={`mb-6 flex max-w-md flex-col gap-2 ${cardClass}`}>
         <h2 className="mb-1 font-display text-sm tracking-wide text-parchment/80">New Clue</h2>
-        <textarea name="text" placeholder="Clue text" required className={inputClass} />
+        <AiDraftField
+          name="text"
+          label="Clue text"
+          placeholder="Clue text"
+          required
+          entityType="clue"
+          className={inputClass}
+        />
         <input name="revelation" placeholder="Revelation (optional)" className={inputClass} />
         <div className="flex gap-2">
           <select

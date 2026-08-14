@@ -46,3 +46,17 @@ export function updateAiApiConfig(id: number, body: AiApiConfigUpdate): Promise<
 export function deleteAiApiConfig(id: number): Promise<void> {
   return apiDelete(`${BASE}/${id}`);
 }
+
+export interface AiTextGenerateRequest {
+  entity_type: string;
+  existing_fields?: Record<string, string>;
+  prompt: string;
+}
+
+export interface AiTextGenerateResponse {
+  draft: string;
+}
+
+export function generateAiText(body: AiTextGenerateRequest): Promise<AiTextGenerateResponse> {
+  return apiPost('/api/ai/generate', body);
+}
