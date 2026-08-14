@@ -6,6 +6,10 @@ services:
     volumes:
       - ./backend:/app
       - dhcm-data:/data
+      # Repo-root .env, bind-mounted so DHCM-100's auto-generated
+      # DHCM_FERNET_KEY (written from inside the container) lands back on
+      # the host and survives a container recreate, not just a restart.
+      - ./.env:/app/.env
     environment:
       DHCM_DATABASE_URL: sqlite:////data/dhcm.sqlite3
       DHCM_GM_USERNAME: ${DHCM_GM_USERNAME:-}
@@ -13,6 +17,8 @@ services:
       DHCM_PLAYER_USERNAME: ${DHCM_PLAYER_USERNAME:-}
       DHCM_PLAYER_PASSWORD: ${DHCM_PLAYER_PASSWORD:-}
       DHCM_SECRET_KEY: ${DHCM_SECRET_KEY:-}
+      DHCM_FERNET_KEY: ${DHCM_FERNET_KEY:-}
+      DHCM_ENV_FILE: /app/.env
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:

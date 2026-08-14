@@ -8,23 +8,28 @@ Mirrors STL Studio's `app/services/secrets.py`. The Fernet key is resolved as:
      process. Nothing is persisted: without DHCM_FERNET_KEY set, keys
      encrypted now will not be decryptable after a restart.
 
-DHCM-100 will add automatic generation-and-persistence of DHCM_FERNET_KEY to
-the repo-root .env file; until it ships, an operator sets the env var by
-hand, same as STL's current (non-DHCM-100) behavior.
+DHCM-100: unlike STL (which requires an operator to generate and paste the
+key in by hand -- deliberately, after an earlier STL version's `.secret_key`
+file leaked into version control), DHCM auto-generates and persists the key
+to the gitignored repo-root `.env` file via `ensure_fernet_key()` once a GM
+account exists. See that function for the full policy.
 """
 from __future__ import annotations
 
 import logging
 import os
+from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import AppSetting
+from app.models import AppSetting, User
 
 _log = logging.getLogger(__name__)
 
 _FERNET_KEY_ENV = "DHCM_FERNET_KEY"
+_ENV_FILE_OVERRIDE_VAR = "DHCM_ENV_FILE"
 
 _fernet: Fernet | None = None
 
@@ -53,6 +58,50 @@ def reset_cache() -> None:
     """Drop the cached Fernet -- used by tests that swap the key/env."""
     global _fernet
     _fernet = None
+
+
+def _env_file_path() -> Path:
+    # Locally, __file__ resolves to backend/app/services/secrets.py, so
+    # parents[3] is the repo root where .env actually lives. In Docker only
+    # ./backend is mounted (as /app), so DHCM_ENV_FILE is set explicitly in
+    # docker-compose.yml to wherever the repo-root .env is bind-mounted --
+    # the override always wins.
+    override = os.environ.get(_ENV_FILE_OVERRIDE_VAR)
+    if override:
+        return Path(override)
+    return Path(__file__).resolve().parents[3] / ".env"
+
+
+def _persist_key_to_env_file(key: str) -> None:
+    path = _env_file_path()
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
+    if f"{_FERNET_KEY_ENV}=" in existing:
+        # Already persisted by an earlier boot -- never overwrite a key
+        # that may already have encrypted data at rest under it.
+        return
+    if existing and not existing.endswith("\n"):
+        existing += "\n"
+    path.write_text(f"{existing}{_FERNET_KEY_ENV}={key}\n", encoding="utf-8")
+
+
+def ensure_fernet_key(db: Session) -> None:
+    """Generate and persist DHCM_FERNET_KEY on first boot, once a GM account
+    exists. Called from both the env-var GM bootstrap path (main.py) and the
+    first-run GM setup endpoint (DHCM-101) -- the "does a GM exist yet" guard
+    lives here rather than in each caller so both paths get it for free.
+
+    No-op if the env var is already set (an operator set it by hand, or a
+    prior boot already persisted one -- reused, never regenerated) or if no
+    GM account exists yet (key generation must not fire prematurely).
+    """
+    if os.environ.get(_FERNET_KEY_ENV):
+        return
+    if db.scalar(select(User).where(User.role == "gm")) is None:
+        return
+    key = Fernet.generate_key().decode()
+    _persist_key_to_env_file(key)
+    os.environ[_FERNET_KEY_ENV] = key
+    reset_cache()
 
 
 # --- Named AI API config keys ---------------------------------------------
