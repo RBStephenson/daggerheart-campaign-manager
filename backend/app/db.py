@@ -26,7 +26,9 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-def commit_or_409(db: Session, detail: str = "Conflict: a record with these values already exists") -> None:
+def commit_or_409(
+    db: Session, detail: str = "Conflict: a record with these values already exists"
+) -> None:
     """Commit, converting a unique-constraint IntegrityError into a clean 409."""
     try:
         db.commit()
