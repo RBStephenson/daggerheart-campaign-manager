@@ -22,6 +22,7 @@ from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from app.models import AppSetting, User
@@ -91,12 +92,19 @@ def ensure_fernet_key(db: Session) -> None:
     lives here rather than in each caller so both paths get it for free.
 
     No-op if the env var is already set (an operator set it by hand, or a
-    prior boot already persisted one -- reused, never regenerated) or if no
-    GM account exists yet (key generation must not fire prematurely).
+    prior boot already persisted one -- reused, never regenerated), if no
+    GM account exists yet (key generation must not fire prematurely), or if
+    the `users` table itself doesn't exist yet (app booting ahead of
+    migrations -- there can't be a GM account either in that case, so this
+    is just the same "not yet" outcome rather than a real error).
     """
     if os.environ.get(_FERNET_KEY_ENV):
         return
-    if db.scalar(select(User).where(User.role == "gm")) is None:
+    try:
+        gm_exists = db.scalar(select(User).where(User.role == "gm")) is not None
+    except OperationalError:
+        return
+    if not gm_exists:
         return
     key = Fernet.generate_key().decode()
     _persist_key_to_env_file(key)

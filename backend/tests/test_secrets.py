@@ -2,6 +2,8 @@ import os
 
 import pytest
 from cryptography.fernet import Fernet
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from app.services import secrets
 from tests.conftest import make_user
@@ -79,6 +81,22 @@ def env_file(tmp_path, monkeypatch):
 
 def test_no_op_when_no_gm_account_exists(db, env_file) -> None:
     secrets.ensure_fernet_key(db)
+
+    assert not env_file.exists()
+    assert "DHCM_FERNET_KEY" not in os.environ
+
+
+def test_no_op_when_users_table_does_not_exist_yet(env_file) -> None:
+    # Regression: app booting ahead of migrations (or, as in CI, a shared
+    # SessionLocal engine whose schema another test dropped) must not crash
+    # -- there can't be a GM account without a users table either, so this
+    # is just the "not yet" outcome, not a real error.
+    engine = create_engine("sqlite://")  # no Base.metadata.create_all()
+    empty_db = sessionmaker(bind=engine)()
+    try:
+        secrets.ensure_fernet_key(empty_db)
+    finally:
+        empty_db.close()
 
     assert not env_file.exists()
     assert "DHCM_FERNET_KEY" not in os.environ
