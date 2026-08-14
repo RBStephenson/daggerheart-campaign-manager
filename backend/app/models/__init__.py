@@ -505,7 +505,7 @@ class AiApiConfig(Base):
     api_type: Mapped[str] = mapped_column(String(20), nullable=False)  # "anthropic" | "openai"
     url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     model: Mapped[str] = mapped_column(String(200), nullable=False, default="")
-    effort: Mapped[str | None] = mapped_column(String(20), nullable=True)  # anthropic: low|medium|high
+    effort: Mapped[str | None] = mapped_column(String(20), nullable=True)  # anthropic: low|med|high
     # Per-connection request timeout in seconds -- a remote/cold endpoint can
     # take far longer than a local one, so this is tunable per config.
     request_timeout: Mapped[int] = mapped_column(nullable=False, default=10)
