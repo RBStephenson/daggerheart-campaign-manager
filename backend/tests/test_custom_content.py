@@ -96,6 +96,43 @@ def test_domain_card_crud(as_user, db: Session) -> None:
     assert updated.json()["recall_cost"] == 3
 
 
+def test_duplicate_name_on_create_returns_409(as_user, db: Session) -> None:
+    _enable(db)
+    gm = as_user("gm")
+    body = {
+        "name": "Sunfang",
+        "trait": "Finesse",
+        "range": "Melee",
+        "damage": "d8+3",
+        "burden": "One-Handed",
+        "is_magic": True,
+        "feature": "Glows in dim light.",
+    }
+    assert gm.post("/api/custom-content/weapons", json=body).status_code == 200
+    dupe = gm.post("/api/custom-content/weapons", json=body)
+    assert dupe.status_code == 409
+
+
+def test_duplicate_name_on_update_returns_409(as_user, db: Session) -> None:
+    _enable(db)
+    gm = as_user("gm")
+    gm.post("/api/custom-content/ancestries", json={"name": "Duskkin"})
+    second = gm.post("/api/custom-content/ancestries", json={"name": "Stonekin"})
+    second_id = second.json()["id"]
+
+    dupe = gm.put(f"/api/custom-content/ancestries/{second_id}", json={"name": "Duskkin"})
+    assert dupe.status_code == 409
+
+
+def test_duplicate_domain_and_name_on_create_returns_409(as_user, db: Session) -> None:
+    _enable(db)
+    gm = as_user("gm")
+    body = {"domain": "Arcana", "name": "Ember Sigil", "type": "Spell", "recall_cost": 2}
+    assert gm.post("/api/custom-content/domain-cards", json=body).status_code == 200
+    dupe = gm.post("/api/custom-content/domain-cards", json=body)
+    assert dupe.status_code == 409
+
+
 def test_all_seven_segments_reachable(as_user, db: Session) -> None:
     _enable(db)
     gm = as_user("gm")

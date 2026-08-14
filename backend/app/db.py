@@ -3,7 +3,9 @@
 import os
 from collections.abc import Generator
 
+from fastapi import HTTPException
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 DATABASE_URL = os.environ.get("DHCM_DATABASE_URL", "sqlite:///./dhcm.sqlite3")
@@ -22,3 +24,12 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def commit_or_409(db: Session, detail: str = "Conflict: a record with these values already exists") -> None:
+    """Commit, converting a unique-constraint IntegrityError into a clean 409."""
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=409, detail=detail) from exc

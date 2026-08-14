@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db import get_db
+from app.db import commit_or_409, get_db
 from app.deps import require_role
 from app.models import (
     Base,
@@ -84,6 +84,7 @@ def _add_crud_routes(
     out_schema: type[BaseModel],
 ) -> None:
     prefix = f"/{segment}"
+    conflict_detail = f"A custom {segment.replace('-', ' ')} entry with that name already exists"
 
     @router.get(prefix, response_model=list[out_schema], name=f"list_custom_{segment}")  # type: ignore[valid-type]
     def list_entities(db: Annotated[Session, Depends(get_db)]) -> list[Base]:
@@ -97,7 +98,7 @@ def _add_crud_routes(
         kwargs = {field: getattr(body, field) for field in fields}
         entity = model(created_at=datetime.now(UTC), **kwargs)
         db.add(entity)
-        db.commit()
+        commit_or_409(db, conflict_detail)
         db.refresh(entity)
         return entity
 
@@ -118,7 +119,7 @@ def _add_crud_routes(
             value = getattr(body, field)
             if value is not None:
                 setattr(entity, field, value)
-        db.commit()
+        commit_or_409(db, conflict_detail)
         db.refresh(entity)
         return entity
 
