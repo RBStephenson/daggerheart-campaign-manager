@@ -50,3 +50,17 @@ class AiApiConfigOut(BaseModel):
     key_set: bool
     key_hint: str | None
     created_at: datetime
+
+
+class AiTextGenerateRequest(BaseModel):
+    """A draft-generation request (DHCM-96). `existing_fields` gives the model
+    whatever context the GM has already filled in; `prompt` is the GM's short
+    statement of intent (e.g. "write a rumor hook for this NPC")."""
+
+    entity_type: str = Field(min_length=1, max_length=50)
+    existing_fields: dict[str, str] = Field(default_factory=dict)
+    prompt: str = Field(min_length=1, max_length=2000)
+
+
+class AiTextGenerateResponse(BaseModel):
+    draft: str
