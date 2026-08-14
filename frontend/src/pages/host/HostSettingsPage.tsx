@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import ToggleSwitch from '../../components/ui/ToggleSwitch';
 import { useAppSettings } from '../../context/AppSettingsContext';
+import AiSettingsSection from './AiSettingsSection';
+
+// Managed by AiSettingsSection's own "Active config" selector below, not the
+// generic toggle list — excluded here so it doesn't also render as a raw
+// numeric/null value row.
+const MANAGED_ELSEWHERE = new Set(['ai_text_api']);
 
 const FLAG_INFO: Record<string, { label: string; description: string }> = {
   realtime_enabled: {
@@ -51,6 +57,10 @@ const FLAG_INFO: Record<string, { label: string; description: string }> = {
     label: 'Custom content',
     description: 'GM-authored classes, ancestries, communities, domains, weapons, and armor.',
   },
+  ai_text_enabled: {
+    label: 'AI text generation',
+    description: 'Offer AI-drafted text on Library entity forms, subject to GM review.',
+  },
 };
 
 export default function HostSettingsPage() {
@@ -61,7 +71,7 @@ export default function HostSettingsPage() {
     return <p className="text-admin-subtext dark:text-admin-subtext-dark">Loading settings…</p>;
   }
 
-  const entries = Object.entries(settings);
+  const entries = Object.entries(settings).filter(([key]) => !MANAGED_ELSEWHERE.has(key));
 
   const toggle = async (key: string, value: boolean) => {
     setPending(key);
@@ -112,6 +122,7 @@ export default function HostSettingsPage() {
           })}
         </ul>
       )}
+      <AiSettingsSection />
     </div>
   );
 }
