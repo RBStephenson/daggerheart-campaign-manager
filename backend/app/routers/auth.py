@@ -17,6 +17,7 @@ from app.schemas.auth import (
     InviteOut,
     LoginRequest,
     RegisterRequest,
+    SetupRequest,
     UserOut,
 )
 from app.security import (
@@ -27,6 +28,7 @@ from app.security import (
     hash_password,
     verify_password,
 )
+from app.services import secrets
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -85,6 +87,34 @@ def register(
     invite.used_at = datetime.now(UTC)
     db.commit()
     db.refresh(user)
+    _set_session_cookie(response, user.id)
+    return user
+
+
+@router.post("/setup", response_model=UserOut)
+def setup(
+    body: SetupRequest, response: Response, db: Annotated[Session, Depends(get_db)]
+) -> User:
+    """Create the first GM account, unauthenticated. A one-time-only door:
+    once any GM exists (via this endpoint or the env-var bootstrap), it
+    always refuses -- a non-GM user existing (e.g. a bootstrapped test
+    player) does NOT satisfy that guard, so setup still works in that case.
+    """
+    if db.scalar(select(User).where(User.role == "gm")) is not None:
+        raise HTTPException(status_code=403, detail="Setup already completed")
+    if db.scalar(select(User).where(User.username == body.username)) is not None:
+        raise HTTPException(status_code=409, detail="Username already taken")
+
+    user = User(
+        username=body.username,
+        password_hash=hash_password(body.password),
+        role="gm",
+        created_at=datetime.now(UTC),
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    secrets.ensure_fernet_key(db)
     _set_session_cookie(response, user.id)
     return user
 
