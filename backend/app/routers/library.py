@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db import get_db
+from app.db import commit_or_409, get_db
 from app.deps import require_role
 from app.models import (
     Adversary,
@@ -144,6 +144,7 @@ def _add_entity_routes(
         "adversaries": AdversaryOut,
     }
     out_schema = out_schemas.get(segment, LibraryEntityOut)
+    conflict_detail = f"A {segment[:-1]} with these values already exists"
 
     @router.get(prefix, response_model=list[out_schema], name=f"list_{segment}")  # type: ignore[valid-type]
     def list_entities(
@@ -177,7 +178,7 @@ def _add_entity_routes(
             kwargs["notes"] = body.notes  # type: ignore[attr-defined]
         entity = model(**kwargs)
         db.add(entity)
-        db.commit()
+        commit_or_409(db, conflict_detail)
         db.refresh(entity)
         return entity
 
@@ -212,7 +213,7 @@ def _add_entity_routes(
         if has_notes and body.notes is not None:  # type: ignore[attr-defined]
             entity.notes = body.notes  # type: ignore[attr-defined]
         entity.updated_at = datetime.now(UTC)  # type: ignore[attr-defined]
-        db.commit()
+        commit_or_409(db, conflict_detail)
         db.refresh(entity)
         return entity
 
