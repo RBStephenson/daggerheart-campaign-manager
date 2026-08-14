@@ -32,6 +32,7 @@ from app.routers import (
     ws,
 )
 from app.security import hash_password
+from app.services import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,16 @@ def _bootstrap_gm_user() -> None:
             )
         )
         db.commit()
+    finally:
+        db.close()
+
+
+def _ensure_fernet_key() -> None:
+    """Auto-generate/persist DHCM_FERNET_KEY once a GM account exists
+    (DHCM-100). No-op until then, and no-op again once the env var is set."""
+    db = SessionLocal()
+    try:
+        secrets.ensure_fernet_key(db)
     finally:
         db.close()
 
@@ -95,6 +106,7 @@ def _bootstrap_player_user() -> None:
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     _bootstrap_gm_user()
+    _ensure_fernet_key()
     _bootstrap_player_user()
     yield
 
