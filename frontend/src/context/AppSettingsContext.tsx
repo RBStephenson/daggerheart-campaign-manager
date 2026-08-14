@@ -16,7 +16,7 @@ import { useAuth } from './AuthContext';
  * which keeps gated UI hidden during the initial settings fetch.
  */
 export interface AppSettings {
-  [key: string]: boolean | number | string;
+  [key: string]: boolean | number | string | null;
 }
 
 export const DEFAULTS: AppSettings = {
@@ -33,6 +33,9 @@ export const DEFAULTS: AppSettings = {
   combat_tools_enabled: false,
   generators_enabled: false,
   custom_content_enabled: false,
+  ai_text_enabled: false,
+  // Selected AiApiConfig.id, or null if unset/not yet configured.
+  ai_text_api: null,
 };
 
 interface AppSettingsContextValue {
