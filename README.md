@@ -73,6 +73,25 @@ behind a `<feature>_enabled` flag (default off) toggled from the Settings page.
 | `GET /api/settings` | All settings (defaults overlaid with stored values) — gm only |
 | `PUT /api/settings` | Partial update; unknown keys rejected (422) — gm only |
 
+### AI text generation (DHCM-95, backend only)
+
+Named `AiApiConfig` endpoint configs (Anthropic or OpenAI-compatible), modeled
+directly on STL Studio's AI settings pattern. API keys are encrypted at rest
+(`app/services/secrets.py`, Fernet) and never returned in full — only
+`key_set`/`key_hint`. Gated by `ai_text_enabled` (default off) and
+`ai_text_api` (selected config id, default unset) in the standard settings
+store above. **No Settings-page toggle yet** — that, and the actual
+generation endpoint, are separate follow-on tickets (DHCM-96/97/98). Without
+`DHCM_FERNET_KEY` set, encrypted keys don't survive a process restart
+(DHCM-100 will add automatic generation/persistence of that key).
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/settings/ai-apis` | List configs (keys never included) — gm only |
+| `POST /api/settings/ai-apis` | Create a config, optional `api_key` — gm only |
+| `PATCH /api/settings/ai-apis/{id}` | Partial update, optional key rotation — gm only |
+| `DELETE /api/settings/ai-apis/{id}` | Delete a config and its stored key — gm only |
+
 ## Auth
 
 Lightweight self-hosted auth — no OAuth. Sessions are a signed, httpOnly cookie

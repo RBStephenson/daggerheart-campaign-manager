@@ -487,3 +487,31 @@ class SessionPlanLibraryLink(Base):
     entity_type: Mapped[str] = mapped_column(String(20), nullable=False)
     entity_id: Mapped[int] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class AiApiConfig(Base):
+    """Named AI API endpoint configuration for AI text generation (DHCM-95/78).
+
+    Global, not campaign-scoped -- one shared pool of connections a GM manages
+    from Settings. Mirrors STL Studio's `AiApiConfig` pattern. The encrypted
+    API key is stored separately (app_settings, keyed by this row's id) to
+    keep it out of this table's plaintext columns -- see app/services/secrets.py.
+    """
+
+    __tablename__ = "ai_api_configs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    api_type: Mapped[str] = mapped_column(String(20), nullable=False)  # "anthropic" | "openai"
+    url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    model: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    effort: Mapped[str | None] = mapped_column(String(20), nullable=True)  # anthropic: low|med|high
+    # Per-connection request timeout in seconds -- a remote/cold endpoint can
+    # take far longer than a local one, so this is tunable per config.
+    request_timeout: Mapped[int] = mapped_column(nullable=False, default=10)
+    # Max items sent per generation request/batch. None = service default.
+    batch_size: Mapped[int | None] = mapped_column(nullable=True)
+    # OpenAI-compatible only: let the model reason before answering. Off by
+    # default, matching STL's AiApiConfig.reasoning_enabled.
+    reasoning_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
