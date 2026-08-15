@@ -28,6 +28,11 @@ vi.mock('../pages/gm/PartyPanel', () => ({
     <div data-testid="party-panel">{campaignId}</div>
   ),
 }));
+vi.mock('../pages/gm/SessionPlansPanel', () => ({
+  default: ({ campaignId }: { campaignId: number }) => (
+    <div data-testid="plans-panel">{campaignId}</div>
+  ),
+}));
 vi.mock('../pages/gm/InvitePlayerPanel', () => ({
   default: () => <div data-testid="invite-player-panel" />,
 }));
@@ -37,6 +42,20 @@ vi.mock('../components/ChatPanel', () => ({
 const mocked = vi.mocked(campaignsApi);
 const mockedPlans = vi.mocked(sessionPlansApi);
 const mockedSettings = vi.mocked(appSettings.useAppSettings);
+
+const WINDMERE = {
+  id: 1,
+  name: 'Windmere',
+  description: '',
+  gm_user_id: 1,
+  fear: 0,
+  created_at: '2026-01-01T00:00:00Z',
+};
+
+async function openWindmere() {
+  await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+  await userEvent.click(screen.getByText('Windmere'));
+}
 
 describe('CampaignsPage', () => {
   beforeEach(() => {
@@ -69,17 +88,8 @@ describe('CampaignsPage', () => {
     await waitFor(() => expect(screen.getByTestId('invite-player-panel')).toBeInTheDocument());
   });
 
-  it('lists campaigns with active session status', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      {
-        id: 1,
-        name: 'Windmere',
-        description: 'A start',
-        gm_user_id: 1,
-        fear: 0,
-        created_at: '2026-01-01T00:00:00Z',
-      },
-    ]);
+  it('lists campaigns and opens the detail pane on selection, showing active session status', async () => {
+    mocked.listCampaigns.mockResolvedValue([WINDMERE]);
     mocked.listSessions.mockResolvedValue([
       {
         id: 5,
@@ -92,12 +102,12 @@ describe('CampaignsPage', () => {
     ]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
     expect(screen.getByText('Session active')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'End session' })).toBeInTheDocument();
   });
 
-  it('creates a campaign via the form', async () => {
+  it('creates a campaign via the new-campaign modal', async () => {
     mocked.listCampaigns.mockResolvedValue([]);
     mocked.createCampaign.mockResolvedValue({
       id: 2,
@@ -111,6 +121,7 @@ describe('CampaignsPage', () => {
     render(<CampaignsPage />);
     await waitFor(() => expect(screen.getByText(/No campaigns yet/)).toBeInTheDocument());
 
+    await userEvent.click(screen.getByRole('button', { name: '+ New' }));
     await userEvent.type(screen.getByPlaceholderText('Campaign name'), 'New Campaign');
     await userEvent.click(screen.getByRole('button', { name: 'Create campaign' }));
 
@@ -120,16 +131,7 @@ describe('CampaignsPage', () => {
   });
 
   it('starts a session for a campaign with none active', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      {
-        id: 1,
-        name: 'Windmere',
-        description: '',
-        gm_user_id: 1,
-        fear: 0,
-        created_at: '2026-01-01T00:00:00Z',
-      },
-    ]);
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
     mocked.startSession.mockResolvedValue({
       id: 9,
       campaign_id: 1,
@@ -140,60 +142,38 @@ describe('CampaignsPage', () => {
     });
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
 
     await userEvent.click(screen.getByRole('button', { name: 'Start session' }));
     await waitFor(() => expect(mocked.startSession).toHaveBeenCalledWith(1));
   });
 
-  it('toggles the session plans panel for a campaign', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      {
-        id: 1,
-        name: 'Windmere',
-        description: '',
-        gm_user_id: 1,
-        fear: 0,
-        created_at: '2026-01-01T00:00:00Z',
-      },
-    ]);
+  it('shows the session plans panel via the Plans sub-nav pill', async () => {
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
     mockedPlans.listSessionPlans.mockResolvedValue([]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Session plans' }));
-    await waitFor(() => expect(mockedPlans.listSessionPlans).toHaveBeenCalledWith(1));
-    expect(screen.getByRole('button', { name: 'Hide session plans' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Plans' }));
+    expect(screen.getByTestId('plans-panel')).toHaveTextContent('1');
   });
 
-  it('toggles the members panel for a campaign', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      {
-        id: 1,
-        name: 'Windmere',
-        description: '',
-        gm_user_id: 1,
-        fear: 0,
-        created_at: '2026-01-01T00:00:00Z',
-      },
-    ]);
+  it('shows the members panel via the Members sub-nav pill', async () => {
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
 
     await userEvent.click(screen.getByRole('button', { name: 'Members' }));
     expect(screen.getByTestId('members-panel')).toHaveTextContent('1');
-    expect(screen.getByRole('button', { name: 'Hide members' })).toBeInTheDocument();
   });
 
   it('hides the Fear tracker when combat_tools_enabled is off', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 3, created_at: '2026-01-01T00:00:00Z' },
-    ]);
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE, fear: 3 }]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
     expect(screen.queryByRole('group', { name: 'Fear pool' })).not.toBeInTheDocument();
   });
 
@@ -203,13 +183,11 @@ describe('CampaignsPage', () => {
       loading: false,
       updateSettings: vi.fn(),
     });
-    mocked.listCampaigns.mockResolvedValue([
-      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 3, created_at: '2026-01-01T00:00:00Z' },
-    ]);
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE, fear: 3 }]);
     mocked.adjustFear.mockResolvedValue({ fear: 4 });
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
     expect(screen.getByRole('group', { name: 'Fear pool' })).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
 
@@ -218,59 +196,61 @@ describe('CampaignsPage', () => {
     await waitFor(() => expect(screen.getByText('4')).toBeInTheDocument());
   });
 
-  it('hides the Countdowns button when combat_tools_enabled is off', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
-    ]);
+  it('hides the Countdowns sub-nav pill when combat_tools_enabled is off', async () => {
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
     expect(screen.queryByRole('button', { name: 'Countdowns' })).not.toBeInTheDocument();
   });
 
-  it('toggles the countdowns panel for a campaign when combat_tools_enabled is on', async () => {
+  it('shows the countdowns panel via the Countdowns sub-nav pill when combat_tools_enabled is on', async () => {
     mockedSettings.mockReturnValue({
       settings: { ...appSettings.DEFAULTS, combat_tools_enabled: true },
       loading: false,
       updateSettings: vi.fn(),
     });
-    mocked.listCampaigns.mockResolvedValue([
-      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
-    ]);
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
 
     await userEvent.click(screen.getByRole('button', { name: 'Countdowns' }));
     expect(screen.getByTestId('countdowns-panel')).toHaveTextContent('1');
-    expect(screen.getByRole('button', { name: 'Hide countdowns' })).toBeInTheDocument();
   });
 
-  it('hides the Party button when player_area_enabled is off', async () => {
-    mocked.listCampaigns.mockResolvedValue([
-      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
-    ]);
+  it('hides the Party sub-nav pill when player_area_enabled is off', async () => {
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
     expect(screen.queryByRole('button', { name: 'Party' })).not.toBeInTheDocument();
   });
 
-  it('toggles the party panel for a campaign when player_area_enabled is on', async () => {
+  it('shows the party panel via the Party sub-nav pill when player_area_enabled is on', async () => {
     mockedSettings.mockReturnValue({
       settings: { ...appSettings.DEFAULTS, player_area_enabled: true },
       loading: false,
       updateSettings: vi.fn(),
     });
-    mocked.listCampaigns.mockResolvedValue([
-      { id: 1, name: 'Windmere', description: '', gm_user_id: 1, fear: 0, created_at: '2026-01-01T00:00:00Z' },
-    ]);
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
 
     render(<CampaignsPage />);
-    await waitFor(() => expect(screen.getByText('Windmere')).toBeInTheDocument());
+    await openWindmere();
 
     await userEvent.click(screen.getByRole('button', { name: 'Party' }));
     expect(screen.getByTestId('party-panel')).toHaveTextContent('1');
-    expect(screen.getByRole('button', { name: 'Hide party' })).toBeInTheDocument();
+  });
+
+  it('returns to the list via the back button', async () => {
+    mocked.listCampaigns.mockResolvedValue([{ ...WINDMERE }]);
+
+    render(<CampaignsPage />);
+    await openWindmere();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Back to campaigns' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Back to campaigns' })).not.toBeInTheDocument(),
+    );
   });
 });

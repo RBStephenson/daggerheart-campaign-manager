@@ -1,18 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import Badge from '../../components/ui/Badge';
 import Skeleton from '../../components/ui/Skeleton';
 import { ApiError } from '../../api/client';
 import { useAppSettings } from '../../context/AppSettingsContext';
-import AdversaryNotesPanel from './AdversaryNotesPanel';
-import ChatPanel from '../../components/ChatPanel';
-import CountdownsPanel from './CountdownsPanel';
-import EncounterBuilderPanel from './EncounterBuilderPanel';
-import FearTracker from './FearTracker';
+import CampaignDetailPane from './CampaignDetailPane';
 import InvitePlayerPanel from './InvitePlayerPanel';
-import MembersPanel from './MembersPanel';
-import PartyPanel from './PartyPanel';
-import QuickGeneratePanel from './QuickGeneratePanel';
-import SessionPlansPanel from './SessionPlansPanel';
 import {
   createCampaign,
   deleteCampaign,
@@ -28,11 +19,18 @@ import {
 type ActiveSessions = Record<number, GameSession | undefined>;
 
 const cardClass =
-  'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-5 backdrop-blur-sm';
+  'rounded-[12px] border border-hairline/15 bg-nightshade/60 p-4 backdrop-blur-sm';
 const inputClass =
   'w-full rounded-md border border-hairline/20 bg-input-dark px-3 py-2 text-sm text-parchment placeholder:text-parchment/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember';
-const ghostButtonClass =
-  'rounded-md border border-hairline/20 px-3 py-2 text-sm text-parchment/70 transition-colors hover:bg-white/5 hover:text-parchment focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember';
+
+function fearDots(fear: number) {
+  return Array.from({ length: 12 }, (_, i) => (
+    <span
+      key={i}
+      className={`h-1.5 w-1.5 rounded-full ${i < fear ? 'bg-ember' : 'bg-white/10'}`}
+    />
+  ));
+}
 
 export default function CampaignsPage() {
   const { settings } = useAppSettings();
@@ -41,14 +39,9 @@ export default function CampaignsPage() {
   const [disabled, setDisabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [planningCampaignId, setPlanningCampaignId] = useState<number | null>(null);
-  const [membersCampaignId, setMembersCampaignId] = useState<number | null>(null);
-  const [countdownsCampaignId, setCountdownsCampaignId] = useState<number | null>(null);
-  const [partyCampaignId, setPartyCampaignId] = useState<number | null>(null);
-  const [adversaryNotesCampaignId, setAdversaryNotesCampaignId] = useState<number | null>(null);
-  const [generateCampaignId, setGenerateCampaignId] = useState<number | null>(null);
-  const [encounterCampaignId, setEncounterCampaignId] = useState<number | null>(null);
 
   async function refresh() {
     setLoading(true);
@@ -79,31 +72,48 @@ export default function CampaignsPage() {
     void refresh();
   }, []);
 
-  async function handleCreate(e: FormEvent<HTMLFormElement>) {
+  function openCampaign(id: number) {
+    setSelectedId(id);
+  }
+
+  function closeDetail() {
+    setSelectedId(null);
+  }
+
+  function openNewForm() {
+    setEditingId(null);
+    setShowFormModal(true);
+  }
+
+  function openEditForm(id: number) {
+    setEditingId(id);
+    setShowFormModal(true);
+  }
+
+  function closeForm() {
+    setShowFormModal(false);
+    setEditingId(null);
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formEl = e.currentTarget;
     const form = new FormData(formEl);
     const name = String(form.get('name') ?? '').trim();
     const description = String(form.get('description') ?? '').trim();
     if (!name) return;
-    await createCampaign(name, description);
-    formEl.reset();
-    await refresh();
-  }
-
-  async function handleUpdate(id: number, e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const name = String(form.get('name') ?? '').trim();
-    const description = String(form.get('description') ?? '').trim();
-    if (!name) return;
-    await updateCampaign(id, { name, description });
-    setEditingId(null);
+    if (editingId != null) {
+      await updateCampaign(editingId, { name, description });
+    } else {
+      await createCampaign(name, description);
+    }
+    closeForm();
     await refresh();
   }
 
   async function handleDelete(id: number) {
     await deleteCampaign(id);
+    if (selectedId === id) setSelectedId(null);
     await refresh();
   }
 
@@ -127,12 +137,12 @@ export default function CampaignsPage() {
     return <p className="text-parchment/60">The campaigns feature is currently disabled.</p>;
   }
 
+  const selectedCampaign = campaigns?.find((c) => c.id === selectedId) ?? null;
+  const editingCampaign =
+    editingId != null ? (campaigns?.find((c) => c.id === editingId) ?? null) : null;
+
   return (
     <div>
-      {campaigns && (
-        <p className="mb-4 text-sm text-parchment/50">{campaigns.length} campaigns</p>
-      )}
-
       {error && (
         <div
           role="alert"
@@ -151,245 +161,153 @@ export default function CampaignsPage() {
 
       <InvitePlayerPanel />
 
-      <form onSubmit={(e) => void handleCreate(e)} className={`mb-6 flex max-w-md flex-col gap-2 ${cardClass}`}>
-        <h2 className="mb-1 font-display text-sm tracking-wide text-parchment/80">
-          New Campaign
-        </h2>
-        <input name="name" placeholder="Campaign name" required className={inputClass} />
-        <textarea name="description" placeholder="Description (optional)" className={inputClass} />
-        <button
-          type="submit"
-          className="self-start rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
-        >
-          Create campaign
-        </button>
-      </form>
+      <div className="lg:grid lg:grid-cols-[320px_1fr] lg:items-start lg:gap-6">
+        {/* List column */}
+        <div className={selectedId != null ? 'hidden lg:block' : 'block'}>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm text-parchment/50">
+              {campaigns ? `${campaigns.length} campaigns` : ''}
+            </p>
+            <button
+              type="button"
+              onClick={openNewForm}
+              className="min-h-11 rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
+            >
+              + New
+            </button>
+          </div>
 
-      {loading ? (
-        <ul className="flex flex-col gap-3" aria-label="Loading campaigns">
-          {[0, 1, 2].map((i) => (
-            <li key={i} className={cardClass}>
-              <Skeleton className="mb-2 h-5 w-1/3" />
-              <Skeleton className="h-4 w-2/3" />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {campaigns?.map((campaign) => {
-            const activeSession = activeSessions[campaign.id];
-            return (
-              <li key={campaign.id} className={cardClass}>
-                {editingId === campaign.id ? (
-                  <form
-                    onSubmit={(e) => void handleUpdate(campaign.id, e)}
-                    className="flex flex-col gap-2"
-                  >
-                    <input name="name" defaultValue={campaign.name} required className={inputClass} />
-                    <textarea name="description" defaultValue={campaign.description} className={inputClass} />
-                    <div className="flex gap-2">
-                      <button
-                        type="submit"
-                        className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingId(null)}
-                        className="rounded-md px-3 py-2 text-sm text-parchment/60 hover:text-parchment"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <h2 className="break-words font-display text-base text-parchment">
+          {loading ? (
+            <ul className="flex flex-col gap-3" aria-label="Loading campaigns">
+              {[0, 1, 2].map((i) => (
+                <li key={i} className={cardClass}>
+                  <Skeleton className="mb-2 h-5 w-1/3" />
+                  <Skeleton className="h-4 w-2/3" />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {campaigns?.map((campaign) => {
+                const activeSession = activeSessions[campaign.id];
+                const isSelected = campaign.id === selectedId;
+                return (
+                  <li key={campaign.id}>
+                    <button
+                      type="button"
+                      onClick={() => openCampaign(campaign.id)}
+                      className={`w-full rounded-[10px] border p-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember ${
+                        isSelected
+                          ? 'border-ember/50 bg-ember/10'
+                          : 'border-hairline/15 bg-nightshade/50 hover:bg-nightshade/70'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <h2 className="min-w-0 truncate font-display text-sm text-parchment">
                           {campaign.name}
                         </h2>
-                        {campaign.description && (
-                          <p className="break-words text-sm text-parchment/60">
-                            {campaign.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex shrink-0 items-center gap-3">
-                        {settings.combat_tools_enabled && (
-                          <FearTracker
-                            campaignId={campaign.id}
-                            fear={campaign.fear}
-                            onChange={(fear) => handleFearChange(campaign.id, fear)}
-                          />
-                        )}
-                        <Badge variant={activeSession ? 'success' : 'neutral'}>
-                          {activeSession ? 'Session active' : 'No active session'}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {activeSession ? (
-                        <button
-                          type="button"
-                          onClick={() => void handleEndSession(campaign.id, activeSession.id)}
-                          className="rounded-md border border-danger/50 px-3 py-2 text-sm text-danger-text transition-colors hover:bg-danger-bg/10"
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${
+                            activeSession
+                              ? 'bg-emerald-400/15 text-emerald-300'
+                              : 'bg-white/10 text-parchment/50'
+                          }`}
                         >
-                          End session
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => void handleStartSession(campaign.id)}
-                          className="rounded-md bg-ember px-3 py-2 text-sm font-semibold text-void hover:bg-ember-bright"
-                        >
-                          Start session
-                        </button>
+                          {activeSession ? 'Active' : 'Idle'}
+                        </span>
+                      </div>
+                      {campaign.description && (
+                        <p className="mt-1 truncate text-xs text-parchment/50">
+                          {campaign.description}
+                        </p>
                       )}
-                      <button type="button" onClick={() => setEditingId(campaign.id)} className={ghostButtonClass}>
-                        Edit
-                      </button>
-                      <button type="button" onClick={() => void handleDelete(campaign.id)} className={ghostButtonClass}>
-                        Delete
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setPlanningCampaignId(
-                            planningCampaignId === campaign.id ? null : campaign.id,
-                          )
-                        }
-                        className={ghostButtonClass}
-                      >
-                        {planningCampaignId === campaign.id ? 'Hide session plans' : 'Session plans'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setMembersCampaignId(
-                            membersCampaignId === campaign.id ? null : campaign.id,
-                          )
-                        }
-                        className={ghostButtonClass}
-                      >
-                        {membersCampaignId === campaign.id ? 'Hide members' : 'Members'}
-                      </button>
-                      {settings.player_area_enabled && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setPartyCampaignId(partyCampaignId === campaign.id ? null : campaign.id)
-                          }
-                          className={ghostButtonClass}
-                        >
-                          {partyCampaignId === campaign.id ? 'Hide party' : 'Party'}
-                        </button>
-                      )}
-                      {settings.combat_tools_enabled && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCountdownsCampaignId(
-                              countdownsCampaignId === campaign.id ? null : campaign.id,
-                            )
-                          }
-                          className={ghostButtonClass}
-                        >
-                          {countdownsCampaignId === campaign.id ? 'Hide countdowns' : 'Countdowns'}
-                        </button>
-                      )}
-                      {settings.combat_tools_enabled && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setAdversaryNotesCampaignId(
-                              adversaryNotesCampaignId === campaign.id ? null : campaign.id,
-                            )
-                          }
-                          className={ghostButtonClass}
-                        >
-                          {adversaryNotesCampaignId === campaign.id
-                            ? 'Hide adversary notes'
-                            : 'Adversary notes'}
-                        </button>
-                      )}
-                      {settings.combat_tools_enabled && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setEncounterCampaignId(
-                              encounterCampaignId === campaign.id ? null : campaign.id,
-                            )
-                          }
-                          className={ghostButtonClass}
-                        >
-                          {encounterCampaignId === campaign.id
-                            ? 'Hide encounter builder'
-                            : 'Encounter builder'}
-                        </button>
-                      )}
-                      {settings.generators_enabled && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setGenerateCampaignId(
-                              generateCampaignId === campaign.id ? null : campaign.id,
-                            )
-                          }
-                          className={ghostButtonClass}
-                        >
-                          {generateCampaignId === campaign.id ? 'Hide quick generate' : 'Quick generate'}
-                        </button>
-                      )}
-                    </div>
-                    {activeSession && <ChatPanel room={activeSession.room} />}
-                    {planningCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <SessionPlansPanel campaignId={campaign.id} />
-                      </div>
-                    )}
-                    {membersCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <MembersPanel campaignId={campaign.id} />
-                      </div>
-                    )}
-                    {partyCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <PartyPanel campaignId={campaign.id} room={activeSession?.room ?? null} />
-                      </div>
-                    )}
-                    {adversaryNotesCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <AdversaryNotesPanel />
-                      </div>
-                    )}
-                    {countdownsCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <CountdownsPanel campaignId={campaign.id} />
-                      </div>
-                    )}
-                    {encounterCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <EncounterBuilderPanel campaignId={campaign.id} />
-                      </div>
-                    )}
-                    {generateCampaignId === campaign.id && (
-                      <div className="mt-4 border-t border-hairline/15 pt-4">
-                        <QuickGeneratePanel />
-                      </div>
-                    )}
-                  </>
-                )}
-              </li>
-            );
-          })}
-          {campaigns?.length === 0 && (
-            <li className="rounded-[12px] border border-dashed border-hairline/25 p-6 text-center text-sm text-parchment/50">
-              No campaigns yet. Create one above.
-            </li>
+                      <div className="mt-2 flex items-center gap-1">{fearDots(campaign.fear)}</div>
+                    </button>
+                  </li>
+                );
+              })}
+              {campaigns?.length === 0 && (
+                <li className="rounded-[12px] border border-dashed border-hairline/25 p-6 text-center text-sm text-parchment/50">
+                  No campaigns yet. Tap + New to create one.
+                </li>
+              )}
+            </ul>
           )}
-        </ul>
+        </div>
+
+        {/* Detail pane */}
+        <div className={selectedId != null ? 'block' : 'hidden lg:block'}>
+          {selectedCampaign ? (
+            <CampaignDetailPane
+              campaign={selectedCampaign}
+              activeSession={activeSessions[selectedCampaign.id]}
+              combatToolsEnabled={Boolean(settings.combat_tools_enabled)}
+              playerAreaEnabled={Boolean(settings.player_area_enabled)}
+              generatorsEnabled={Boolean(settings.generators_enabled)}
+              onBack={closeDetail}
+              onEdit={() => openEditForm(selectedCampaign.id)}
+              onDelete={() => void handleDelete(selectedCampaign.id)}
+              onStartSession={() => void handleStartSession(selectedCampaign.id)}
+              onEndSession={() => {
+                const session = activeSessions[selectedCampaign.id];
+                if (session) void handleEndSession(selectedCampaign.id, session.id);
+              }}
+              onFearChange={(fear) => handleFearChange(selectedCampaign.id, fear)}
+            />
+          ) : (
+            <div className="hidden min-h-[400px] items-center justify-center rounded-[14px] border border-dashed border-hairline/20 text-sm text-parchment/40 lg:flex">
+              Select a campaign to see its details.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* New/Edit campaign modal */}
+      {showFormModal && (
+        <div
+          onClick={closeForm}
+          className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 lg:items-center"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-t-2xl border border-hairline/20 bg-nightshade p-5 lg:rounded-2xl lg:shadow-2xl"
+          >
+            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-hairline/25 lg:hidden" />
+            <h2 className="mb-4 font-display text-base text-parchment">
+              {editingCampaign ? 'Edit campaign' : 'New campaign'}
+            </h2>
+            <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3">
+              <input
+                name="name"
+                placeholder="Campaign name"
+                defaultValue={editingCampaign?.name ?? ''}
+                required
+                className={inputClass}
+              />
+              <textarea
+                name="description"
+                placeholder="Description (optional)"
+                defaultValue={editingCampaign?.description ?? ''}
+                className={inputClass}
+              />
+              <div className="mt-1 flex gap-2">
+                <button
+                  type="submit"
+                  className="min-h-11 flex-1 rounded-md bg-ember px-4 py-2 text-sm font-semibold text-void transition-colors hover:bg-ember-bright focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-bright"
+                >
+                  {editingCampaign ? 'Save changes' : 'Create campaign'}
+                </button>
+                <button
+                  type="button"
+                  onClick={closeForm}
+                  className="min-h-11 rounded-md border border-hairline/20 px-4 py-2 text-sm text-parchment/70 transition-colors hover:bg-white/5 hover:text-parchment focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #0b0810; }
+    * { box-sizing: border-box; }
+    a { color: #d9a54e; }
+    a:hover { color: #f2c265; }
+    input::placeholder, textarea::placeholder { color: inherit; opacity: 0.4; }
+  </style>
+</helmet>
+
+<div style="min-height: 100vh; background: #0b0810; font-family: 'Inter', sans-serif; position: relative;">
+  <div aria-hidden="true" style="position: absolute; top: -160px; left: 10%; width: 420px; height: 420px; border-radius: 50%; background: rgba(217,165,78,0.08); filter: blur(130px); pointer-events: none;"></div>
+  <div aria-hidden="true" style="position: absolute; top: 300px; right: 5%; width: 420px; height: 420px; border-radius: 50%; background: rgba(139,108,240,0.1); filter: blur(130px); pointer-events: none;"></div>
+
+  <!-- Top bar -->
+  <div style="position: relative; z-index: 2; display: flex; align-items: center; gap: 28px; padding: 0 28px; height: 60px; border-bottom: 1px solid rgba(245,208,150,0.12); background: rgba(11,8,16,0.85); backdrop-filter: blur(6px);">
+    <span style="font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 0.2em; color: #f3e9d8;">DAGGERHEART</span>
+    <div style="display: flex; gap: 4px;">
+      <sc-for list="{{ topTabs }}" as="tt" hint-placeholder-count="4">
+        <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; padding: 24px 28px 60px;">
+
+    <!-- Campaigns: two-pane -->
+    <sc-if value="{{ showCampaigns }}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
+
+        <!-- Sidebar list -->
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <h1 style="margin: 0; font-family: 'Cinzel', serif; font-size: 16px; color: #f3e9d8;">Campaigns</h1>
+            <button onClick="{{ toggleNewSheet }}" style="padding: 6px 12px; border-radius: 7px; border: none; background: #d9a54e; color: #1a1208; font-size: 12.5px; font-weight: 600; cursor: pointer;">+ New</button>
+          </div>
+          <p style="margin: 0 0 12px; font-size: 12.5px; color: rgba(243,233,216,0.45);">{{ campaignsCountLabel }}</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <sc-for list="{{ campaignCards }}" as="c" hint-placeholder-count="3">
+              <div onClick="{{ c.onOpen }}" style="{{ c.rowStyle }}">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <h2 style="margin: 0; font-family: 'Cinzel', serif; font-size: 14px; color: #f3e9d8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ c.name }}</h2>
+                  <span style="{{ c.badgeStyle }}">{{ c.badgeShort }}</span>
+                </div>
+                <p style="margin: 4px 0 0; font-size: 12px; color: rgba(243,233,216,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ c.description }}</p>
+                <div style="margin-top: 8px; display: flex; align-items: center; gap: 5px;">
+                  <sc-for list="{{ c.fearDots }}" as="dot" hint-placeholder-count="12">
+                    <span style="{{ dot.style }}"></span>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ showEmptyCampaigns }}" hint-placeholder-val="{{ false }}">
+              <div style="border-radius: 10px; border: 1px dashed rgba(245,208,150,0.25); padding: 24px 14px; text-align: center; color: rgba(243,233,216,0.5); font-size: 13px;">No campaigns yet.</div>
+            </sc-if>
+          </div>
+        </div>
+
+        <!-- Detail pane -->
+        <sc-if value="{{ currentCampaign }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius: 14px; border: 1px solid rgba(245,208,150,0.14); background: rgba(22,17,31,0.55); padding: 22px; min-height: 560px;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 4px;">
+              <div style="min-width: 0;">
+                <h2 style="margin: 0; font-family: 'Cinzel', serif; font-size: 20px; color: #f3e9d8;">{{ currentCampaign.name }}</h2>
+                <p style="margin: 4px 0 0; font-size: 13px; color: rgba(243,233,216,0.5); max-width: 560px;">{{ currentCampaign.description }}</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button onClick="{{ startEditCampaign }}" style="padding: 7px 12px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: rgba(243,233,216,0.75); font-size: 12.5px; cursor: pointer;">Edit</button>
+                <button onClick="{{ confirmDeleteCampaign }}" style="padding: 7px 12px; border-radius: 7px; border: 1px solid rgba(196,84,68,0.4); background: transparent; color: #e08a7a; font-size: 12.5px; cursor: pointer;">Delete</button>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 14px; margin: 16px 0 20px; padding: 14px 16px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(245,208,150,0.1);">
+              <span style="{{ currentCampaign.badgeStyle }}">{{ currentCampaign.badgeLabel }}</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button onClick="{{ fearMinus }}" aria-label="Decrease fear" style="width: 28px; height: 28px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 14px; cursor: pointer;">–</button>
+                <span style="min-width: 60px; text-align: center; font-family: 'Cinzel', serif; color: #d9a54e; font-size: 13.5px;">{{ currentCampaign.fear }} Fear</span>
+                <button onClick="{{ fearPlus }}" aria-label="Increase fear" style="width: 28px; height: 28px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 14px; cursor: pointer;">+</button>
+              </div>
+              <button onClick="{{ toggleSession }}" style="{{ sessionButtonStyle }}">{{ sessionButtonLabel }}</button>
+              <sc-if value="{{ currentCampaign.active }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ toggleChat }}" style="margin-left: auto; padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(139,108,240,0.3); background: rgba(139,108,240,0.1); color: #8b6cf0; font-size: 12.5px; cursor: pointer;">{{ chatToggleLabel }}</button>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ chatOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="margin: -8px 0 20px; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(139,108,240,0.2); background: rgba(139,108,240,0.06);">
+                <div style="max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
+                  <sc-for list="{{ chatMessages }}" as="m" hint-placeholder-count="3">
+                    <div style="font-size: 12.5px;"><span style="{{ m.nameStyle }}">{{ m.sender }}</span> <span style="color: rgba(243,233,216,0.75);">{{ m.body }}</span></div>
+                  </sc-for>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <input value="{{ chatDraft }}" onChange="{{ setChatDraft }}" placeholder="Message the table…" style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.16); background: #0f0b17; color: #f3e9d8; font-size: 13px;" />
+                  <button onClick="{{ sendChat }}" style="padding: 0 16px; border-radius: 8px; border: none; background: #d9a54e; color: #1a1208; font-size: 13px; font-weight: 600; cursor: pointer;">Send</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- Sub-nav -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 14px; margin-bottom: 18px; border-bottom: 1px solid rgba(245,208,150,0.1);">
+              <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="8">
+                <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ tabOverview }}" hint-placeholder-val="{{ true }}">
+              <p style="margin: 0 0 8px; font-size: 13.5px; color: rgba(243,233,216,0.6); max-width: 640px;">{{ currentCampaign.description }}</p>
+              <p style="margin: 0; font-size: 12.5px; color: rgba(243,233,216,0.35);">Session room: {{ currentCampaign.roomLabel }}</p>
+            </sc-if>
+
+            <sc-if value="{{ tabParty }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;">
+                <sc-for list="{{ currentCampaign.party }}" as="p" hint-placeholder-count="3">
+                  <div style="border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(255,255,255,0.02); padding: 14px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                      <span style="font-family: 'Cinzel', serif; font-size: 14px; color: #f3e9d8;">{{ p.name }}</span>
+                      <span style="font-size: 11px; color: rgba(243,233,216,0.4);">{{ p.player }}</span>
+                    </div>
+                    <p style="margin: 2px 0 10px; font-size: 12px; color: rgba(243,233,216,0.5);">{{ p.subtitle }}</p>
+                    <div style="display: flex; gap: 10px;">
+                      <div style="flex: 1;"><div style="font-size: 10px; color: rgba(243,233,216,0.35); margin-bottom: 2px;">HP</div><div style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08);"><div style="{{ p.hpBarStyle }}"></div></div></div>
+                      <div style="flex: 1;"><div style="font-size: 10px; color: rgba(243,233,216,0.35); margin-bottom: 2px;">Stress</div><div style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08);"><div style="{{ p.stressBarStyle }}"></div></div></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ currentCampaign.partyEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size: 13px; color: rgba(243,233,216,0.4); text-align: center; padding: 30px 0;">No characters in this party yet.</p>
+              </sc-if>
+            </sc-if>
+
+            <sc-if value="{{ tabPlans }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                <sc-for list="{{ currentCampaign.plans }}" as="pl" hint-placeholder-count="2">
+                  <div style="border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(255,255,255,0.02); padding: 14px;">
+                    <h4 style="margin: 0 0 4px; font-family: 'Cinzel', serif; font-size: 13.5px; color: #f3e9d8;">{{ pl.title }}</h4>
+                    <p style="margin: 0; font-size: 12.5px; color: rgba(243,233,216,0.5);">{{ pl.summary }}</p>
+                  </div>
+                </sc-for>
+              </div>
+              <form onSubmit="{{ addPlan }}" style="display: flex; gap: 10px; max-width: 640px;">
+                <input value="{{ planTitleDraft }}" onChange="{{ setPlanTitleDraft }}" placeholder="Plan title" style="flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.16); background: #0f0b17; color: #f3e9d8; font-size: 13.5px;" />
+                <input value="{{ planSummaryDraft }}" onChange="{{ setPlanSummaryDraft }}" placeholder="Summary" style="flex: 2; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.16); background: #0f0b17; color: #f3e9d8; font-size: 13.5px;" />
+                <button type="submit" style="padding: 0 18px; border-radius: 8px; border: none; background: #d9a54e; color: #1a1208; font-weight: 600; font-size: 13.5px; cursor: pointer;">Add</button>
+              </form>
+            </sc-if>
+
+            <sc-if value="{{ tabMembers }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-width: 420px;">
+                <sc-for list="{{ currentCampaign.members }}" as="mem" hint-placeholder-count="3">
+                  <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(255,255,255,0.02); padding: 10px 14px;">
+                    <span style="font-size: 13.5px; color: #f3e9d8;">{{ mem.username }}</span>
+                    <button onClick="{{ mem.onRemove }}" style="padding: 6px 10px; border-radius: 7px; border: 1px solid rgba(196,84,68,0.4); background: transparent; color: #e08a7a; font-size: 12px; cursor: pointer;">Remove</button>
+                  </div>
+                </sc-for>
+              </div>
+              <form onSubmit="{{ addMember }}" style="display: flex; gap: 8px; max-width: 340px;">
+                <input value="{{ memberDraft }}" onChange="{{ setMemberDraft }}" placeholder="Username" style="flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.16); background: #0f0b17; color: #f3e9d8; font-size: 13.5px;" />
+                <button type="submit" style="padding: 0 16px; border-radius: 8px; border: none; background: #d9a54e; color: #1a1208; font-weight: 600; font-size: 13.5px; cursor: pointer;">Add</button>
+              </form>
+            </sc-if>
+
+            <sc-if value="{{ tabCountdowns }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+                <sc-for list="{{ currentCampaign.countdowns }}" as="cd" hint-placeholder-count="2">
+                  <div style="border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(255,255,255,0.02); padding: 14px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                      <span style="font-size: 13.5px; color: #f3e9d8;">{{ cd.name }}</span>
+                      <span style="font-size: 12px; color: rgba(243,233,216,0.45);">{{ cd.current }} / {{ cd.starting }}</span>
+                    </div>
+                    <div style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); margin-bottom: 10px;"><div style="{{ cd.barStyle }}"></div></div>
+                    <div style="display: flex; gap: 8px;">
+                      <button onClick="{{ cd.onMinus }}" style="flex: 1; padding: 8px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 13px; cursor: pointer;">Tick –</button>
+                      <button onClick="{{ cd.onPlus }}" style="flex: 1; padding: 8px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 13px; cursor: pointer;">Tick +</button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ tabAdversaries }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+                <sc-for list="{{ currentCampaign.adversaryNotes }}" as="an" hint-placeholder-count="2">
+                  <div style="border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(255,255,255,0.02); padding: 14px;">
+                    <h4 style="margin: 0 0 4px; font-family: 'Cinzel', serif; font-size: 13.5px; color: #f3e9d8;">{{ an.name }}</h4>
+                    <p style="margin: 0; font-size: 12.5px; color: rgba(243,233,216,0.55);">{{ an.notes }}</p>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ tabEncounter }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; gap: 20px; align-items: flex-start;">
+                <div style="width: 180px; flex-shrink: 0; border-radius: 10px; border: 1px solid rgba(245,208,150,0.14); background: rgba(255,255,255,0.02); padding: 16px; text-align: center;">
+                  <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(243,233,216,0.4);">Battle Points</div>
+                  <div style="font-family: 'Cinzel', serif; font-size: 24px; color: {{ encounterTotalColor }}; margin-top: 4px;">{{ currentCampaign.encounterUsed }} / {{ currentCampaign.encounterBudget }}</div>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ currentCampaign.encounterPicks }}" as="ep" hint-placeholder-count="2">
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(255,255,255,0.02); padding: 10px 14px;">
+                      <span style="font-size: 13.5px; color: #f3e9d8;">{{ ep.name }}</span>
+                      <span style="font-size: 12px; color: rgba(243,233,216,0.45);">{{ ep.cost }} pts</span>
+                    </div>
+                  </sc-for>
+                  <button onClick="{{ addEncounterPick }}" style="width: 100%; padding: 11px; border-radius: 8px; border: 1px dashed rgba(245,208,150,0.3); background: transparent; color: #d9a54e; font-size: 13.5px; cursor: pointer;">+ Add adversary</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ tabGenerate }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; gap: 8px; margin-bottom: 14px; max-width: 400px;">
+                <button onClick="{{ genName }}" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 13px; cursor: pointer;">Name</button>
+                <button onClick="{{ genNpc }}" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 13px; cursor: pointer;">NPC</button>
+                <button onClick="{{ genLoot }}" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #f3e9d8; font-size: 13px; cursor: pointer;">Loot</button>
+              </div>
+              <sc-if value="{{ generateResult }}" hint-placeholder-val="{{ false }}">
+                <div style="max-width: 460px; border-radius: 10px; border: 1px solid rgba(245,208,150,0.16); background: rgba(255,255,255,0.03); padding: 14px;">
+                  <p style="margin: 0 0 10px; font-size: 13.5px; color: #f3e9d8; white-space: pre-line;">{{ generateResult }}</p>
+                  <div style="display: flex; gap: 8px;">
+                    <button onClick="{{ rerollGenerate }}" style="flex: 1; padding: 9px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: #d9a54e; font-size: 12.5px; cursor: pointer;">Reroll</button>
+                    <button onClick="{{ dismissGenerate }}" style="flex: 1; padding: 9px; border-radius: 7px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: rgba(243,233,216,0.6); font-size: 12.5px; cursor: pointer;">Dismiss</button>
+                  </div>
+                </div>
+              </sc-if>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- Library -->
+    <sc-if value="{{ showLibrary }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin: 0 0 4px; font-family: 'Cinzel', serif; font-size: 18px; color: #f3e9d8;">Library</h1>
+      <p style="margin: 0 0 18px; font-size: 13px; color: rgba(243,233,216,0.5);">Your world's entities</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+        <sc-for list="{{ librarySegments }}" as="seg" hint-placeholder-count="8">
+          <button style="display: flex; align-items: center; justify-content: space-between; text-align: left; border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(22,17,31,0.55); padding: 16px; color: #f3e9d8; font-size: 14px; cursor: pointer;">
+            <span>{{ seg.label }}</span>
+            <span style="color: rgba(243,233,216,0.4); font-size: 13px;">{{ seg.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- Bestiary -->
+    <sc-if value="{{ showBestiary }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin: 0 0 14px; font-family: 'Cinzel', serif; font-size: 18px; color: #f3e9d8;">Bestiary</h1>
+      <input placeholder="Search adversaries…" style="width: 100%; max-width: 360px; padding: 11px 14px; border-radius: 10px; border: 1px solid rgba(245,208,150,0.16); background: #0f0b17; color: #f3e9d8; font-size: 14px; margin-bottom: 16px; display: block;" />
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
+        <sc-for list="{{ bestiaryEntries }}" as="b" hint-placeholder-count="5">
+          <div style="border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(22,17,31,0.55); padding: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-family: 'Cinzel', serif; font-size: 14px; color: #f3e9d8;">{{ b.name }}</span>
+              <span style="font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(139,108,240,0.14); color: #8b6cf0;">Tier {{ b.tier }}</span>
+            </div>
+            <p style="margin: 4px 0 0; font-size: 12px; color: rgba(243,233,216,0.5);">{{ b.type }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- Help -->
+    <sc-if value="{{ showHelp }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin: 0 0 14px; font-family: 'Cinzel', serif; font-size: 18px; color: #f3e9d8;">Help</h1>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;">
+        <sc-for list="{{ helpSections }}" as="h" hint-placeholder-count="4">
+          <div style="border-radius: 10px; border: 1px solid rgba(245,208,150,0.12); background: rgba(22,17,31,0.55); padding: 16px;">
+            <h3 style="margin: 0 0 4px; font-family: 'Cinzel', serif; font-size: 13px; color: #f3e9d8;">{{ h.title }}</h3>
+            <p style="margin: 0; font-size: 12.5px; color: rgba(243,233,216,0.5);">{{ h.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- New campaign modal -->
+  <sc-if value="{{ showNewSheet }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ toggleNewSheet }}" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: flex; align-items: center; justify-content: center;">
+      <div onClick="{{ stopClickPropagation }}" style="width: 100%; max-width: 420px; background: #16111f; border: 1px solid rgba(245,208,150,0.18); border-radius: 14px; padding: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.5);">
+        <h2 style="margin: 0 0 16px; font-family: 'Cinzel', serif; font-size: 16px; color: #f3e9d8;">{{ sheetTitle }}</h2>
+        <form onSubmit="{{ submitCampaign }}" style="display: flex; flex-direction: column; gap: 10px;">
+          <input value="{{ newName }}" onChange="{{ setNewName }}" placeholder="Campaign name" style="padding: 11px 14px; border-radius: 9px; border: 1px solid rgba(245,208,150,0.18); background: #0f0b17; color: #f3e9d8; font-size: 14px;" />
+          <textarea value="{{ newDescription }}" onChange="{{ setNewDescription }}" placeholder="Description (optional)" style="padding: 11px 14px; border-radius: 9px; border: 1px solid rgba(245,208,150,0.18); background: #0f0b17; color: #f3e9d8; font-size: 14px; min-height: 70px;"></textarea>
+          <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <button type="submit" style="flex: 1; padding: 12px; border-radius: 9px; border: none; background: #d9a54e; color: #1a1208; font-weight: 600; font-size: 14px; cursor: pointer;">{{ sheetSubmitLabel }}</button>
+            <button type="button" onClick="{{ toggleNewSheet }}" style="padding: 12px 18px; border-radius: 9px; border: 1px solid rgba(245,208,150,0.2); background: transparent; color: rgba(243,233,216,0.7); font-size: 14px; cursor: pointer;">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const TAB_ORDER = ['campaigns', 'library', 'bestiary', 'help'];
+const TAB_LABELS = { campaigns: 'Campaigns', library: 'Library', bestiary: 'Bestiary', help: 'Help' };
+const DETAIL_TABS = [
+  ['overview', 'Overview'], ['party', 'Party'], ['plans', 'Plans'], ['members', 'Members'],
+  ['countdowns', 'Countdowns'], ['adversaries', 'Adversaries'], ['encounter', 'Encounter'], ['generate', 'Generate'],
+];
+
+function pillStyle(active) {
+  return `padding: 7px 14px; border-radius: 999px; font-size: 12.5px; cursor: pointer; border: 1px solid ${active ? 'rgba(217,165,78,0.5)' : 'rgba(245,208,150,0.14)'}; background: ${active ? 'rgba(217,165,78,0.14)' : 'transparent'}; color: ${active ? '#f2c265' : 'rgba(243,233,216,0.6)'};`;
+}
+function topTabStyle(active) {
+  return `padding: 8px 14px; border-radius: 7px; border: none; background: ${active ? 'rgba(217,165,78,0.14)' : 'transparent'}; color: ${active ? '#f2c265' : 'rgba(243,233,216,0.55)'}; font-size: 13px; font-weight: ${active ? '600' : '400'}; cursor: pointer;`;
+}
+
+class Component extends DCLogic {
+  state = {
+    topTab: 'campaigns',
+    selectedId: 1,
+    detailTab: 'overview',
+    showNewSheet: false,
+    editingId: null,
+    newName: '',
+    newDescription: '',
+    chatOpen: false,
+    chatDraft: '',
+    planTitleDraft: '',
+    planSummaryDraft: '',
+    memberDraft: '',
+    generateResult: null,
+    campaigns: [
+      {
+        id: 1, name: 'The Ember Reach', description: 'A scarred border region where old wards are failing.',
+        fear: 6, active: true, roomLabel: 'session-1', encounterBudget: 12, encounterUsed: 8,
+        party: [
+          { name: 'Kestrel Vane', player: 'brent', subtitle: 'Level 3 Ranger · Human', hp: 0.75, stress: 0.4 },
+          { name: 'Orin Thale', player: 'maya', subtitle: 'Level 3 Seraph · Simiah', hp: 0.5, stress: 0.6 },
+        ],
+        plans: [{ title: 'Into the Ember Reach', summary: 'Party investigates the failing wards at the old watchtower.' }],
+        members: [{ username: 'brent' }, { username: 'maya' }],
+        countdowns: [{ name: 'Ward collapse', current: 3, starting: 6 }],
+        adversaryNotes: [{ name: 'Cinder Warden', notes: 'Opens with a fear surge; weak to cold damage.' }],
+        encounterPicks: [{ name: 'Ash Skulker', cost: 2 }, { name: 'Cinder Warden', cost: 3 }],
+        chat: [{ sender: 'Brent (GM)', body: 'The gate groans open.', violet: false }, { sender: 'Maya', body: 'I ready my bow.', violet: true }],
+      },
+      {
+        id: 2, name: 'Hollow Coast Chronicles', description: 'Smugglers, tide-magic, and a missing lighthouse keeper.',
+        fear: 2, active: false, roomLabel: '—', encounterBudget: 9, encounterUsed: 0,
+        party: [{ name: 'Sable', player: 'jon', subtitle: 'Level 1 Rogue · Fungril', hp: 0.9, stress: 0.1 }],
+        plans: [], members: [{ username: 'jon' }], countdowns: [], adversaryNotes: [], encounterPicks: [], chat: [],
+      },
+      {
+        id: 3, name: 'Whispers Below', description: 'An abandoned mine hums with something ancient.',
+        fear: 0, active: false, roomLabel: '—', encounterBudget: 8, encounterUsed: 0,
+        party: [], plans: [], members: [], countdowns: [], adversaryNotes: [], encounterPicks: [], chat: [],
+      },
+    ],
+  };
+
+  openCampaign = (id) => this.setState({ selectedId: id, detailTab: 'overview', chatOpen: false });
+  setTopTab = (tab) => this.setState({ topTab: tab });
+  setDetailTab = (tab) => this.setState({ detailTab: tab });
+  toggleNewSheet = () => this.setState((s) => ({ showNewSheet: !s.showNewSheet, editingId: null, newName: '', newDescription: '' }));
+  stopClickPropagation = (e) => e.stopPropagation();
+  setNewName = (e) => this.setState({ newName: e.target.value });
+  setNewDescription = (e) => this.setState({ newDescription: e.target.value });
+
+  startEditCampaign = () => {
+    const c = this.state.campaigns.find((x) => x.id === this.state.selectedId);
+    if (!c) return;
+    this.setState({ showNewSheet: true, editingId: c.id, newName: c.name, newDescription: c.description });
+  };
+
+  confirmDeleteCampaign = () => {
+    const id = this.state.selectedId;
+    this.setState((s) => {
+      const remaining = s.campaigns.filter((c) => c.id !== id);
+      return { campaigns: remaining, selectedId: remaining[0]?.id ?? null };
+    });
+  };
+
+  submitCampaign = (e) => {
+    e.preventDefault();
+    const { editingId, newName, newDescription } = this.state;
+    if (!newName.trim()) return;
+    if (editingId) {
+      this.setState((s) => ({
+        campaigns: s.campaigns.map((c) => (c.id === editingId ? { ...c, name: newName, description: newDescription } : c)),
+        showNewSheet: false, editingId: null,
+      }));
+    } else {
+      const id = Math.max(0, ...this.state.campaigns.map((c) => c.id)) + 1;
+      this.setState((s) => ({
+        campaigns: [...s.campaigns, {
+          id, name: newName, description: newDescription, fear: 0, active: false, roomLabel: '—',
+          encounterBudget: 8, encounterUsed: 0, party: [], plans: [], members: [], countdowns: [], adversaryNotes: [], encounterPicks: [], chat: [],
+        }],
+        showNewSheet: false, selectedId: id,
+      }));
+    }
+  };
+
+  updateCurrent = (fn) => this.setState((s) => ({ campaigns: s.campaigns.map((c) => (c.id === s.selectedId ? fn(c) : c)) }));
+
+  fearMinus = () => this.updateCurrent((c) => ({ ...c, fear: Math.max(0, c.fear - 1) }));
+  fearPlus = () => this.updateCurrent((c) => ({ ...c, fear: Math.min(12, c.fear + 1) }));
+  toggleSession = () => this.updateCurrent((c) => ({ ...c, active: !c.active }));
+  toggleChat = () => this.setState((s) => ({ chatOpen: !s.chatOpen }));
+  setChatDraft = (e) => this.setState({ chatDraft: e.target.value });
+  sendChat = () => {
+    const body = this.state.chatDraft.trim();
+    if (!body) return;
+    this.updateCurrent((c) => ({ ...c, chat: [...c.chat, { sender: 'You', body, violet: false }] }));
+    this.setState({ chatDraft: '' });
+  };
+
+  setPlanTitleDraft = (e) => this.setState({ planTitleDraft: e.target.value });
+  setPlanSummaryDraft = (e) => this.setState({ planSummaryDraft: e.target.value });
+  addPlan = (e) => {
+    e.preventDefault();
+    const { planTitleDraft, planSummaryDraft } = this.state;
+    if (!planTitleDraft.trim()) return;
+    this.updateCurrent((c) => ({ ...c, plans: [...c.plans, { title: planTitleDraft, summary: planSummaryDraft }] }));
+    this.setState({ planTitleDraft: '', planSummaryDraft: '' });
+  };
+
+  setMemberDraft = (e) => this.setState({ memberDraft: e.target.value });
+  addMember = (e) => {
+    e.preventDefault();
+    const name = this.state.memberDraft.trim();
+    if (!name) return;
+    this.updateCurrent((c) => ({ ...c, members: [...c.members, { username: name }] }));
+    this.setState({ memberDraft: '' });
+  };
+  removeMember = (username) => this.updateCurrent((c) => ({ ...c, members: c.members.filter((m) => m.username !== username) }));
+
+  tickCountdown = (name, delta) => this.updateCurrent((c) => ({
+    ...c,
+    countdowns: c.countdowns.map((cd) => cd.name === name ? { ...cd, current: Math.max(0, Math.min(cd.starting, cd.current + delta)) } : cd),
+  }));
+
+  addEncounterPick = () => this.updateCurrent((c) => ({
+    ...c,
+    encounterPicks: [...c.encounterPicks, { name: 'Bone Hound', cost: 2 }],
+    encounterUsed: c.encounterUsed + 2,
+  }));
+
+  runGenerate = (kind) => {
+    const results = {
+      name: 'Threnody Ashgrove',
+      npc: 'Corven Ashgrove — retired sellsword, motivation: protect his village, quirk: counts coins under his breath.',
+      loot: 'A tarnished silver locket that hums faintly near running water.',
+    };
+    this.setState({ generateResult: results[kind] });
+  };
+  genName = () => this.runGenerate('name');
+  genNpc = () => this.runGenerate('npc');
+  genLoot = () => this.runGenerate('loot');
+  rerollGenerate = () => this.runGenerate('name');
+  dismissGenerate = () => this.setState({ generateResult: null });
+
+  renderVals() {
+    const s = this.state;
+    const current = s.campaigns.find((c) => c.id === s.selectedId) || null;
+
+    const topTabs = TAB_ORDER.map((tab) => ({
+      label: TAB_LABELS[tab], onClick: () => this.setTopTab(tab), style: topTabStyle(s.topTab === tab),
+    }));
+
+    const campaignCards = s.campaigns.map((c) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description || 'No description.',
+      onOpen: () => this.openCampaign(c.id),
+      rowStyle: `border-radius: 10px; border: 1px solid ${c.id === s.selectedId ? 'rgba(217,165,78,0.5)' : 'rgba(245,208,150,0.12)'}; background: ${c.id === s.selectedId ? 'rgba(217,165,78,0.08)' : 'rgba(22,17,31,0.5)'}; padding: 12px 14px; cursor: pointer;`,
+      badgeShort: c.active ? 'Active' : 'Idle',
+      badgeStyle: `font-size: 10px; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; background: ${c.active ? 'rgba(52,211,153,0.14)' : 'rgba(255,255,255,0.06)'}; color: ${c.active ? '#34d399' : 'rgba(243,233,216,0.5)'};`,
+      fearDots: Array.from({ length: 12 }, (_, i) => ({
+        style: `display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: ${i < c.fear ? '#d9a54e' : 'rgba(255,255,255,0.1)'};`,
+      })),
+    }));
+
+    let currentCampaign = null;
+    let detailTabs = [];
+    if (current) {
+      currentCampaign = {
+        ...current,
+        badgeLabel: current.active ? 'Session active' : 'No active session',
+        badgeStyle: `font-size: 11px; padding: 3px 10px; border-radius: 999px; background: ${current.active ? 'rgba(52,211,153,0.14)' : 'rgba(255,255,255,0.06)'}; color: ${current.active ? '#34d399' : 'rgba(243,233,216,0.5)'};`,
+        partyEmpty: current.party.length === 0,
+        party: current.party.map((p) => ({
+          ...p,
+          hpBarStyle: `height: 100%; border-radius: 3px; width: ${p.hp * 100}%; background: #34d399;`,
+          stressBarStyle: `height: 100%; border-radius: 3px; width: ${p.stress * 100}%; background: #8b6cf0;`,
+        })),
+        countdowns: current.countdowns.map((cd) => ({
+          ...cd,
+          barStyle: `height: 100%; border-radius: 3px; width: ${(cd.current / cd.starting) * 100}%; background: #d9a54e;`,
+          onMinus: () => this.tickCountdown(cd.name, -1),
+          onPlus: () => this.tickCountdown(cd.name, 1),
+        })),
+        members: current.members.map((m) => ({ ...m, onRemove: () => this.removeMember(m.username) })),
+      };
+      detailTabs = DETAIL_TABS.map(([id, label]) => ({
+        id, label, onClick: () => this.setDetailTab(id), style: pillStyle(s.detailTab === id),
+      }));
+    }
+
+    const librarySegments = [
+      { label: 'Continents', count: 1 }, { label: 'Regions', count: 3 }, { label: 'Locations', count: 6 },
+      { label: 'Factions', count: 2 }, { label: 'NPCs', count: 9 }, { label: 'Adversaries', count: 4 },
+      { label: 'Environments', count: 2 }, { label: 'Clues', count: 5 },
+    ];
+    const bestiaryEntries = [
+      { name: 'Cinder Warden', tier: 2, type: 'Standard · Fire' },
+      { name: 'Bone Hound', tier: 1, type: 'Skulk · Undead' },
+      { name: 'Ash Skulker', tier: 2, type: 'Ranged' },
+    ];
+    const helpSections = [
+      { title: 'Starting a session', body: 'Select a campaign, then Start session to open the table room.' },
+      { title: 'Tracking Fear', body: 'Use the +/- controls to adjust the Fear pool.' },
+      { title: 'Countdowns', body: 'Tick a countdown up or down as the fiction demands.' },
+    ];
+
+    return {
+      topTabs,
+      showCampaigns: s.topTab === 'campaigns',
+      showLibrary: s.topTab === 'library',
+      showBestiary: s.topTab === 'bestiary',
+      showHelp: s.topTab === 'help',
+      campaignsCountLabel: `${s.campaigns.length} campaign${s.campaigns.length === 1 ? '' : 's'}`,
+      hasCampaigns: s.campaigns.length > 0,
+      showEmptyCampaigns: s.campaigns.length === 0,
+      campaignCards,
+      librarySegments, bestiaryEntries, helpSections,
+
+      currentCampaign,
+      toggleNewSheet: this.toggleNewSheet,
+      startEditCampaign: this.startEditCampaign,
+      confirmDeleteCampaign: this.confirmDeleteCampaign,
+      fearMinus: this.fearMinus,
+      fearPlus: this.fearPlus,
+      toggleSession: this.toggleSession,
+      sessionButtonLabel: current?.active ? 'End session' : 'Start session',
+      sessionButtonStyle: `margin-left: 4px; padding: 9px 16px; border-radius: 8px; border: ${current?.active ? '1px solid rgba(196,84,68,0.5)' : 'none'}; background: ${current?.active ? 'rgba(196,84,68,0.12)' : '#d9a54e'}; color: ${current?.active ? '#e08a7a' : '#1a1208'}; font-weight: 600; font-size: 13px; cursor: pointer;`,
+      chatToggleLabel: s.chatOpen ? 'Hide table chat' : 'Table chat',
+      toggleChat: this.toggleChat,
+      chatOpen: s.chatOpen,
+      chatMessages: (current?.chat || []).map((m) => ({ ...m, nameStyle: `font-weight: 600; color: ${m.violet ? '#8b6cf0' : '#d9a54e'};` })),
+      chatDraft: s.chatDraft,
+      setChatDraft: this.setChatDraft,
+      sendChat: this.sendChat,
+
+      detailTabs,
+      tabOverview: s.detailTab === 'overview',
+      tabParty: s.detailTab === 'party',
+      tabPlans: s.detailTab === 'plans',
+      tabMembers: s.detailTab === 'members',
+      tabCountdowns: s.detailTab === 'countdowns',
+      tabAdversaries: s.detailTab === 'adversaries',
+      tabEncounter: s.detailTab === 'encounter',
+      tabGenerate: s.detailTab === 'generate',
+
+      planTitleDraft: s.planTitleDraft, setPlanTitleDraft: this.setPlanTitleDraft,
+      planSummaryDraft: s.planSummaryDraft, setPlanSummaryDraft: this.setPlanSummaryDraft,
+      addPlan: this.addPlan,
+      memberDraft: s.memberDraft, setMemberDraft: this.setMemberDraft, addMember: this.addMember,
+      addEncounterPick: this.addEncounterPick,
+      encounterTotalColor: current && current.encounterUsed > current.encounterBudget ? '#e08a7a' : '#f2c265',
+      generateResult: s.generateResult,
+      genName: this.genName, genNpc: this.genNpc, genLoot: this.genLoot,
+      rerollGenerate: this.rerollGenerate, dismissGenerate: this.dismissGenerate,
+
+      showNewSheet: s.showNewSheet,
+      stopClickPropagation: this.stopClickPropagation,
+      sheetTitle: s.editingId ? 'Edit campaign' : 'New campaign',
+      sheetSubmitLabel: s.editingId ? 'Save changes' : 'Create campaign',
+      newName: s.newName, setNewName: this.setNewName,
+      newDescription: s.newDescription, setNewDescription: this.setNewDescription,
+      submitCampaign: this.submitCampaign,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
