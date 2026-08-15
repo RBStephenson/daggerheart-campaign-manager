@@ -222,8 +222,8 @@ room key is `session-{id}` (see [Realtime](#realtime)).
 characters (`PartyMemberOut`: `player_username` + the same `CharacterOut` shape
 player.py returns). Before this, the GM had no visibility into player
 characters at all — no endpoint, no UI. `PartyPanel`
-(`frontend/src/pages/gm/PartyPanel.tsx`) is a toggleable panel per campaign
-card, gated on `player_area_enabled` in the UI (the endpoint itself only needs
+(`frontend/src/pages/gm/PartyPanel.tsx`) is one of the campaign detail pane's
+sub-nav tabs, gated on `player_area_enabled` in the UI (the endpoint itself only needs
 `campaigns_enabled`, but there's nothing to show without characters). A member
 can have more than one character — `Character` has no uniqueness constraint on
 `(campaign_id, player_user_id)` — so the list is per-character, not per-member.
@@ -283,8 +283,8 @@ source-material-is-a-guideline convention). `party_tier` is accepted on the
 loot endpoint but not currently used to filter — the SRD's own loot/consumable
 tables aren't tier-differentiated.
 
-`QuickGeneratePanel` (`frontend/src/pages/gm/QuickGeneratePanel.tsx`) is a
-toggleable panel per campaign card with Name/NPC/Loot buttons, a Reroll that
+`QuickGeneratePanel` (`frontend/src/pages/gm/QuickGeneratePanel.tsx`) is the
+campaign detail pane's Generate sub-nav tab, with Name/NPC/Loot buttons, a Reroll that
 re-generates the active kind, and a Dismiss that clears it — nothing
 persists automatically. For NPC suggestions only, a **Keep** button spawns
 the sketch as a real `Npc` Library entity via the existing Library create
@@ -459,8 +459,8 @@ signature moves, table reminders, anything worth remembering mid-fight.
 Written from the Library's Adversary tab (`LibraryPage`'s `EntityPanel`,
 gated by `SEGMENT_HAS_NOTES` alongside the existing `SEGMENT_HAS_KIND`
 pattern). Surfaced read-only during live play in `AdversaryNotesPanel`
-(`frontend/src/pages/gm/AdversaryNotesPanel.tsx`), a toggleable panel per
-campaign card alongside the party view, gated by `combat_tools_enabled` and
+(`frontend/src/pages/gm/AdversaryNotesPanel.tsx`), one of the campaign detail
+pane's sub-nav tabs alongside the party view, gated by `combat_tools_enabled` and
 searchable by name. No enforced structure or timing template — entirely the
 GM's own notes, entirely optional to use.
 
@@ -512,8 +512,8 @@ resets to `starting_value` and a non-loop one sticks at 0 (both set
 `triggered_at`). The SRD's dynamic-countdown advancement chart (how many ticks a
 given roll result is worth) is GM judgment, not enforced by the API — the GM
 calls the advance endpoint as many times as the table decides. `CountdownsPanel`
-(`frontend/src/pages/gm/CountdownsPanel.tsx`) is a toggleable panel per campaign
-card, mirroring `MembersPanel`'s CRUD layout.
+(`frontend/src/pages/gm/CountdownsPanel.tsx`) is one of the campaign detail pane's
+sub-nav tabs, mirroring `MembersPanel`'s CRUD layout.
 
 | Endpoint | Description |
 | --- | --- |
@@ -562,7 +562,7 @@ adversary, skipping Bruisers/Hordes/Leaders/Solos entirely). Party size is a
 live count of the campaign's characters, not a stored field.
 
 `EncounterBuilderPanel` (`frontend/src/pages/gm/EncounterBuilderPanel.tsx`) is
-a toggleable panel per campaign card: the budget and its adjustment checkboxes
+the campaign detail pane's Encounter sub-nav tab: the budget and its adjustment checkboxes
 up top, a bestiary search-and-add picker below. Each added adversary's cost is
 a client-side lookup (`COST_BY_TYPE` in `frontend/src/api/campaigns.ts`,
 mirroring the backend's table exactly) by its SRD `type` — Minions/Social/
